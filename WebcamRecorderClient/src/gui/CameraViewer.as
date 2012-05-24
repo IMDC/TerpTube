@@ -1,7 +1,10 @@
 package gui
 {
+	import events.CameraReadyEvent;
+	
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.IEventDispatcher;
 	import flash.events.StatusEvent;
 	import flash.events.TimerEvent;
 	import flash.media.Camera;
@@ -10,11 +13,13 @@ package gui
 	
 	import flashx.textLayout.formats.BackgroundColor;
 
-	public class CameraViewer extends Sprite
+	public class CameraViewer extends Sprite implements IEventDispatcher
 	{
 		private var camera:Camera;
 		private var video:Video;
 		private var hasVideo:Boolean;
+		public static const CAMERA_READY_STRING:String = "camera ready";
+		public static const MICROPHONE_READY_STRING:String = "microphone ready";
 		
 		public function CameraViewer()
 		{
@@ -48,6 +53,7 @@ package gui
 			else 
 			{ 
 				trace("Connected to camera");
+				this.dispatchEvent(new CameraReadyEvent(CAMERA_READY_STRING, camera));
 				// Resize Video object to match camera settings and  
 				// add the video to the display list. 
 				//video.width = camera.width; 

@@ -18,7 +18,7 @@ package
 
 	public class WebcamRecorderClient extends Sprite
 	{
-		private var netConnection:NetConnection;
+		private var _netConnection:NetConnection;
 		
 		public function WebcamRecorderClient()
 		{
@@ -42,16 +42,24 @@ package
 			netConnection.connect("rtmp://imdc.ca/webcamRecorder", true);
 			
 			//close the connection
-			netConnection.close();
+//			netConnection.close();
+			
+			var cameraControlsListener:CameraControlsListener = new CameraControlsListener(netConnection);
 			
 			var cameraViewer:CameraViewer = new CameraViewer();
+			cameraViewer.addEventListener(CameraViewer.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
 			cameraViewer.x = 10;
 			cameraViewer.y = 10;
 			addChild(cameraViewer);
+			
 			var cameraControlsPanel:CameraControlsPanel = new CameraControlsPanel();
 			cameraControlsPanel.x = 10;
 			cameraControlsPanel.y = 260;
 			addChild(cameraControlsPanel);
+			cameraControlsPanel.fileName = "testRecording.mp4";
+			
+			cameraControlsPanel.addControlsListener(cameraControlsListener);
+			
 		}
 		
 		private function netStatus(event:NetStatusEvent):void
@@ -61,7 +69,23 @@ package
 			{
 				//trace reject message
 				trace(event.info.application);
+				return;
+			}
+			if (event.info.code=="NetConnection.Connect.Success")
+			{
+				
 			}
 		}
+
+		public function get netConnection():NetConnection
+		{
+			return _netConnection;
+		}
+
+		public function set netConnection(value:NetConnection):void
+		{
+			_netConnection = value;
+		}
+
 	}
 }
