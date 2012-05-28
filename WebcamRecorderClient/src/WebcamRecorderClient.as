@@ -48,6 +48,7 @@ package
 			
 			var cameraViewer:CameraViewer = new CameraViewer();
 			cameraViewer.addEventListener(CameraViewer.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
+			cameraViewer.addEventListener(CameraViewer.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
 			cameraViewer.x = 10;
 			cameraViewer.y = 10;
 			addChild(cameraViewer);
@@ -56,7 +57,7 @@ package
 			cameraControlsPanel.x = 10;
 			cameraControlsPanel.y = 260;
 			addChild(cameraControlsPanel);
-			cameraControlsPanel.fileName = "testRecording.mp4";
+			cameraControlsPanel.fileName = "testRecording";
 			
 			cameraControlsPanel.addControlsListener(cameraControlsListener);
 			
@@ -65,6 +66,12 @@ package
 		private function netStatus(event:NetStatusEvent):void
 		{
 			trace (event.info.code);
+			if (event.info.code=="NetConnection.Connect.Failed")
+			{
+				//trace reject message
+				trace(event.info.application);
+				return;
+			}
 			if (event.info.code=="NetConnection.Connect.Rejected")
 			{
 				//trace reject message
@@ -73,7 +80,7 @@ package
 			}
 			if (event.info.code=="NetConnection.Connect.Success")
 			{
-				
+				trace("Sucessfully connected");
 			}
 		}
 

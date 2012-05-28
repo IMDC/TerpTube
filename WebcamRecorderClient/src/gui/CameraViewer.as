@@ -1,6 +1,7 @@
 package gui
 {
 	import events.CameraReadyEvent;
+	import events.MicrophoneReadyEvent;
 	
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -8,6 +9,7 @@ package gui
 	import flash.events.StatusEvent;
 	import flash.events.TimerEvent;
 	import flash.media.Camera;
+	import flash.media.Microphone;
 	import flash.media.Video;
 	import flash.utils.Timer;
 	
@@ -18,6 +20,8 @@ package gui
 		private var camera:Camera;
 		private var video:Video;
 		private var hasVideo:Boolean;
+		private var microphone:Microphone;
+		
 		public static const CAMERA_READY_STRING:String = "camera ready";
 		public static const MICROPHONE_READY_STRING:String = "microphone ready";
 		
@@ -26,7 +30,6 @@ package gui
 			graphics.beginFill( 0xffffff, 1.0 );
 			graphics.drawRect( 0, 0, 320, 240 );
 			graphics.endFill();
-//	Security.showSettings(SecurityPanel.PRIVACY);
 			if (!cameraExists())
 			{
 				return;	
@@ -37,14 +40,37 @@ package gui
 				trace("Cannot get Camera");
 				return;
 			}
-			camera.addEventListener(StatusEvent.STATUS, statusHandler); 
+			camera.addEventListener(StatusEvent.STATUS, cameraStatusHandler); 
 			
 			camera.setMode(640, 480, 30, true);
+			camera.setQuality(0, 100);
+			camera.setKeyFrameInterval(5);
+			
+			microphone = Microphone.getMicrophone();
+			if (microphone==null)
+			{
+				trace("Cannot get Microphone");
+//				return;
+			}
+//			microphone.addEventListener(StatusEvent.STATUS, microphoneStatusHandler); 
+			microphone.setUseEchoSuppression(true);
+			microphone.setLoopBack(false);
+			microphone.rate = 22;
 			video = new Video();
 			video.attachCamera(camera);
 		}
-		
-		private function statusHandler(event:StatusEvent):void 
+//		private function microphoneStatusHandler(event:StatusEvent):void
+//		{
+//			if (microphone.muted)
+//			{
+//				trace("Unable to connect to microphone");
+//			}
+//			else
+//			{
+//				this.dispatchEvent(new MicrophoneReadyEvent(MICROPHONE_READY_STRING, microphone));
+//			}
+//		}
+		private function cameraStatusHandler(event:StatusEvent):void 
 		{ 
 			if (camera.muted) 
 			{ 
@@ -54,6 +80,7 @@ package gui
 			{ 
 				trace("Connected to camera");
 				this.dispatchEvent(new CameraReadyEvent(CAMERA_READY_STRING, camera));
+				this.dispatchEvent(new MicrophoneReadyEvent(MICROPHONE_READY_STRING,microphone));
 				// Resize Video object to match camera settings and  
 				// add the video to the display list. 
 				//video.width = camera.width; 
@@ -64,13 +91,12 @@ package gui
 				addChild(video); 
 			} 
 			// Remove the status event listener. 
-			camera.removeEventListener(StatusEvent.STATUS, statusHandler); 
+			camera.removeEventListener(StatusEvent.STATUS, cameraStatusHandler); 
 		}
 		
 		private function cameraAdded(event:Event):void
 		{
 			trace("Camera added to stage");
-			
 		}
 		
 		
