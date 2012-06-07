@@ -19,6 +19,8 @@ package
 	public class WebcamRecorderClient extends Sprite
 	{
 		private var _netConnection:NetConnection;
+		private var _cameraControlsListener:CameraControlsListener 
+		private static var _textField:TextField;
 		
 		public function WebcamRecorderClient()
 		{
@@ -31,6 +33,7 @@ package
 			trace("Creating a new instance");
 			//new NetConnection
 			netConnection = new NetConnection();
+			netConnection.client = this;
 			
 			//set encoding to old amf;
 			netConnection.objectEncoding = ObjectEncoding.AMF0;
@@ -38,13 +41,13 @@ package
 			//netstatus event listening
 			netConnection.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			
-			//connect to red5, passing false as parameter
+			//connect to red5
 			netConnection.connect("rtmp://imdc.ca/webcamRecorder", true);
 			
 			//close the connection
 //			netConnection.close();
 			
-			var cameraControlsListener:CameraControlsListener = new CameraControlsListener(netConnection);
+			cameraControlsListener = new CameraControlsListener(netConnection);
 			
 			var cameraViewer:CameraViewer = new CameraViewer();
 			cameraViewer.addEventListener(CameraViewer.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
@@ -55,12 +58,27 @@ package
 			
 			var cameraControlsPanel:CameraControlsPanel = new CameraControlsPanel();
 			cameraControlsPanel.x = 10;
-			cameraControlsPanel.y = 260;
+			cameraControlsPanel.y = 255;
 			addChild(cameraControlsPanel);
-			cameraControlsPanel.fileName = "testRecording";
+//			cameraControlsPanel.fileName = "testRecording";
 			
 			cameraControlsPanel.addControlsListener(cameraControlsListener);
 			
+			textField = new TextField();
+			textField.x = 340;
+			textField.y = 10;
+			textField.width = 200;
+			textField.height = 240;
+			textField.wordWrap = true;
+			textField.border = true;
+			textField.borderColor = 0x0011ff;
+			addChild(textField);
+			
+		}
+		
+		public static function appendMessage(message:String):void
+		{
+			textField.appendText(message+"\n");
 		}
 		
 		private function netStatus(event:NetStatusEvent):void
@@ -70,17 +88,20 @@ package
 			{
 				//trace reject message
 				trace(event.info.application);
+				appendMessage("Connected Failed. Reason:" +event.info.application);
 				return;
 			}
 			if (event.info.code=="NetConnection.Connect.Rejected")
 			{
 				//trace reject message
 				trace(event.info.application);
+				appendMessage("Connection Rejected. Reason:" +event.info.application);
 				return;
 			}
 			if (event.info.code=="NetConnection.Connect.Success")
 			{
 				trace("Sucessfully connected");
+				appendMessage("Connected to server");
 			}
 		}
 
@@ -93,6 +114,39 @@ package
 		{
 			_netConnection = value;
 		}
+		
+//		public function recordingStarted(clientID:String):void
+//		{
+//			trace("Recording started function in main")
+//			trace("Client id:"+clientID);
+//		}
+//		
+//		public function recordingStopped(clientID:String):void
+//		{
+//			trace("Recording stopped function in main")
+//			trace("Client id:"+clientID);
+//		}
+
+		public function get cameraControlsListener():CameraControlsListener
+		{
+			return _cameraControlsListener;
+		}
+
+		public function set cameraControlsListener(value:CameraControlsListener):void
+		{
+			_cameraControlsListener = value;
+		}
+
+		public static function get textField():TextField
+		{
+			return _textField;
+		}
+
+		public static function set textField(value:TextField):void
+		{
+			_textField = value;
+		}
+
 
 	}
 }

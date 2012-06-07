@@ -15,6 +15,9 @@ package listeners
 	import flash.net.NetStream;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	
+	import gui.CameraControlsPanel;
+	import gui.RecordButton;
 
 	public class CameraControlsListener 
 	{
@@ -25,15 +28,21 @@ package listeners
 		private var netStream:NetStream;
 		private var fileName:String;
 		private var flushTimer:Timer;
+		private var recording:Boolean;
+		private var fileNameResponder:Responder;
+		private var recordButton:RecordButton;
 		
 		public function CameraControlsListener(nc:NetConnection)
 		{
 			netConnection = nc;
 			responder = new Responder(result, status);
+			fileNameResponder = new Responder(fileNameResult, fileNameStatus);
+			recording = false;
 		}
 		
 		public function record(event:RecordingEvent):void
 		{
+			//FIXME call the server function to get a client stream
 			if (netStream==null)
 			{
 				netStream = new NetStream(netConnection);
@@ -51,9 +60,9 @@ package listeners
 			var h264Settings:H264VideoStreamSettings = new H264VideoStreamSettings();
 			h264Settings.setProfileLevel(H264Profile.MAIN, H264Level.LEVEL_3);
 			netStream.videoStreamSettings = h264Settings;
-			fileName = event.fileName;
+//			fileName = event.fileName;
 			netStream.addEventListener(NetStatusEvent.NET_STATUS, onRecStreamStatus);
-			netStream.publish(event.fileName, "live");
+			netConnection.call("generateStream", fileNameResponder);
 		}
 		
 		private function onRecStreamStatus(event:NetStatusEvent):void
@@ -61,18 +70,23 @@ package listeners
 			trace (event.info.code);
 			if ( event.info.code == "NetStream.Publish.Start" )
 			{
+				recording = true;
 				netConnection.call("record", responder, fileName);
 			}
 			
 		}
+		
 		public function stopRecording(event:RecordingEvent):void
 		{
-			netStream.pause();
-			netStream.attachCamera(null);
-			netStream.attachAudio(null);
+			recordButton = (RecordButton)(event.target);
+				recordButton.enabled = false;
 			flushTimer = new Timer(100, 0);
 			flushTimer.addEventListener(TimerEvent.TIMER, bufferChecker);
 			flushTimer.start();
+			netStream.pause();
+			netStream.attachCamera(null);
+			netStream.attachAudio(null);
+			WebcamRecorderClient.appendMessage("Recording stopped. Video is uploading...");
 		}
 		
 		private function bufferChecker(event:TimerEvent):void
@@ -82,10 +96,15 @@ package listeners
 				trace("Buffer cleared");
 				flushTimer.stop();
 				flushTimer = null;
+				recording = false;
 				netConnection.call("stopRecording", responder, fileName);
 				netStream.close();
 				netStream = null;
 				trace("Recording stopped");
+				WebcamRecorderClient.appendMessage("Uploading finished.");
+				recordButton.enabled  = true;
+//				(CameraControlsPanel)(event.target).setRecordingButtonEnabled(true);
+			
 			}
 			else
 			{
@@ -93,8 +112,30 @@ package listeners
 			}
 		}
 		
+		private function fileNameResult(obj:Object):void
+		{
+			fileName = obj.toString();
+			netStream.publish(fileName, "live");
+			//	WebcamRecorderClient.appendMessage("Recording started to file: "+obj.toString()+".flv");
+//			}
+			trace("Result is:"+obj);
+		}
+		
+		private function fileNameStatus(obj:Object):void
+		{
+			for (var i:Object in obj)
+			{
+				trace("Status: " + i + " : "+obj[i]);
+			}
+		}
+		
 		private function result(obj:Object):void
 		{
+			if (recording)
+			{
+				obj.toString();
+				WebcamRecorderClient.appendMessage("Recording started to file: "+obj.toString()+".flv");
+			}
 			trace("Result is:"+obj);
 		}
 		
