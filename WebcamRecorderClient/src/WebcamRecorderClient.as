@@ -1,4 +1,4 @@
-package
+package 
 {
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -7,10 +7,10 @@ package
 	import flash.net.ObjectEncoding;
 	import flash.text.TextField;
 	
-	import gui.CameraControlsPanel;
-	import gui.CameraViewer;
-	
-	import listeners.CameraControlsListener;
+	import recorder.gui.CameraControlsPanel;
+	import recorder.gui.CameraViewer;
+	import recorder.listeners.CameraControlsListener;
+	import recorder.model.CameraMicSource;
 
 	[SWF(backgroundColor="0xcc99cc")]
 	[SWF(width=640)]
@@ -42,7 +42,7 @@ package
 			netConnection.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			
 			//connect to red5
-			netConnection.connect("rtmp://imdc.ca/webcamRecorder", true);
+			netConnection.connect("rtmp://imdc.ca/webcamRecorder/", true);
 			
 			//close the connection
 //			netConnection.close();
@@ -50,12 +50,13 @@ package
 			cameraControlsListener = new CameraControlsListener(netConnection);
 			
 			var cameraViewer:CameraViewer = new CameraViewer();
-			cameraViewer.addEventListener(CameraViewer.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
-			cameraViewer.addEventListener(CameraViewer.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
+			cameraViewer.addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
+			cameraViewer.addEventListener(CameraMicSource.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
 			cameraViewer.x = 10;
 			cameraViewer.y = 10;
 			addChild(cameraViewer);
 			
+			//FIXME need to add eventListeners for the CAMERA and MICROPHONE events
 			var cameraControlsPanel:CameraControlsPanel = new CameraControlsPanel();
 			cameraControlsPanel.x = 10;
 			cameraControlsPanel.y = 255;
