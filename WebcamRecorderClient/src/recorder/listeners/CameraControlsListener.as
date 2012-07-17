@@ -1,9 +1,5 @@
 package recorder.listeners
 {
-	import recorder.events.CameraReadyEvent;
-	import recorder.events.MicrophoneReadyEvent;
-	import recorder.events.RecordingEvent;
-	
 	import flash.events.NetStatusEvent;
 	import flash.events.TimerEvent;
 	import flash.media.Camera;
@@ -16,8 +12,12 @@ package recorder.listeners
 	import flash.net.Responder;
 	import flash.utils.Timer;
 	
+	import recorder.events.CameraReadyEvent;
+	import recorder.events.MicrophoneReadyEvent;
+	import recorder.events.RecordingEvent;
 	import recorder.gui.CameraControlsPanel;
 	import recorder.gui.RecordButton;
+	import recorder.model.CameraMicSource;
 
 	public class CameraControlsListener 
 	{
@@ -25,7 +25,8 @@ package recorder.listeners
 		private var responder:Responder;
 		private var camera:Camera;
 		private var microphone:Microphone;
-		private var netStream:NetStream;
+		private var cameraNetStream:NetStream;
+		private var audioNetStream:NetStream;
 		private var fileName:String;
 		private var flushTimer:Timer;
 		private var recording:Boolean;
@@ -44,27 +45,31 @@ package recorder.listeners
 		public function record(event:RecordingEvent):void
 		{
 			//FIXME call the server function to get a client stream
-			if (netStream==null)
+			if (cameraNetStream==null)
 			{
-				netStream = new NetStream(netConnection);
-				if (camera!=null)
-				{
-					netStream.attachCamera(camera);
-				}
-				if (microphone!=null)
-				{
-					trace("Microphone ready");
-					netStream.attachAudio(microphone);
-				}
+				cameraNetStream = CameraMicSource.getInstance().getCameraStream(netConnection);
+//				if (camera!=null)
+//				{
+//					netStream.attachCamera(camera);
+//				}
+//				if (microphone!=null)
+//				{
+//					trace("Microphone ready");
+//					netStream.attachAudio(microphone);
+//				}
 			}
-			netStream.bufferTime = 60;
+//			netStream.bufferTime = 60;
 			var h264Settings:H264VideoStreamSettings = new H264VideoStreamSettings();
 			h264Settings.setProfileLevel(H264Profile.MAIN, H264Level.LEVEL_3);
 			h264Settings.setQuality(0, 100);
-			netStream.videoStreamSettings = h264Settings;
-			netStream.videoReliable = true;
+			cameraNetStream.videoStreamSettings = h264Settings;
+//			netStream.videoReliable = true;
 //			fileName = event.fileName;
-			netStream.addEventListener(NetStatusEvent.NET_STATUS, onRecStreamStatus);
+			cameraNetStream.addEventListener(NetStatusEvent.NET_STATUS, onRecStreamStatus);
+			if (audioNetStream == null)
+			{
+				audioNetStream = CameraMicSource.getInstance().getAudioStream(netConnection);				
+			}
 			netConnection.call("generateStream", fileNameResponder);
 		}
 		
@@ -86,23 +91,23 @@ package recorder.listeners
 			flushTimer = new Timer(100, 0);
 			flushTimer.addEventListener(TimerEvent.TIMER, bufferChecker);
 			flushTimer.start();
-			netStream.pause();
-			netStream.attachCamera(null);
-			netStream.attachAudio(null);
+			cameraNetStream.pause();
+			cameraNetStream.attachCamera(null);
+			cameraNetStream.attachAudio(null);
 			WebcamRecorderClient.appendMessage("Recording stopped. Video is uploading...");
 		}
 		
 		private function bufferChecker(event:TimerEvent):void
 		{
-			if (netStream.bufferLength == 0)
+			if (cameraNetStream.bufferLength == 0)
 			{
 				trace("Buffer cleared");
 				flushTimer.stop();
 				flushTimer = null;
 				recording = false;
 				netConnection.call("stopRecording", responder, fileName);
-				netStream.close();
-				netStream = null;
+				cameraNetStream.close();
+				cameraNetStream = null;
 				trace("Recording stopped");
 				WebcamRecorderClient.appendMessage("Uploading finished.");
 				recordButton.enabled  = true;
@@ -111,14 +116,14 @@ package recorder.listeners
 			}
 			else
 			{
-				trace("Remaining buffer:"+ netStream.bufferLength);
+				trace("Remaining buffer:"+ cameraNetStream.bufferLength);
 			}
 		}
 		
 		private function fileNameResult(obj:Object):void
 		{
 			fileName = obj.toString();
-			netStream.publish(fileName, "live");
+			cameraNetStream.publish(fileName, "live");
 			//	WebcamRecorderClient.appendMessage("Recording started to file: "+obj.toString()+".flv");
 //			}
 			trace("Result is:"+obj);
@@ -152,24 +157,24 @@ package recorder.listeners
 		
 		public function cameraReady(event:CameraReadyEvent):void
 		{
-			if (netStream==null)
+			if (cameraNetStream==null)
 			{
-				netStream = new NetStream(netConnection);
+				cameraNetStream = new NetStream(netConnection);
 			}
 			trace("Camera ready");
 			camera = event.camera;
-			netStream.attachCamera(camera);
+			cameraNetStream.attachCamera(camera);
 		}
 		
 		public function microphoneReady(event:MicrophoneReadyEvent):void
 		{
-			if (netStream==null)
+			if (cameraNetStream==null)
 			{
-				netStream = new NetStream(netConnection);
+				cameraNetStream = new NetStream(netConnection);
 			}
 			trace("Microphone ready");
 			microphone = event.microphone;
-			netStream.attachAudio(microphone);
+			cameraNetStream.attachAudio(microphone);
 		}
 		
 	}

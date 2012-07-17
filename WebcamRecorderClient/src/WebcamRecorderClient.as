@@ -50,8 +50,8 @@ package
 			cameraControlsListener = new CameraControlsListener(netConnection);
 			
 			var cameraViewer:CameraViewer = new CameraViewer();
-			cameraViewer.addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
-			cameraViewer.addEventListener(CameraMicSource.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
+			CameraMicSource.getInstance().addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
+			CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
 			cameraViewer.x = 10;
 			cameraViewer.y = 10;
 			addChild(cameraViewer);

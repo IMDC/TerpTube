@@ -172,7 +172,7 @@ package recorder.model
 			if (microphone==null)
 			{
 				trace("Cannot get Microphone");
-				WebcamRecorderClient.appendMessage("Camera is in use in another application");
+				WebcamRecorderClient.appendMessage("Microphone is in use in another application");
 				return;
 			}
 			microphone.addEventListener(StatusEvent.STATUS, microphoneStatusHandler); 
@@ -309,6 +309,7 @@ package recorder.model
 					cameraStream.attachCamera(camera);
 				}
 			}
+			cameraStream.bufferTime = 60;
 			if (cameraAccess)
 				this.dispatchEvent(new CameraReadyEvent(CAMERA_READY_STRING, camera));
 			return cameraStream;
@@ -331,6 +332,7 @@ package recorder.model
 					audioStream.attachAudio(microphone);
 				}
 			}
+			audioStream.bufferTime = 60;
 			
 			if (microphoneAccess)
 				this.dispatchEvent(new MicrophoneReadyEvent(MICROPHONE_READY_STRING, microphone));
