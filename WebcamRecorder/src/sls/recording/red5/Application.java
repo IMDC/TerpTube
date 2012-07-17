@@ -1,7 +1,6 @@
 package sls.recording.red5;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,7 +8,6 @@ import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
-import org.red5.server.api.ScopeUtils;
 import org.red5.server.stream.ClientBroadcastStream;
 
 public class Application extends ApplicationAdapter
@@ -20,6 +18,7 @@ public class Application extends ApplicationAdapter
 																		.getLog(Application.class);
 	private static ArrayList<String>	generatedLists			= new ArrayList<String>();
 	private static ArrayList<String>	generatedListsClient	= new ArrayList<String>();
+	private static final String			ALLOWED_CHARACTERS		= "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	/*
 	 * (non-Javadoc)
@@ -93,16 +92,29 @@ public class Application extends ApplicationAdapter
 		super.stop(scope);
 	}
 
+	/**
+	 * Generates a new unique stream ID
+	 * 
+	 * @return the new stream ID
+	 */
 	private static String getNewStream()
 	{
 		String generated = "";
 		for (int i = 0; i < 20; i++)
 		{
-			generated += (char) ((int) Math.random() * 52 + 40);
+			generated += ALLOWED_CHARACTERS.charAt((int) Math.round(Math
+					.random() * (ALLOWED_CHARACTERS.length() - 1)));
 		}
 		return generated;
 	}
 
+	/**
+	 * Frees a stream that is no longer used. Happens when the recording is
+	 * finished
+	 * 
+	 * @param stream
+	 *            the stream to be released
+	 */
 	public static void releaseStream(String stream)
 	{
 		if (generatedLists.contains(stream))
@@ -128,6 +140,7 @@ public class Application extends ApplicationAdapter
 	}
 
 	/**
+	 * Records a stream with the specified filename preference to use as a base
 	 * 
 	 * @param fileName
 	 * @return the actual fileName of the recording
@@ -151,7 +164,8 @@ public class Application extends ApplicationAdapter
 		{
 			ClientBroadcastStream stream = (ClientBroadcastStream) this
 					.getBroadcastStream(scope, fileName);
-			fileName = clientId + "_" + fileName;
+			fileName = clientId + "_" + fileName + "_"
+					+ System.currentTimeMillis();
 			/*
 			 * while (new File(getStreamDirectory(scope)+newFileName +
 			 * suffix+".flv").exists()) { suffix++; } fileName = newFileName +
@@ -179,6 +193,13 @@ public class Application extends ApplicationAdapter
 		return fileName;
 	}
 
+	/**
+	 * Stops the recording of a specified stream
+	 * 
+	 * @param fileName
+	 *            the stream name
+	 * @return
+	 */
 	public String stopRecording(String fileName)
 	{
 		IConnection conn = Red5.getConnectionLocal();
@@ -190,6 +211,7 @@ public class Application extends ApplicationAdapter
 		}
 		ClientBroadcastStream stream = (ClientBroadcastStream) this
 				.getBroadcastStream(scope, fileName);
+//		stream.
 		stream.stopRecording();
 		releaseStream(fileName);
 		// ServiceUtils.invokeOnConnection(conn, "recordingStopped",
@@ -197,6 +219,15 @@ public class Application extends ApplicationAdapter
 		return "Recording stopped for file:" + fileName;
 	}
 
+	/**
+	 * Locate the streaming scope for this client and stream ID
+	 * 
+	 * @param conn
+	 *            the connection
+	 * @param fileName
+	 *            the stream ID
+	 * @return the streaming scope
+	 */
 	private IScope getRecordingScope(IConnection conn, String fileName)
 	{
 		for (IScope scope : conn.getClient().getScopes())

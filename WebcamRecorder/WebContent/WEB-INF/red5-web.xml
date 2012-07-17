@@ -25,10 +25,10 @@
 
 	<bean id="streamFilenameGenerator" class="sls.recording.red5.FilenameGenerator">
 	<property name="playbackPath">
-		<value>/home/martin/public_html/webcamrecord/streams</value>
+		<value>/home/martin/public_html/webcamrecord/streams/</value>
 	</property>
 	<property name="recordPath">
-		<value>/home/martin/public_html/webcamrecord/streams</value>
+		<value>/home/martin/public_html/webcamrecord/streams/</value>
 	</property>
 </bean>
     <!-- this will support calling methods through "myhandler.<methodName>" -->
