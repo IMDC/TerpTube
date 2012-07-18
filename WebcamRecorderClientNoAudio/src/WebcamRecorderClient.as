@@ -20,6 +20,7 @@ package
 	{
 		private var _netConnection:NetConnection;
 		private var _cameraControlsListener:CameraControlsListener 
+		private var debug:Boolean = true;
 		private static var _textField:TextField;
 		
 		public function WebcamRecorderClient()
@@ -42,16 +43,14 @@ package
 			netConnection.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			
 			//connect to red5
-			netConnection.connect("rtmp://imdc.ca/webcamRecorder/", true);
+			netConnection.connect("rtmp://imdc.ca/webcamRecorderNoAudio/", true);
 			
 			//close the connection
 //			netConnection.close();
 			
-			cameraControlsListener = new CameraControlsListener(netConnection);
 			
 			var cameraViewer:CameraViewer = new CameraViewer();
-			CameraMicSource.getInstance().addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
-			CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
+			//CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
 			cameraViewer.x = 10;
 			cameraViewer.y = 10;
 			addChild(cameraViewer);
@@ -62,8 +61,11 @@ package
 			cameraControlsPanel.y = 255;
 			addChild(cameraControlsPanel);
 //			cameraControlsPanel.fileName = "testRecording";
+			cameraControlsListener = new CameraControlsListener(netConnection, cameraControlsPanel);
+			CameraMicSource.getInstance().addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
 			
 			cameraControlsPanel.addControlsListener(cameraControlsListener);
+			
 			
 			textField = new TextField();
 			textField.x = 340;
@@ -73,6 +75,8 @@ package
 			textField.wordWrap = true;
 			textField.border = true;
 			textField.borderColor = 0x0011ff;
+			if (!debug)
+				textField.visible = false;
 			addChild(textField);
 			
 		}

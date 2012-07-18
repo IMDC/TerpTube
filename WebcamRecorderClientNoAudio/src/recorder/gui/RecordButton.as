@@ -42,7 +42,7 @@ package recorder.gui
 		 * Toggles the recording state of the button
 		 * 
 		 */
-		private function toggleRecording(event:MouseEvent):void
+		public function toggleRecording(event:MouseEvent=null):void
 		{
 			this.getChildAt(0).visible = !this.getChildAt(0).visible;
 			this.getChildAt(1).visible = !this.getChildAt(0).visible;

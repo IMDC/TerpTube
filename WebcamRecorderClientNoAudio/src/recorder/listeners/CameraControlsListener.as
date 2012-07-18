@@ -21,6 +21,9 @@ package recorder.listeners
 
 	public class CameraControlsListener 
 	{
+		public static const MAX_RECORDING_TIME:Number = 60000; //Maximum recording time in milliseconds
+		
+		
 		private var netConnection:NetConnection;
 		private var responder:Responder;
 		private var camera:Camera;
@@ -32,9 +35,13 @@ package recorder.listeners
 		private var recording:Boolean;
 		private var fileNameResponder:Responder;
 		private var recordButton:RecordButton;
+		private var recordingTimer:Timer;
+		private var recordingStartTime:Number;
+		private var cameraControlsPanel:CameraControlsPanel;
 		
-		public function CameraControlsListener(nc:NetConnection)
+		public function CameraControlsListener(nc:NetConnection, cPanel:CameraControlsPanel)
 		{
+			cameraControlsPanel = cPanel;
 			netConnection = nc;
 			responder = new Responder(result, status);
 			fileNameResponder = new Responder(fileNameResult, fileNameStatus);
@@ -44,6 +51,7 @@ package recorder.listeners
 		//FIXME NEED TO GET STREAMS FROM CAMERAMICSOURCE CLASS
 		public function record(event:RecordingEvent):void
 		{
+			recordButton = (RecordButton)(event.target);
 			//FIXME call the server function to get a client stream
 			if (cameraNetStream==null)
 			{
@@ -66,10 +74,10 @@ package recorder.listeners
 //			netStream.videoReliable = true;
 //			fileName = event.fileName;
 			cameraNetStream.addEventListener(NetStatusEvent.NET_STATUS, onRecStreamStatus);
-			if (audioNetStream == null)
-			{
-				audioNetStream = CameraMicSource.getInstance().getAudioStream(netConnection);				
-			}
+//			if (audioNetStream == null)
+//			{
+//				audioNetStream = CameraMicSource.getInstance().getAudioStream(netConnection);				
+//			}
 			netConnection.call("generateStream", fileNameResponder);
 		}
 		
@@ -80,14 +88,30 @@ package recorder.listeners
 			{
 				recording = true;
 				netConnection.call("record", responder, fileName);
+				recordingStartTime = new Date().time;
+				recordingTimer = new Timer(200, 0);
+				recordingTimer.addEventListener(TimerEvent.TIMER, updateTime);
+				recordingTimer.start();
 			}
 			
 		}
 		
+		private function updateTime(event:TimerEvent):void
+		{
+			var currentTime:Number = new Date().time - recordingStartTime;
+			cameraControlsPanel.setTime(currentTime);
+			if (currentTime >= MAX_RECORDING_TIME)
+			{
+				recordButton.toggleRecording();
+			}
+		}
+		
 		public function stopRecording(event:RecordingEvent):void
 		{
-			recordButton = (RecordButton)(event.target);
-				recordButton.enabled = false;
+			//recordButton = (RecordButton)(event.target);
+			recordButton.enabled = false;
+			recordingTimer.stop();
+			recordingTimer = null;
 			flushTimer = new Timer(100, 0);
 			flushTimer.addEventListener(TimerEvent.TIMER, bufferChecker);
 			flushTimer.start();
@@ -168,13 +192,13 @@ package recorder.listeners
 		
 		public function microphoneReady(event:MicrophoneReadyEvent):void
 		{
-			if (cameraNetStream==null)
+			if (audioNetStream==null)
 			{
-				cameraNetStream = new NetStream(netConnection);
+				audioNetStream = new NetStream(netConnection);
 			}
 			trace("Microphone ready");
 			microphone = event.microphone;
-			cameraNetStream.attachAudio(microphone);
+			audioNetStream.attachAudio(microphone);
 		}
 		
 	}
