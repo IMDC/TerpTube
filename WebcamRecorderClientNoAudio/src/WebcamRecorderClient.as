@@ -49,7 +49,7 @@ package
 //			netConnection.close();
 			
 			
-			var cameraViewer:CameraViewer = new CameraViewer();
+			var cameraViewer:CameraViewer = CameraViewer.getInstance();
 			//CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
 			cameraViewer.x = 10;
 			cameraViewer.y = 10;

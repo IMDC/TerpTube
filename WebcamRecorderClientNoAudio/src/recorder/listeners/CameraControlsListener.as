@@ -1,5 +1,6 @@
 package recorder.listeners
 {
+	import flash.events.MouseEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.TimerEvent;
 	import flash.media.Camera;
@@ -12,32 +13,39 @@ package recorder.listeners
 	import flash.net.Responder;
 	import flash.utils.Timer;
 	
+	import mx.controls.Button;
+	
+	import recorder.events.ButtonEvent;
 	import recorder.events.CameraReadyEvent;
 	import recorder.events.MicrophoneReadyEvent;
 	import recorder.events.RecordingEvent;
 	import recorder.gui.CameraControlsPanel;
-	import recorder.gui.RecordButton;
+	import recorder.gui.CameraViewer;
+	import recorder.gui.SpriteButton;
 	import recorder.model.CameraMicSource;
 
 	public class CameraControlsListener 
 	{
 		public static const MAX_RECORDING_TIME:Number = 60000; //Maximum recording time in milliseconds
 		
-		
+		private var previewing:Boolean;
 		private var netConnection:NetConnection;
 		private var responder:Responder;
 		private var camera:Camera;
 		private var microphone:Microphone;
 		private var cameraNetStream:NetStream;
 		private var audioNetStream:NetStream;
+		private var previewNetStream:NetStream;
 		private var fileName:String;
 		private var flushTimer:Timer;
 		private var recording:Boolean;
 		private var fileNameResponder:Responder;
-		private var recordButton:RecordButton;
+		private var recordButton:SpriteButton;
 		private var recordingTimer:Timer;
 		private var recordingStartTime:Number;
 		private var cameraControlsPanel:CameraControlsPanel;
+		private var realFileName:String;
+		private var doneRecording:Boolean;
 		
 		public function CameraControlsListener(nc:NetConnection, cPanel:CameraControlsPanel)
 		{
@@ -46,12 +54,13 @@ package recorder.listeners
 			responder = new Responder(result, status);
 			fileNameResponder = new Responder(fileNameResult, fileNameStatus);
 			recording = false;
+			previewing = false;
+			doneRecording = true;
 		}
 		
 		//FIXME NEED TO GET STREAMS FROM CAMERAMICSOURCE CLASS
-		public function record(event:RecordingEvent):void
+		public function record(event:RecordingEvent=null):void
 		{
-			recordButton = (RecordButton)(event.target);
 			//FIXME call the server function to get a client stream
 			if (cameraNetStream==null)
 			{
@@ -67,6 +76,7 @@ package recorder.listeners
 //				}
 			}
 //			netStream.bufferTime = 60;
+			cameraControlsPanel.maxTime = MAX_RECORDING_TIME;
 			var h264Settings:H264VideoStreamSettings = new H264VideoStreamSettings();
 			h264Settings.setProfileLevel(H264Profile.MAIN, H264Level.LEVEL_3);
 			h264Settings.setQuality(0, 100);
@@ -79,6 +89,8 @@ package recorder.listeners
 //				audioNetStream = CameraMicSource.getInstance().getAudioStream(netConnection);				
 //			}
 			netConnection.call("generateStream", fileNameResponder);
+			cameraControlsPanel.previewButton.enabled = false;
+			cameraControlsPanel.doneButton.enabled = false;
 		}
 		
 		private function onRecStreamStatus(event:NetStatusEvent):void
@@ -98,15 +110,29 @@ package recorder.listeners
 		
 		private function updateTime(event:TimerEvent):void
 		{
-			var currentTime:Number = new Date().time - recordingStartTime;
-			cameraControlsPanel.setTime(currentTime);
-			if (currentTime >= MAX_RECORDING_TIME)
+			var currentTime:Number;
+			if (recording)
 			{
-				recordButton.toggleRecording();
+				currentTime= new Date().time - recordingStartTime;
+			}
+			else
+				currentTime = previewNetStream.time*1000;
+			cameraControlsPanel.setTime(currentTime);
+			if (recording && currentTime >= MAX_RECORDING_TIME)
+			{
+				recordButton.toggleButton();
 			}
 		}
 		
-		public function stopRecording(event:RecordingEvent):void
+		public function toggleRecording(event:ButtonEvent):void
+		{
+			recordButton = (SpriteButton)(event.target);
+			if (SpriteButton(event.target).state==SpriteButton.DOWN_STATE)
+				record();
+			else
+				stopRecording();
+		}
+		public function stopRecording(event:RecordingEvent=null):void
 		{
 			//recordButton = (RecordButton)(event.target);
 			recordButton.enabled = false;
@@ -135,6 +161,8 @@ package recorder.listeners
 				trace("Recording stopped");
 				WebcamRecorderClient.appendMessage("Uploading finished.");
 				recordButton.enabled  = true;
+				cameraControlsPanel.previewButton.enabled = true;
+				cameraControlsPanel.doneButton.enabled = true;
 //				(CameraControlsPanel)(event.target).setRecordingButtonEnabled(true);
 			
 			}
@@ -146,7 +174,10 @@ package recorder.listeners
 		
 		private function fileNameResult(obj:Object):void
 		{
-			fileName = obj.toString();
+			//FIXME gives the same name except for the last part which is generated on the server :(
+			if (doneRecording && fileName==null)
+				fileName = obj.toString();
+			
 			cameraNetStream.publish(fileName, "live");
 			//	WebcamRecorderClient.appendMessage("Recording started to file: "+obj.toString()+".flv");
 //			}
@@ -165,8 +196,11 @@ package recorder.listeners
 		{
 			if (recording)
 			{
-				obj.toString();
-				WebcamRecorderClient.appendMessage("Recording started to file: "+obj.toString()+".flv");
+				realFileName = obj.toString() + ".flv";
+				doneRecording = false;
+//				obj.toString();
+				WebcamRecorderClient.appendMessage("Recording started to file: "+realFileName);
+				
 			}
 			trace("Result is:"+obj);
 		}
@@ -201,5 +235,80 @@ package recorder.listeners
 			audioNetStream.attachAudio(microphone);
 		}
 		
+		public function previewButtonHandler(event:ButtonEvent):void
+		{
+			
+			if (cameraControlsPanel.previewButton.state == SpriteButton.UP_STATE) //was previewing
+			{
+				if (recordingTimer!=null)
+				{
+					recordingTimer.stop();
+					recordingTimer = null;
+				}
+				recordButton.enabled = true;
+				cameraControlsPanel.doneButton.enabled = true;
+				cameraControlsPanel.maxTime = MAX_RECORDING_TIME;
+				previewNetStream.pause();
+				previewNetStream = null;
+				CameraViewer.getInstance().showCameraPreview();
+				cameraControlsPanel.setTime(0);
+			}
+			else
+			{
+				cameraControlsPanel.maxTime = 0;
+				recordingStartTime = new Date().time;
+				recordingTimer = new Timer(200, 0);
+				recordingTimer.addEventListener(TimerEvent.TIMER, updateTime);
+				recordingTimer.start();
+				recordButton.enabled = false;
+				cameraControlsPanel.doneButton.enabled = false;
+				
+				previewNetStream = new NetStream(netConnection);
+				previewNetStream.addEventListener(NetStatusEvent.NET_STATUS, previewStatus);
+				var customClient:Object = new Object();
+				customClient.onMetaData=metaDataHandler;
+				
+				previewNetStream.client=customClient;
+				CameraViewer.getInstance().showRemoteRecordingPreview(previewNetStream);
+				
+				trace("Attempting to play " +realFileName);
+				previewNetStream.play(realFileName);
+			}
+			
+			previewing = !previewing;
+		}
+		
+		private function previewStatus(event:NetStatusEvent):void
+		{
+			trace(event.info.code);
+			switch (event.info.code)
+			{
+				case "NetStream.Play.Stop":
+					recordingTimer.stop();
+					recordingTimer = null;
+					
+					cameraControlsPanel.setTime(cameraControlsPanel.maxTime);
+					cameraControlsPanel.previewButton.toggleButton();
+					break;
+			}
+		}
+		
+		public function doneButtonHandler(event:ButtonEvent):void
+		{
+			doneRecording = true;
+			cameraControlsPanel.previewButton.enabled = false;
+			cameraControlsPanel.doneButton.enabled = false;
+			cameraControlsPanel.recordButton.enabled = true;
+			
+			//FIXME Call a php function and reload the page
+			fileName = null;
+			realFileName = null;
+		}
+		
+		private function metaDataHandler(infoObject:Object):void
+		{
+			trace("metadata"+ infoObject.duration);
+			cameraControlsPanel.maxTime = infoObject.duration*1000;
+		}
 	}
 }
