@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,8 +27,18 @@ public class Application extends ApplicationAdapter
 	private static final String					ALLOWED_CHARACTERS		= "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	private static HashMap<String, String>		streamFileNames			= new HashMap<String, String>();
 	private static HashMap<String, Future<?>>	futureEvents			= new HashMap<String, Future<?>>();
-	private static final int					DELETE_DELAY			= 5 * 60 * 1000;													// 5
-																																			// minutes
+	// 5 minutes
+	private static final int					DELETE_DELAY			= 5 * 60 * 1000;
+	private static String						FFMPEG					= "/var/www/include/ffmpeg/ffmpeg";
+
+	/**
+	 * @param fFMPEG
+	 *            the fFMPEG to set
+	 */
+	public static void setFFMPEG(String fFMPEG)
+	{
+		FFMPEG = fFMPEG;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -209,7 +218,7 @@ public class Application extends ApplicationAdapter
 		// stream.
 		stream.stopRecording();
 		releaseStream(streamName);
-		
+
 		startDeleteTimer(streamName);
 		String fileName = getFileFromStream(streamName);
 		return fileName;
@@ -233,7 +242,7 @@ public class Application extends ApplicationAdapter
 		}, DELETE_DELAY, TimeUnit.MILLISECONDS);
 		futureEvents.put(streamName, future);
 	}
-	
+
 	public String getFileFromStream(String stream)
 	{
 		return streamFileNames.get(stream);
@@ -241,21 +250,22 @@ public class Application extends ApplicationAdapter
 
 	public void resetDeleteTimer(String streamName)
 	{
-		ScheduledFuture<?> f = (ScheduledFuture<?>) futureEvents.remove(streamName);
-		if (f!=null)
+		ScheduledFuture<?> f = (ScheduledFuture<?>) futureEvents
+				.remove(streamName);
+		if (f != null)
 		{
 			f.cancel(true);
 		}
 		startDeleteTimer(streamName);
 	}
-	
+
 	private void deleteFile(String fileName)
 	{
 		// FIXME Implement deletion of files if user is not happy with preview
 		String streamName = getStreamForFileName(fileName);
 		streamFileNames.remove(streamName);
 		futureEvents.remove(streamName);
-		
+
 		File f = new File(FilenameGenerator.recordPath + fileName);
 		if (f.exists())
 			f.delete();
@@ -270,11 +280,10 @@ public class Application extends ApplicationAdapter
 	public void saveFile(String streamName)
 	{
 		String fileName = getFileFromStream(streamName);
-		
+
 		streamFileNames.remove(streamName);
 		futureEvents.remove(streamName).cancel(true);
-		
-		String FFMPEG = "/var/www/include/ffmpeg/ffmpeg";
+
 		File oldFile = new File(FilenameGenerator.recordPath + fileName);
 		File newFile = new File(FilenameGenerator.recordPath
 				+ fileName.substring(0, fileName.lastIndexOf(".")) + ".mp4");

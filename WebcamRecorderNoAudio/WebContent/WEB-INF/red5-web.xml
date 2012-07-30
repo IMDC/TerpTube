@@ -21,7 +21,11 @@
 
 	<bean id="web.handler" 
 	    class="sls.recording.red5.Application" 
-		singleton="true" />
+		singleton="true" >
+		<property name="FFMPEG">
+			<value>/var/www/include/ffmpeg/ffmpeg</value>
+		</property>	
+	</bean>
 
 	<bean id="streamFilenameGenerator" class="sls.recording.red5.FilenameGenerator">
 	<!-- <property name="playbackPath">
