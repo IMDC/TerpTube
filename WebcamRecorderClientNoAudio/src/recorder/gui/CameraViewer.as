@@ -6,6 +6,7 @@ package recorder.gui
 	import flash.media.Microphone;
 	import flash.media.Video;
 	import flash.net.NetStream;
+	import flash.text.TextField;
 	
 	import recorder.model.CameraMicSource;
 	
@@ -39,7 +40,7 @@ package recorder.gui
 				throw new Error("Error: use Singleton.instance instead");
 			}
 			graphics.beginFill( 0xffffff, 1.0 );
-			graphics.drawRect( 0, 0, 320, 240 );
+			graphics.drawRect( 0, 0, 466, 350 );
 			graphics.endFill();
 			cmSource = CameraMicSource.getInstance();
 			video = cmSource.cameraVideo;
@@ -47,6 +48,12 @@ package recorder.gui
 			{
 				trace("Video: "+video);
 				this.addChild(video);
+			}
+			else
+			{
+				var noCamera:TextField = new TextField();
+				noCamera.text = "No Camera Detected";
+				this.addChild(noCamera);
 			}
 			cameraPreview = true;
 		}

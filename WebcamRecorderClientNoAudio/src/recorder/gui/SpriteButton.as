@@ -129,6 +129,7 @@ package recorder.gui
 			this.buttonMode=value;
 			//			this.getChildAt(state).visible = value;
 			this.mouseChildren = value;
+			this.mouseEnabled = value;
 			if (value)
 			{
 				this.graphics.clear();	

@@ -12,24 +12,24 @@ package
 	import recorder.listeners.CameraControlsListener;
 	import recorder.model.CameraMicSource;
 
-	[SWF(backgroundColor="0xcc99cc")]
-	[SWF(width=640)]
-	[SWF(height=480)]
+	//[SWF(backgroundColor="0xcc99cc")]
+	[SWF(width=586)]
+	[SWF(height=390)]
 
 	public class WebcamRecorderClient extends Sprite
 	{
 		private var _netConnection:NetConnection;
 		private var _cameraControlsListener:CameraControlsListener 
-		private var debug:Boolean = true;
+		private var debug:Boolean = false;
 		private static var _textField:TextField;
 		
 		public function WebcamRecorderClient()
 		{
-		//	width = 800;
-		//	height = 600;
+//			width = 486;
+//			height = 390;
 			this.stage.align = StageAlign.TOP_LEFT;
 			graphics.beginFill( 0xaaccff, 1.0 );
-			graphics.drawRect( 0, 0, 340, 280 );
+			graphics.drawRect( 0, 0, 486, 390 );
 			graphics.endFill();
 			trace("Creating a new instance");
 			//new NetConnection
@@ -43,12 +43,30 @@ package
 			netConnection.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			
 			//connect to red5
-			netConnection.connect("rtmp://imdc.ca/webcamRecorderNoAudio/", true);
+			netConnection.connect("rtmp:/webcamRecorderNoAudio/", true);
+			
+			
+			textField = new TextField();
+			textField.x = 496;
+			textField.y = 10;
+			textField.width = 200;
+			textField.height = 240;
+			textField.wordWrap = true;
+			textField.border = true;
+			textField.borderColor = 0x0011ff;
+			if (debug)
+			{	
+				textField.visible = true;
+				addChild(textField);
+			}
+				
 			
 			//close the connection
 //			netConnection.close();
-			
-			
+		}
+		
+		public function setup():void
+		{
 			var cameraViewer:CameraViewer = CameraViewer.getInstance();
 			//CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
 			cameraViewer.x = 10;
@@ -58,29 +76,15 @@ package
 			//FIXME need to add eventListeners for the CAMERA and MICROPHONE events
 			var cameraControlsPanel:CameraControlsPanel = new CameraControlsPanel();
 			cameraControlsPanel.x = 10;
-			cameraControlsPanel.y = 255;
+			cameraControlsPanel.y = 365;
 			addChild(cameraControlsPanel);
-//			cameraControlsPanel.fileName = "testRecording";
+			//			cameraControlsPanel.fileName = "testRecording";
 			cameraControlsListener = new CameraControlsListener(netConnection, cameraControlsPanel);
 			CameraMicSource.getInstance().addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
 			
 			cameraControlsPanel.addControlsListener(cameraControlsListener);
 			
-			
-			textField = new TextField();
-			textField.x = 340;
-			textField.y = 10;
-			textField.width = 200;
-			textField.height = 240;
-			textField.wordWrap = true;
-			textField.border = true;
-			textField.borderColor = 0x0011ff;
-			if (!debug)
-				textField.visible = false;
-			addChild(textField);
-			
 		}
-		
 		public static function appendMessage(message:String):void
 		{
 			textField.appendText(message+"\n");
@@ -107,6 +111,7 @@ package
 			{
 				trace("Sucessfully connected");
 				appendMessage("Connected to server");
+				setup();
 			}
 		}
 

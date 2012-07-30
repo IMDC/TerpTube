@@ -3,6 +3,7 @@ package recorder.listeners
 	import flash.events.MouseEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
 	import flash.media.Camera;
 	import flash.media.H264Level;
 	import flash.media.H264Profile;
@@ -11,6 +12,10 @@ package recorder.listeners
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.net.Responder;
+	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
+	import flash.net.navigateToURL;
 	import flash.utils.Timer;
 	
 	import mx.controls.Button;
@@ -30,29 +35,31 @@ package recorder.listeners
 		
 		private var previewing:Boolean;
 		private var netConnection:NetConnection;
-		private var responder:Responder;
+		private var startStopRecordingResponder:Responder;
 		private var camera:Camera;
 		private var microphone:Microphone;
 		private var cameraNetStream:NetStream;
 		private var audioNetStream:NetStream;
 		private var previewNetStream:NetStream;
-		private var fileName:String;
+		private var streamName:String;
 		private var flushTimer:Timer;
 		private var recording:Boolean;
-		private var fileNameResponder:Responder;
+		private var streamNameResponder:Responder;
 		private var recordButton:SpriteButton;
 		private var recordingTimer:Timer;
 		private var recordingStartTime:Number;
 		private var cameraControlsPanel:CameraControlsPanel;
 		private var realFileName:String;
 		private var doneRecording:Boolean;
+		private var deleteTimer:Timer;
+		private const DELETE_TIMER_DELAY:Number = 5 * 60 * 1000; //5 minutes
 		
 		public function CameraControlsListener(nc:NetConnection, cPanel:CameraControlsPanel)
 		{
 			cameraControlsPanel = cPanel;
 			netConnection = nc;
-			responder = new Responder(result, status);
-			fileNameResponder = new Responder(fileNameResult, fileNameStatus);
+			startStopRecordingResponder = new Responder(startStopRecordingSuccess, startStopRecordingFailure);
+			streamNameResponder = new Responder(streamNameResult, streamNameStatus);
 			recording = false;
 			previewing = false;
 			doneRecording = true;
@@ -61,6 +68,7 @@ package recorder.listeners
 		//FIXME NEED TO GET STREAMS FROM CAMERAMICSOURCE CLASS
 		public function record(event:RecordingEvent=null):void
 		{
+			stopDeleteTimer();
 			//FIXME call the server function to get a client stream
 			if (cameraNetStream==null)
 			{
@@ -88,7 +96,7 @@ package recorder.listeners
 //			{
 //				audioNetStream = CameraMicSource.getInstance().getAudioStream(netConnection);				
 //			}
-			netConnection.call("generateStream", fileNameResponder);
+			netConnection.call("generateStream", streamNameResponder);
 			cameraControlsPanel.previewButton.enabled = false;
 			cameraControlsPanel.doneButton.enabled = false;
 		}
@@ -99,7 +107,7 @@ package recorder.listeners
 			if ( event.info.code == "NetStream.Publish.Start" )
 			{
 				recording = true;
-				netConnection.call("record", responder, fileName);
+				netConnection.call("record", startStopRecordingResponder, streamName);
 				recordingStartTime = new Date().time;
 				recordingTimer = new Timer(200, 0);
 				recordingTimer.addEventListener(TimerEvent.TIMER, updateTime);
@@ -147,6 +155,24 @@ package recorder.listeners
 			WebcamRecorderClient.appendMessage("Recording stopped. Video is uploading...");
 		}
 		
+		private function stopDeleteTimer():void
+		{
+			if (deleteTimer!=null)
+			{
+				deleteTimer.stop();
+				deleteTimer.removeEventListener(TimerEvent.TIMER, refreshPage);
+				deleteTimer = null;	
+			}
+		}
+		
+		private function startDeleteTimer():void
+		{
+			stopDeleteTimer();
+			netConnection.call("resetDeleteTimer", null, streamName);
+			deleteTimer = new Timer(DELETE_TIMER_DELAY, 1);
+			deleteTimer.addEventListener(TimerEvent.TIMER, refreshPage);
+			deleteTimer.start();
+		}
 		private function bufferChecker(event:TimerEvent):void
 		{
 			if (cameraNetStream.bufferLength == 0)
@@ -155,16 +181,13 @@ package recorder.listeners
 				flushTimer.stop();
 				flushTimer = null;
 				recording = false;
-				netConnection.call("stopRecording", responder, fileName);
+				netConnection.call("stopRecording", startStopRecordingResponder, streamName);
 				cameraNetStream.close();
 				cameraNetStream = null;
-				trace("Recording stopped");
-				WebcamRecorderClient.appendMessage("Uploading finished.");
-				recordButton.enabled  = true;
-				cameraControlsPanel.previewButton.enabled = true;
-				cameraControlsPanel.doneButton.enabled = true;
+				//See startStopRecordingSuccess for enabling buttons etc.
+				
 //				(CameraControlsPanel)(event.target).setRecordingButtonEnabled(true);
-			
+				startDeleteTimer();
 			}
 			else
 			{
@@ -172,19 +195,18 @@ package recorder.listeners
 			}
 		}
 		
-		private function fileNameResult(obj:Object):void
+		private function streamNameResult(obj:Object):void
 		{
 			//FIXME gives the same name except for the last part which is generated on the server :(
-			if (doneRecording && fileName==null)
-				fileName = obj.toString();
+			streamName = obj.toString();
 			
-			cameraNetStream.publish(fileName, "live");
+			cameraNetStream.publish(streamName, "live");
 			//	WebcamRecorderClient.appendMessage("Recording started to file: "+obj.toString()+".flv");
 //			}
 			trace("Result is:"+obj);
 		}
 		
-		private function fileNameStatus(obj:Object):void
+		private function streamNameStatus(obj:Object):void
 		{
 			for (var i:Object in obj)
 			{
@@ -192,23 +214,35 @@ package recorder.listeners
 			}
 		}
 		
-		private function result(obj:Object):void
+		private function startStopRecordingSuccess(obj:Object):void
 		{
 			if (recording)
 			{
-				realFileName = obj.toString() + ".flv";
+				
 				doneRecording = false;
-//				obj.toString();
-				WebcamRecorderClient.appendMessage("Recording started to file: "+realFileName);
+				WebcamRecorderClient.appendMessage("Recording started");
 				
 			}
-			trace("Result is:"+obj);
+			else
+			{
+				//recording stopped - returns filename of recording
+				realFileName = obj.toString();
+				trace("Recording stopped");
+				//Enable the buttons
+				WebcamRecorderClient.appendMessage("Uploading finished.");
+				recordButton.enabled  = true;
+				cameraControlsPanel.previewButton.enabled = true;
+				cameraControlsPanel.doneButton.enabled = true;
+			}
+			trace("Start/StopRecording Success:"+obj);
 		}
 		
-		private function status(obj:Object):void
+		private function startStopRecordingFailure(obj:Object):void
 		{
+			WebcamRecorderClient.appendMessage("Recording failed!");
 			for (var i:Object in obj)
 			{
+				WebcamRecorderClient.appendMessage("Status: " + i + " : "+obj[i]);
 				trace("Status: " + i + " : "+obj[i]);
 			}
 		}
@@ -237,7 +271,7 @@ package recorder.listeners
 		
 		public function previewButtonHandler(event:ButtonEvent):void
 		{
-			
+			startDeleteTimer();
 			if (cameraControlsPanel.previewButton.state == SpriteButton.UP_STATE) //was previewing
 			{
 				if (recordingTimer!=null)
@@ -295,15 +329,46 @@ package recorder.listeners
 		
 		public function doneButtonHandler(event:ButtonEvent):void
 		{
+			stopDeleteTimer();
 			doneRecording = true;
 			cameraControlsPanel.previewButton.enabled = false;
 			cameraControlsPanel.doneButton.enabled = false;
 			cameraControlsPanel.recordButton.enabled = true;
 			
 			//FIXME Call a php function and reload the page
-			fileName = null;
+			netConnection.call("saveFile", null, streamName);
+			
+			CameraMicSource.getInstance().destroyCameraStream();
+			CameraMicSource.getInstance().destroyCamera();
+			
+			
+			postData(realFileName.substr(0, realFileName.lastIndexOf("."))+".mp4");
+			
+			streamName = null;
 			realFileName = null;
 		}
+		
+		public function refreshPage(event:TimerEvent=null):void
+		{
+			var url:String = ExternalInterface.call('window.location.href.toString'); 
+			var request:URLRequest = new URLRequest(url);
+			navigateToURL(request, "_self");
+		}
+		
+		
+		public function postData(fName:String):void 
+		{
+			var url:String = ExternalInterface.call('window.location.href.toString'); 
+			var request:URLRequest = new URLRequest(url);
+			
+			var variables:URLVariables = new URLVariables();
+			variables.vidfile = fName;
+			request.data = variables;
+			request.method = URLRequestMethod.POST;
+			
+			navigateToURL(request, "_self");
+		}
+
 		
 		private function metaDataHandler(infoObject:Object):void
 		{

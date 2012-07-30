@@ -51,13 +51,13 @@ package recorder.gui
 			addChild(previewButton);
 			
 			doneButton = new SpriteButton(40, 20, "Done");
-			doneButton.x = 80;
+			doneButton.x = 420;
 			doneButton.enabled = false;
 			addChild(doneButton);
 			
 			timeArea = new TextField();
-			timeArea.x = 250;
-			timeArea.width = 70;
+			timeArea.x = 80;
+			timeArea.width = 120;
 			timeArea.height = 20;
 			timeArea.wordWrap = false;
 //			timeArea.border = true;
