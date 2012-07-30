@@ -24,11 +24,17 @@
 		singleton="true" />
 
 	<bean id="streamFilenameGenerator" class="sls.recording.red5.FilenameGenerator">
-	<property name="playbackPath">
+	<!-- <property name="playbackPath">
 		<value>/home/martin/public_html/webcamrecord/streams/</value>
 	</property>
 	<property name="recordPath">
 		<value>/home/martin/public_html/webcamrecord/streams/</value>
+	</property> -->
+	 <property name="playbackPath">
+		<value>/var/www/videos/</value>
+	</property>
+	<property name="recordPath">
+		<value>/var/www/videos/</value>
 	</property>
 </bean>
     <!-- this will support calling methods through "myhandler.<methodName>" -->

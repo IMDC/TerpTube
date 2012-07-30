@@ -1,6 +1,15 @@
 package sls.recording.red5;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,13 +21,15 @@ import org.red5.server.stream.ClientBroadcastStream;
 
 public class Application extends ApplicationAdapter
 {
-	private int							suffix					= 0;
-
-	private static final Log			log						= LogFactory
-																		.getLog(Application.class);
-	private static ArrayList<String>	generatedLists			= new ArrayList<String>();
-	private static ArrayList<String>	generatedListsClient	= new ArrayList<String>();
-	private static final String			ALLOWED_CHARACTERS		= "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	private static final Log					log						= LogFactory
+																				.getLog(Application.class);
+	private static ArrayList<String>			generatedLists			= new ArrayList<String>();
+	private static ArrayList<String>			generatedListsClient	= new ArrayList<String>();
+	private static final String					ALLOWED_CHARACTERS		= "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	private static HashMap<String, String>		streamFileNames			= new HashMap<String, String>();
+	private static HashMap<String, Future<?>>	futureEvents			= new HashMap<String, Future<?>>();
+	private static final int					DELETE_DELAY			= 5 * 60 * 1000;													// 5
+																																			// minutes
 
 	/*
 	 * (non-Javadoc)
@@ -142,36 +153,21 @@ public class Application extends ApplicationAdapter
 	/**
 	 * Records a stream with the specified filename preference to use as a base
 	 * 
-	 * @param fileName
+	 * @param streamName
 	 * @return the actual fileName of the recording
 	 */
-	public String record(String fileName)
+	public String record(String streamName)
 	{
 		IConnection conn = Red5.getConnectionLocal();
 		IScope scope = conn.getScope();
-		String clientId = conn.getClient().getId();
-		/*
-		 * String[] names = fileName.split("[0-9]+"); String newFileName = "";
-		 * if (names[names.length - 1].matches("[0-9]+")) { suffix =
-		 * Integer.parseInt(names[names.length - 1]); for (int i = 0; i <
-		 * names.length - 1; i++) newFileName += names[i]; } else { suffix = 0;
-		 * for (int i = 0; i < names.length; i++) newFileName += names[i]; }
-		 */
+		final String file = streamName + "_" + System.currentTimeMillis();
 
-		// String streamName = clientId + "_" +
-		// String.valueOf(System.currentTimeMillis());
 		try
 		{
 			ClientBroadcastStream stream = (ClientBroadcastStream) this
-					.getBroadcastStream(scope, fileName);
-			fileName = clientId + "_" + fileName + "_"
-					+ System.currentTimeMillis();
-			/*
-			 * while (new File(getStreamDirectory(scope)+newFileName +
-			 * suffix+".flv").exists()) { suffix++; } fileName = newFileName +
-			 * suffix;
-			 */
-			stream.saveAs(fileName, false);
+					.getBroadcastStream(scope, streamName);
+			streamFileNames.put(streamName, file + ".flv");
+			stream.saveAs(file, false);
 			// You could, if you wish of course, notify the user that the
 			// recording has actually started
 			// You just have to add the recordingStarted public function on your
@@ -190,33 +186,117 @@ public class Application extends ApplicationAdapter
 			// Object[]{clientId});
 			return null;
 		}
-		return fileName;
+		return file;
 	}
 
 	/**
 	 * Stops the recording of a specified stream
 	 * 
-	 * @param fileName
+	 * @param streamName
 	 *            the stream name
-	 * @return
+	 * @return the fileName of the recording
 	 */
-	public String stopRecording(String fileName)
+	public String stopRecording(final String streamName)
 	{
 		IConnection conn = Red5.getConnectionLocal();
-		IScope scope = getRecordingScope(conn, fileName);
-		String clientId = conn.getClient().getId();
+		IScope scope = getRecordingScope(conn, streamName);
 		if (scope == null)
 		{
-			return "Cannot find broadcast stream for " + fileName;
+			return "Cannot find broadcast stream for " + streamName;
 		}
 		ClientBroadcastStream stream = (ClientBroadcastStream) this
-				.getBroadcastStream(scope, fileName);
-//		stream.
+				.getBroadcastStream(scope, streamName);
+		// stream.
 		stream.stopRecording();
-		releaseStream(fileName);
-		// ServiceUtils.invokeOnConnection(conn, "recordingStopped",
-		// new Object[] { clientId });
-		return "Recording stopped for file:" + fileName;
+		releaseStream(streamName);
+		
+		startDeleteTimer(streamName);
+		String fileName = getFileFromStream(streamName);
+		return fileName;
+	}
+
+	private void startDeleteTimer(String streamName)
+	{
+		final String file = getFileFromStream(streamName);
+
+		ScheduledExecutorService executor = Executors
+				.newSingleThreadScheduledExecutor();
+		ScheduledFuture<?> future = executor.schedule(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				// TODO Auto-generated method stub
+				deleteFile(file);
+			}
+		}, DELETE_DELAY, TimeUnit.MILLISECONDS);
+		futureEvents.put(streamName, future);
+	}
+	
+	public String getFileFromStream(String stream)
+	{
+		return streamFileNames.get(stream);
+	}
+
+	public void resetDeleteTimer(String streamName)
+	{
+		ScheduledFuture<?> f = (ScheduledFuture<?>) futureEvents.remove(streamName);
+		if (f!=null)
+		{
+			f.cancel(true);
+		}
+		startDeleteTimer(streamName);
+	}
+	
+	private void deleteFile(String fileName)
+	{
+		// FIXME Implement deletion of files if user is not happy with preview
+		String streamName = getStreamForFileName(fileName);
+		streamFileNames.remove(streamName);
+		futureEvents.remove(streamName);
+		
+		File f = new File(FilenameGenerator.recordPath + fileName);
+		if (f.exists())
+			f.delete();
+	}
+
+	private String getStreamForFileName(String fileName)
+	{
+		String streamName = fileName.substring(0, fileName.lastIndexOf("_"));
+		return streamName;
+	}
+
+	public void saveFile(String streamName)
+	{
+		String fileName = getFileFromStream(streamName);
+		
+		streamFileNames.remove(streamName);
+		futureEvents.remove(streamName).cancel(true);
+		
+		String FFMPEG = "/var/www/include/ffmpeg/ffmpeg";
+		File oldFile = new File(FilenameGenerator.recordPath + fileName);
+		File newFile = new File(FilenameGenerator.recordPath
+				+ fileName.substring(0, fileName.lastIndexOf(".")) + ".mp4");
+		ProcessBuilder p = new ProcessBuilder(FFMPEG, "-i",
+				oldFile.getAbsolutePath(), "-vcodec", "copy", "-an",
+				newFile.getAbsolutePath());
+		try
+		{
+			Process process = p.start();
+			process.waitFor();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		oldFile.delete();
 	}
 
 	/**

@@ -5,7 +5,7 @@
    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" 
    version="2.4"> 
 
-	<display-name>Webcam Recorder</display-name>
+	<display-name>Webcam Recorder No Audio</display-name>
 
 	<context-param>
 	    <param-name>globalScope</param-name>
@@ -29,7 +29,7 @@
 	
 	<context-param>
 		<param-name>webAppRootKey</param-name>
-		<param-value>/webcamRecorder</param-value>
+		<param-value>/webcamRecorderNoAudio/</param-value>
 	</context-param>
 	
 	<listener>
