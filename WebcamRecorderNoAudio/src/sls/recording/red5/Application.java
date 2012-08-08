@@ -35,7 +35,7 @@ public class Application extends ApplicationAdapter
 	 * @param fFMPEG
 	 *            the fFMPEG to set
 	 */
-	public static void setFFMPEG(String fFMPEG)
+	public void setFFMPEG(String fFMPEG)
 	{
 		FFMPEG = fFMPEG;
 	}
@@ -215,7 +215,6 @@ public class Application extends ApplicationAdapter
 		}
 		ClientBroadcastStream stream = (ClientBroadcastStream) this
 				.getBroadcastStream(scope, streamName);
-		// stream.
 		stream.stopRecording();
 		releaseStream(streamName);
 
@@ -294,6 +293,7 @@ public class Application extends ApplicationAdapter
 		{
 			Process process = p.start();
 			process.waitFor();
+			oldFile.delete();
 		}
 		catch (IOException e)
 		{
@@ -305,7 +305,7 @@ public class Application extends ApplicationAdapter
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		oldFile.delete();
+		
 	}
 
 	/**
