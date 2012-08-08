@@ -101,9 +101,9 @@ package recorder.model
 		{
 			if (camera != null)
 			{
-				if (cameraVideo != null)
+				if (_cameraVideo != null)
 				{
-					cameraVideo.attachCamera(null);
+					_cameraVideo.attachCamera(null);
 				}
 				if (cameraStream != null)
 				{
@@ -152,7 +152,7 @@ package recorder.model
 			camera.addEventListener(StatusEvent.STATUS, cameraStatusHandler); 
 			
 			camera.setMode(640, 480, 30, true);
-			camera.setQuality(0, 100);
+			camera.setQuality(0, 85);
 			camera.setKeyFrameInterval(5);
 		}
 		
@@ -348,8 +348,8 @@ package recorder.model
 				videoCleared = false;
 				_cameraVideo = new Video();
 				_cameraVideo.attachCamera(camera);
-				_cameraVideo.width=320;
-				_cameraVideo.height=240;
+				_cameraVideo.width=466;
+				_cameraVideo.height=350;
 			}
 			else 
 			{
@@ -361,6 +361,7 @@ package recorder.model
 			}
 			if (cameraAccess)
 				this.dispatchEvent(new CameraReadyEvent(CAMERA_READY_STRING, camera));
+			
 			return _cameraVideo;
 		}
 
@@ -371,6 +372,8 @@ package recorder.model
 				cameraAccess = false;
 				WebcamRecorderClient.appendMessage("User prevented access to camera");
 				trace("Unable to connect to active camera."); 
+				//No camera Access
+				selectCamera();
 			} 
 			else 
 			{ 
