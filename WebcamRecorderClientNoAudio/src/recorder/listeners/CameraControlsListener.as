@@ -45,6 +45,7 @@ package recorder.listeners
 		private var flushTimer:Timer;
 		private var recording:Boolean;
 		private var streamNameResponder:Responder;
+		private var doneButtonResponder:Responder;
 		private var recordButton:SpriteButton;
 		private var recordingTimer:Timer;
 		private var recordingStartTime:Number;
@@ -60,9 +61,27 @@ package recorder.listeners
 			netConnection = nc;
 			startStopRecordingResponder = new Responder(startStopRecordingSuccess, startStopRecordingFailure);
 			streamNameResponder = new Responder(streamNameResult, streamNameStatus);
+			doneButtonResponder = new Responder(doneButtonSuccess, doneButtonFailure);
 			recording = false;
 			previewing = false;
 			doneRecording = true;
+		}
+		
+		public function doneButtonSuccess(obj:Object):void
+		{
+			CameraMicSource.getInstance().destroyCameraStream();
+			CameraMicSource.getInstance().destroyCamera();
+			
+			
+			postData(realFileName.substr(0, realFileName.lastIndexOf("."))+".mp4");
+			
+			streamName = null;
+			realFileName = null;
+		}
+		
+		public function doneButtonFailure(obj:Object):void
+		{
+			refreshPage();
 		}
 		
 		//FIXME NEED TO GET STREAMS FROM CAMERAMICSOURCE CLASS
@@ -336,16 +355,8 @@ package recorder.listeners
 			cameraControlsPanel.recordButton.enabled = true;
 			
 			//FIXME Call a php function and reload the page
-			netConnection.call("saveFile", null, streamName);
+			netConnection.call("saveFile", doneButtonResponder, streamName);
 			
-			CameraMicSource.getInstance().destroyCameraStream();
-			CameraMicSource.getInstance().destroyCamera();
-			
-			
-			postData(realFileName.substr(0, realFileName.lastIndexOf("."))+".mp4");
-			
-			streamName = null;
-			realFileName = null;
 		}
 		
 		public function refreshPage(event:TimerEvent=null):void
