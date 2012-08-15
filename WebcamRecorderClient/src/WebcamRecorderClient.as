@@ -9,6 +9,7 @@ package
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
 	import flash.text.TextField;
+	import flash.ui.ContextMenu;
 	
 	import recorder.gui.CameraControlsPanel;
 	import recorder.gui.CameraViewer;
@@ -64,6 +65,9 @@ package
 		public function stageLoaded(event:Event):void
 		{
 			initFlashVars();
+			var my_menu:ContextMenu = new ContextMenu();
+			my_menu.hideBuiltInItems();
+			contextMenu = my_menu;
 			this.stage.addEventListener(Event.RESIZE, handleResize);
 			this.stage.align = StageAlign.TOP_LEFT;
 //			this.stage.scaleMode = StageScaleMode.NO_SCALE;
