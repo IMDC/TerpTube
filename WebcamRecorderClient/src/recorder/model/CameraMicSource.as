@@ -348,8 +348,8 @@ package recorder.model
 				videoCleared = false;
 				_cameraVideo = new Video();
 				_cameraVideo.attachCamera(camera);
-				_cameraVideo.width=466;
-				_cameraVideo.height=350;
+				_cameraVideo.width=640;
+				_cameraVideo.height=480;
 			}
 			else 
 			{

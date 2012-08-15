@@ -1,11 +1,14 @@
 package recorder.gui
 {
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.events.IEventDispatcher;
 	import flash.events.MouseEvent;
 	import flash.text.TextField;
+	import flash.text.TextFormat;
+	import flash.text.TextFormatAlign;
 	
 	import mx.controls.Button;
 	
@@ -17,59 +20,137 @@ package recorder.gui
 
 	public class CameraControlsPanel extends Sprite implements IEventDispatcher
 	{
-		[Embed(source='recorder/images/play.png')]
+		[Embed(source='recorder/resources/play.png')]
 		private  static var PlayImage:Class;
-		[Embed(source='recorder/images/record.png')]
+		[Embed(source='recorder/resources/rec1.gif')]
 		private  static var RecordImage:Class;
-		[Embed(source='recorder/images/stop.png')]
+		[Embed(source='recorder/resources/recordingButtonActive.swf')]
 		private  static var StopImage:Class;
+		[Embed(source='recorder/resources/cancel.png')]
+		private  static var CancelImage:Class;
+		[Embed(source='recorder/resources/next.png')]
+		private  static var NextImage:Class;
+		[Embed(source='recorder/resources/recorderResources.swf', symbol="densityBar")]
+		private  static var DensityBar:Class;
 		
-		private var _previewButton:SpriteButton;
-		private var _doneButton:SpriteButton;
 		private var _recordButton:SpriteButton;
+		private var _cancelButton:SpriteButton;
+		private var _nextButton:SpriteButton;
 		
 		private var listenersArray:Array;
 		
 		private var timeArea:TextField;
 		private var _maxTime:Number;
+		private var _currentTime:Number;
+		private var slider:Sprite;
+		private static const BUTTON_WIDTH:int = 48;
+		private static const BUTTON_HEIGHT:int = 48;
+		private static const DENSITY_BAR_HEIGHT:int = 30;
+		private static const OFFSET:int = 5;
+		
 		
 //		private var _fileName:String;
 		//FIXME add a preview button that can preview the just recorded video
 		//FIXME add a record again button that deletes the previous recording and records again.
 		public function CameraControlsPanel()
 		{
-			recordButton = new SpriteButton(20, 20, "", new RecordImage(), new StopImage());
+			timeArea = new TextField();
+			timeArea.width = 80;
+			timeArea.height = 20;
+			timeArea.border = true;
+			timeArea.x = WebcamRecorderClient.configurationVariables["videoWidth"] - timeArea.width;// - WebcamRecorderClient.configurationVariables["contentPadding"];
+			timeArea.y = DENSITY_BAR_HEIGHT + WebcamRecorderClient.configurationVariables["contentPadding"]/2;
+			timeArea.wordWrap = false;
+			//			timeArea.border = true;
+			var timeAreaFormat:TextFormat = new TextFormat();
+			timeAreaFormat.size = 12;
+			timeAreaFormat.align = TextFormatAlign.CENTER;
+			timeArea.defaultTextFormat = timeAreaFormat;
+			setTime(0);
+			
+			addChild(timeArea);
+			
+			recordButton = new SpriteButton(BUTTON_WIDTH, BUTTON_HEIGHT, "", new RecordImage(), new StopImage());
 			recordButton.isToggle=true;
+			recordButton.x = WebcamRecorderClient.configurationVariables["videoWidth"]/2 - BUTTON_WIDTH/2;
+			recordButton.y = DENSITY_BAR_HEIGHT + WebcamRecorderClient.configurationVariables["contentPadding"]+ timeArea.height; 
 			addChild(recordButton);
 			
 			
 //			playImage.border = true;
-			previewButton = new SpriteButton(20, 20,"",new PlayImage(), new StopImage());
-			previewButton.isToggle = true;
-			previewButton.x = 30;
-			previewButton.enabled = false;
-			addChild(previewButton);
+			nextButton = new SpriteButton(BUTTON_WIDTH, BUTTON_HEIGHT,"",new NextImage());
+			nextButton.isToggle = false;
+			nextButton.x = WebcamRecorderClient.configurationVariables["videoWidth"] - BUTTON_WIDTH;// - WebcamRecorderClient.configurationVariables["contentPadding"]
+			nextButton.y = DENSITY_BAR_HEIGHT +  WebcamRecorderClient.configurationVariables["contentPadding"] + timeArea.height;
+			nextButton.enabled = false;
+			addChild(nextButton);
 			
-			doneButton = new SpriteButton(40, 20, "Done");
-			doneButton.x = 420;
-			doneButton.enabled = false;
-			addChild(doneButton);
+			cancelButton = new SpriteButton(BUTTON_WIDTH, BUTTON_WIDTH, "",new CancelImage());
+			cancelButton.x = 0;
+			cancelButton.y = DENSITY_BAR_HEIGHT +  WebcamRecorderClient.configurationVariables["contentPadding"] + timeArea.height;
+			addChild(cancelButton);
 			
-			timeArea = new TextField();
-			timeArea.x = 80;
-			timeArea.width = 120;
-			timeArea.height = 20;
-			timeArea.wordWrap = false;
-//			timeArea.border = true;
-			setTime(0);
+			slider = new DensityBar();
+			slider.width = WebcamRecorderClient.configurationVariables["videoWidth"];
+			slider.height = DENSITY_BAR_HEIGHT;
+			slider.x = 2;
+			slider.y = 0;
+			initializeTrack();
+			addChild(slider);
 			
-			addChild(timeArea);
 			listenersArray = new Array();
+			
+		}
+		
+		public function initializeTrack():void
+		{
+			(slider.getChildByName("slider")  as  MovieClip).track.graphics.lineStyle();
+			(slider.getChildByName("slider")  as  MovieClip).track.graphics.beginFill(WebcamRecorderClient.configurationVariables["sliderBackgroundColor"]);
+			(slider.getChildByName("slider")  as  MovieClip).track.graphics.drawRect(0,0,(slider.getChildByName("slider") as MovieClip).track.width,(slider.getChildByName("slider") as MovieClip).track.height);
+			(slider.getChildByName("slider")  as  MovieClip).track.graphics.endFill();
+		}
+		
+		public function drawLinkInterval(currentTime:uint):void
+		{
+			var x:uint = getXForValue(0);
+			var width:uint = getXForValue(currentTime);
+			trace("CurrentTime:"+currentTime+"Width:"+ width);
+			(slider.getChildByName("slider")  as  MovieClip).track.graphics.lineStyle(1,WebcamRecorderClient.configurationVariables["sliderHighlightedColor"]);
+			(slider.getChildByName("slider")  as  MovieClip).track.graphics.beginFill(WebcamRecorderClient.configurationVariables["sliderHighlightedColor"]);
+			
+			(slider.getChildByName("slider")  as  MovieClip).track.graphics.drawRect(x,1,width-1,(slider.getChildByName("slider")  as  MovieClip).track.height-2);
+			(slider.getChildByName("slider")  as  MovieClip).track.graphics.endFill();
+		}
+		
+		private function clearTrack():void
+		{
+			(slider.getChildByName("slider")  as  MovieClip).track.graphics.clear();
 		}
 		
 		public function setTime(milliseconds:Number):void
 		{
+			if (currentTime > milliseconds)
+			{
+				clearTrack();
+				//clear the track first
+			}
+			_currentTime = milliseconds;
 			timeArea.text = getMinutesAsString(milliseconds) + ":" + getSecondsAsString(milliseconds)+" / "+getMinutesAsString(maxTime) + ":" + getSecondsAsString(maxTime);
+			if (slider!=null)
+			{
+				drawLinkInterval(milliseconds);
+				setThumbPositionFromValue(milliseconds);
+			}
+		}
+		
+		private function getXForValue(value:Number):Number
+		{
+			return 1 + value / WebcamRecorderClient.configurationVariables["maxRecordingTime"] * ((slider.getChildByName("slider")  as  MovieClip).track.width-2);
+		}
+		
+		private function setThumbPositionFromValue(value:Number):void
+		{
+			(slider.getChildByName("thumb")  as  MovieClip).x = getXForValue(value) - (slider.getChildByName("thumb")  as  MovieClip).width/2 -3 +(slider.getChildByName("slider")  as  MovieClip).track.x;//value / WebcamRecorderClient.configurationVariables["maxRecordingTime"] * (slider.getChildByName("slider")  as  MovieClip).track.width-3;
 		}
 		
 		public static function getSeconds(milliseconds:Number):int
@@ -102,8 +183,8 @@ package recorder.gui
 		{
 			listenersArray.push(listener);
 			recordButton.addEventListener(ButtonEvent.CLICK,listener.toggleRecording);
-			previewButton.addEventListener(ButtonEvent.CLICK, listener.previewButtonHandler);
-			doneButton.addEventListener(ButtonEvent.CLICK, listener.doneButtonHandler);
+			cancelButton.addEventListener(ButtonEvent.CLICK, listener.cancelButtonHandler);
+			nextButton.addEventListener(ButtonEvent.CLICK, listener.nextButtonHandler);
 		}
 		
 		public function removeControlsListener(listener:CameraControlsListener):void
@@ -112,19 +193,13 @@ package recorder.gui
 				return;
 			listenersArray.splice(listenersArray.indexOf(listener), 1);
 			recordButton.removeEventListener(ButtonEvent.CLICK, listener.toggleRecording);
-			previewButton.removeEventListener(ButtonEvent.CLICK, listener.previewButtonHandler);
-			doneButton.removeEventListener(ButtonEvent.CLICK, listener.doneButtonHandler);
+			cancelButton.removeEventListener(ButtonEvent.CLICK, listener.cancelButtonHandler);
+			nextButton.removeEventListener(ButtonEvent.CLICK, listener.nextButtonHandler);
 		}
 		
-		
-		public function setPreviewing(previewing:Boolean):void
+		public function setNextButtonEnabled(enabled:Boolean):void
 		{
-						
-		}
-		
-		public function setPreviewButtonEnabled(enabled:Boolean):void
-		{
-			previewButton.enabled = enabled;	
+			nextButton.enabled = enabled;	
 		}
 
 		public function get maxTime():Number
@@ -135,16 +210,7 @@ package recorder.gui
 		public function set maxTime(value:Number):void
 		{
 			_maxTime = value;
-		}
-
-		public function get previewButton():SpriteButton
-		{
-			return _previewButton;
-		}
-
-		public function set previewButton(value:SpriteButton):void
-		{
-			_previewButton = value;
+			setTime(currentTime);
 		}
 
 		public function get recordButton():SpriteButton
@@ -157,14 +223,36 @@ package recorder.gui
 			_recordButton = value;
 		}
 
-		public function get doneButton():SpriteButton
+
+		public function get nextButton():SpriteButton
 		{
-			return _doneButton;
+			return _nextButton;
 		}
 
-		public function set doneButton(value:SpriteButton):void
+		public function set nextButton(value:SpriteButton):void
 		{
-			_doneButton = value;
+			_nextButton = value;
+		}
+
+		public function get cancelButton():SpriteButton
+		{
+			return _cancelButton;
+		}
+
+		public function set cancelButton(value:SpriteButton):void
+		{
+			_cancelButton = value;
+		}
+
+		public function get currentTime():Number
+		{
+			return _currentTime;
+		}
+
+		public function set currentTime(value:Number):void
+		{
+			_currentTime = value;
+			setTime(currentTime);
 		}
 
 		

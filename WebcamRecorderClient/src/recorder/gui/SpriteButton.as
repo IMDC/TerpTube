@@ -18,6 +18,7 @@ package recorder.gui
 		private var border:Boolean = false;
 		private var label:TextField;
 		private var _isToggle:Boolean = false;
+		private var enabledOverlayChild:Sprite;
 		
 		public static const UP_STATE:int = 0;
 		public static const DOWN_STATE:int = 1;
@@ -40,12 +41,22 @@ package recorder.gui
 			this.label.width = w;
 			this.label.height = h;
 			if (upState!=null)
+			{
+				upState.width = w;
+				upState.height = h;
 				this.addChild(upState);
+			}
 			if (downState!=null)
 			{
+				downState.width = w;
+				downState.height = h;
 				downState.visible = false;
 				this.addChild(downState);
 			}
+			enabledOverlayChild = new Sprite();
+			this.addChild(enabledOverlayChild);
+			enabledOverlayChild.visible = false;
+			drawBackground(WebcamRecorderClient.configurationVariables["buttonsBackgroundColor"], 1);
 			state= UP_STATE;
 			this.buttonMode = true;
 			this.setBorder(true);
@@ -130,25 +141,36 @@ package recorder.gui
 			//			this.getChildAt(state).visible = value;
 			this.mouseChildren = value;
 			this.mouseEnabled = value;
+			this.label.mouseEnabled = value;
+			enabledOverlayChild.visible = !value;
 			if (value)
 			{
-				this.graphics.clear();	
-				drawBorder();
+				
+//				drawBackground(WebcamRecorderClient.configurationVariables["buttonsBackgroundColor"], 1);
+//				drawBorder();
 			}
 			else
 			{
-				var maxWidth:Number = -1;
-				var maxHeight:Number = -1;
-				for (var i:int=0;i<this.numChildren;i++)
-				{
-					maxWidth = Math.max(maxWidth, this.getChildAt(i).width);
-					maxHeight = Math.max(maxHeight, this.getChildAt(i).height);
-				}
-				this.label.mouseEnabled = false;
-				this.graphics.beginFill( 0x666666, 0.5 );
-				this.graphics.drawRect( 0, 0, maxWidth, maxHeight );
-				this.graphics.endFill();
+				drawBackground( 0x666666, 0.7 , enabledOverlayChild);
 			}
+		}
+		
+		private function drawBackground(color:Number, opacity:Number, sprite:Sprite = null):void
+		{
+			if (sprite == null)
+				sprite = this;
+			var maxWidth:Number = -1;
+			var maxHeight:Number = -1;
+			for (var i:int=0;i<this.numChildren;i++)
+			{
+				maxWidth = Math.max(maxWidth, this.getChildAt(i).width);
+				maxHeight = Math.max(maxHeight, this.getChildAt(i).height);
+			}
+			sprite.graphics.clear();
+			sprite.graphics.beginFill( color, opacity );
+			sprite.graphics.drawRect( 0, 0, maxWidth, maxHeight );
+			sprite.graphics.endFill();
+			
 		}
 		
 		/**

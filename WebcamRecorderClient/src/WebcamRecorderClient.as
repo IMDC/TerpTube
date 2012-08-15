@@ -1,7 +1,10 @@
 package 
 {
+	import flash.display.LoaderInfo;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+	import flash.events.Event;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
@@ -11,25 +14,62 @@ package
 	import recorder.gui.CameraViewer;
 	import recorder.listeners.CameraControlsListener;
 	import recorder.model.CameraMicSource;
+	
+	import utils.BrowserUtils;
 
 	//[SWF(backgroundColor="0xcc99cc")]
-	[SWF(width=586)]
-	[SWF(height=390)]
+	[SWF(width=660)]
+	[SWF(height=620)]
 
 	public class WebcamRecorderClient extends Sprite
 	{
 		private var _netConnection:NetConnection;
 		private var _cameraControlsListener:CameraControlsListener 
-		private var debug:Boolean = false;
 		private static var _textField:TextField;
+		private static var _configurationVariables:Array;
 		
 		public function WebcamRecorderClient()
 		{
 //			width = 486;
 //			height = 390;
+			configurationVariables = new Array();
+			configurationVariables["width"] = 660;
+			configurationVariables["height"] = 620;
+			configurationVariables["debug"] = false;
+			configurationVariables["backgroundColor"] = 0xDDDDDD;
+			configurationVariables["contentPadding"] = 10;
+			configurationVariables["videoWidth"] = 640;
+			configurationVariables["videoHeight"] = 480;
+			configurationVariables["sliderBackgroundColor"] = 0xCCCCCC;
+			configurationVariables["sliderHighlightedColor"] = 0x666666;
+			configurationVariables["buttonsBackgroundColor"] = 0xFFFFFF;
+			configurationVariables["postURL"] = null;
+			configurationVariables["cancelURL"] = null;
+			configurationVariables["isAjax"] = false;
+			
+			configurationVariables["maxRecordingTime"] = 60000; //1 minute
+			this.loaderInfo.addEventListener(Event.COMPLETE, stageLoaded);//wait for this swf to be loaded and have flashVars ready
+			//close the connection
+//			netConnection.close();
+		}
+		
+		public function handleResize(e:Event):void
+		{
+			    //The resize code goes here
+			graphics.beginFill( configurationVariables["backgroundColor"], 1.0 );
+			graphics.drawRect( 0, 0, configurationVariables["width"], configurationVariables["height"] );
+			graphics.endFill();
+		}
+		
+		public function stageLoaded(event:Event):void
+		{
+			initFlashVars();
+			this.stage.addEventListener(Event.RESIZE, handleResize);
 			this.stage.align = StageAlign.TOP_LEFT;
-			graphics.beginFill( 0xaaccff, 1.0 );
-			graphics.drawRect( 0, 0, 486, 390 );
+//			this.stage.scaleMode = StageScaleMode.NO_SCALE;
+
+			graphics.beginFill( configurationVariables["backgroundColor"], 1.0 );
+			graphics.drawRect( 0, 0, configurationVariables["width"], configurationVariables["height"] );
 			graphics.endFill();
 			trace("Creating a new instance");
 			//new NetConnection
@@ -45,42 +85,60 @@ package
 			//connect to red5
 			netConnection.connect("rtmp://imdc.ca/webcamRecorder/", true);
 			
+			var supportedVideoElement:String = BrowserUtils.getHTML5VideoSupport();
+			//			trace("Name:"+o.appName+", Version:"+ o.version);
+			trace("Video codec: "+supportedVideoElement);
 			
 			textField = new TextField();
-			textField.x = 496;
-			textField.y = 10;
+			textField.x = configurationVariables["width"];
+			textField.y = 0;
 			textField.width = 200;
-			textField.height = 240;
+			textField.height = configurationVariables["height"];
 			textField.wordWrap = true;
 			textField.border = true;
 			textField.borderColor = 0x0011ff;
-			if (debug)
+			if (configurationVariables["debug"])
 			{	
 				textField.visible = true;
 				addChild(textField);
 			}
-				
-			
-			//close the connection
-//			netConnection.close();
+		}
+		
+		public function initFlashVars():void
+		{
+			var key:String; // This will contain the name of the parameter
+			var val:String; // This will contain the value of the parameter
+			var flashVars:Object = LoaderInfo(this.root.loaderInfo).parameters;
+			var rExp:RegExp=new RegExp(/#/g);
+			for (key in flashVars) 
+			{
+				if (key.indexOf("Color")!=-1)
+				{
+					//Convert HTML colors to Flash colors
+					configurationVariables[key] = uint(String(flashVars[key]).replace(rExp,"0x"));
+				}
+				else
+				{
+					configurationVariables[key] = flashVars[key];
+				}
+			}
 		}
 		
 		public function setup():void
 		{
 			var cameraViewer:CameraViewer = CameraViewer.getInstance();
-			//CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING, cameraControlsListener.microphoneReady);
-			cameraViewer.x = 10;
-			cameraViewer.y = 10;
+			cameraViewer.x = configurationVariables["contentPadding"];
+			cameraViewer.y = configurationVariables["contentPadding"];
 			addChild(cameraViewer);
 			
-			//FIXME need to add eventListeners for the CAMERA and MICROPHONE events
 			var cameraControlsPanel:CameraControlsPanel = new CameraControlsPanel();
-			cameraControlsPanel.x = 10;
-			cameraControlsPanel.y = 365;
+			cameraControlsPanel.x = configurationVariables["contentPadding"];
+			cameraControlsPanel.y = configurationVariables["videoHeight"] +configurationVariables["contentPadding"]*2;
+			cameraControlsPanel.maxTime = configurationVariables["maxRecordingTime"];
 			addChild(cameraControlsPanel);
-			//			cameraControlsPanel.fileName = "testRecording";
 			cameraControlsListener = new CameraControlsListener(netConnection, cameraControlsPanel);
 			CameraMicSource.getInstance().addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
+			CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING,cameraControlsListener.microphoneReady);
 			
 			cameraControlsPanel.addControlsListener(cameraControlsListener);
 			
@@ -124,18 +182,6 @@ package
 		{
 			_netConnection = value;
 		}
-		
-//		public function recordingStarted(clientID:String):void
-//		{
-//			trace("Recording started function in main")
-//			trace("Client id:"+clientID);
-//		}
-//		
-//		public function recordingStopped(clientID:String):void
-//		{
-//			trace("Recording stopped function in main")
-//			trace("Client id:"+clientID);
-//		}
 
 		public function get cameraControlsListener():CameraControlsListener
 		{
@@ -155,6 +201,16 @@ package
 		public static function set textField(value:TextField):void
 		{
 			_textField = value;
+		}
+
+		public static function get configurationVariables():Array
+		{
+			return _configurationVariables;
+		}
+
+		public static function set configurationVariables(value:Array):void
+		{
+			_configurationVariables = value;
 		}
 
 
