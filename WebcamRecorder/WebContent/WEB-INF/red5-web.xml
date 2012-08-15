@@ -21,7 +21,11 @@
 
 	<bean id="web.handler" 
 	    class="sls.recording.red5.Application" 
-		singleton="true" />
+		singleton="true" >
+		<property name="FFMPEG">
+			<value>/usr/local/bin/ffmpeg</value>
+		</property>	
+	</bean>
 
 	<bean id="streamFilenameGenerator" class="sls.recording.red5.FilenameGenerator">
 	<property name="playbackPath">
@@ -30,6 +34,7 @@
 	<property name="recordPath">
 		<value>/home/martin/public_html/webcamrecord/streams/</value>
 	</property>
+	
 </bean>
     <!-- this will support calling methods through "myhandler.<methodName>" -->
 	<!-- <bean id="myhandler.service" 

@@ -1,6 +1,15 @@
 package sls.recording.red5;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,13 +21,33 @@ import org.red5.server.stream.ClientBroadcastStream;
 
 public class Application extends ApplicationAdapter
 {
-	private int							suffix					= 0;
+	private static final Log					log						= LogFactory
+																				.getLog(Application.class);
+	private static ArrayList<String>			generatedLists			= new ArrayList<String>();
+	private static ArrayList<String>			generatedListsClient	= new ArrayList<String>();
+	private static final String					ALLOWED_CHARACTERS		= "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	private static HashMap<String, String>		streamFileNames			= new HashMap<String, String>();
+	private static HashMap<String, Future<?>>	futureEvents			= new HashMap<String, Future<?>>();
+	// 5 minutes
+	private static final int					DELETE_DELAY			= 5 * 60 * 1000;
+	private static String						FFMPEG					= "/var/www/include/ffmpeg/ffmpeg";
+	private static final int					AUDIO_RECORDING			= 0;
+	private static final int					CAMERA_RECORDING		= 1;
+	public static final String					SUFFIX_AUDIO			= "_audio";
+	public static final String					SUFFIX_VIDEO			= "_video";
 
-	private static final Log			log						= LogFactory
-																		.getLog(Application.class);
-	private static ArrayList<String>	generatedLists			= new ArrayList<String>();
-	private static ArrayList<String>	generatedListsClient	= new ArrayList<String>();
-	private static final String			ALLOWED_CHARACTERS		= "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	public static final String					OUTPUT_TYPE_H264		= "mp4";
+	public static final String					OUTPUT_TYPE_WEBM		= "webm";
+	public static final String					OUTPUT_TYPE_OGV			= "ogv";
+
+	/**
+	 * @param fFMPEG
+	 *            the fFMPEG to set
+	 */
+	public void setFFMPEG(String fFMPEG)
+	{
+		FFMPEG = fFMPEG;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -142,36 +171,27 @@ public class Application extends ApplicationAdapter
 	/**
 	 * Records a stream with the specified filename preference to use as a base
 	 * 
-	 * @param fileName
+	 * @param streamName
 	 * @return the actual fileName of the recording
 	 */
-	public String record(String fileName)
+	public String record(String streamName, int type)
 	{
 		IConnection conn = Red5.getConnectionLocal();
 		IScope scope = conn.getScope();
-		String clientId = conn.getClient().getId();
-		/*
-		 * String[] names = fileName.split("[0-9]+"); String newFileName = "";
-		 * if (names[names.length - 1].matches("[0-9]+")) { suffix =
-		 * Integer.parseInt(names[names.length - 1]); for (int i = 0; i <
-		 * names.length - 1; i++) newFileName += names[i]; } else { suffix = 0;
-		 * for (int i = 0; i < names.length; i++) newFileName += names[i]; }
-		 */
-
-		// String streamName = clientId + "_" +
-		// String.valueOf(System.currentTimeMillis());
+		String suffix;
+		final String file;
+		if (type == CAMERA_RECORDING)
+			suffix = "_video";
+		else
+			suffix = "_audio";
+		streamName += suffix;
+		file = streamName + "_" + System.currentTimeMillis();
 		try
 		{
 			ClientBroadcastStream stream = (ClientBroadcastStream) this
-					.getBroadcastStream(scope, fileName);
-			fileName = clientId + "_" + fileName + "_"
-					+ System.currentTimeMillis();
-			/*
-			 * while (new File(getStreamDirectory(scope)+newFileName +
-			 * suffix+".flv").exists()) { suffix++; } fileName = newFileName +
-			 * suffix;
-			 */
-			stream.saveAs(fileName, false);
+					.getBroadcastStream(scope, streamName);
+			streamFileNames.put(streamName, file + ".flv");
+			stream.saveAs(file, false);
 			// You could, if you wish of course, notify the user that the
 			// recording has actually started
 			// You just have to add the recordingStarted public function on your
@@ -190,33 +210,285 @@ public class Application extends ApplicationAdapter
 			// Object[]{clientId});
 			return null;
 		}
-		return fileName;
+		return file;
 	}
 
 	/**
 	 * Stops the recording of a specified stream
 	 * 
-	 * @param fileName
+	 * @param streamName
 	 *            the stream name
-	 * @return
+	 * @return the fileName of the recording
 	 */
-	public String stopRecording(String fileName)
+	public String stopRecording(String streamName, int type)
 	{
 		IConnection conn = Red5.getConnectionLocal();
-		IScope scope = getRecordingScope(conn, fileName);
-		String clientId = conn.getClient().getId();
+		String suffix;
+		if (type == CAMERA_RECORDING)
+			suffix = "_video";
+		else
+			suffix = "_audio";
+		streamName += suffix;
+		IScope scope = getRecordingScope(conn, streamName);
 		if (scope == null)
 		{
-			return "Cannot find broadcast stream for " + fileName;
+			return "Cannot find broadcast stream for " + streamName;
 		}
+
 		ClientBroadcastStream stream = (ClientBroadcastStream) this
-				.getBroadcastStream(scope, fileName);
-//		stream.
+				.getBroadcastStream(scope, streamName);
 		stream.stopRecording();
-		releaseStream(fileName);
-		// ServiceUtils.invokeOnConnection(conn, "recordingStopped",
-		// new Object[] { clientId });
-		return "Recording stopped for file:" + fileName;
+		// stream should be released after both audio and video streams are
+		// received
+		// releaseStream(streamName);
+
+		startDeleteTimer(streamName);
+		String fileName = getFileFromStream(streamName);
+		return fileName;
+	}
+
+	/**
+	 * convert from FFMPEG Duration to milliseconds
+	 * 
+	 * @param time
+	 *            in the format HH:MM:SS.mmm
+	 * @return time in milliseconds
+	 */
+	public static long parseFFMPEGTime(String time)
+	{
+		return Integer.parseInt(time.substring(0, time.indexOf(":")))
+				* 60
+				* 60
+				* 1000
+				+ Integer.parseInt(time.substring(time.indexOf(":") + 1,
+						time.lastIndexOf(":")))
+				* 60
+				* 1000
+				+ Integer.parseInt(time.substring(time.lastIndexOf(":") + 1,
+						time.indexOf("."))) * 1000
+				+ Integer.parseInt(time.substring(time.indexOf(".") + 1));
+	}
+
+	/**
+	 * convert from time in milliseconds to FFMPEG String
+	 * 
+	 * @param time
+	 *            in milliseconds
+	 * @return String representation of time in the format HH:MM:SS,mmm
+	 */
+	public static String parseFFMPEGTime(long time)
+	{
+		String mil = "" + time % 1000;
+		String sec = "" + (time / 1000) % 60;
+		String min = "" + ((time / 1000) / 60) % 60;
+		String hrs = "" + (((time / 1000) / 60) / 60) % 60;
+		while (mil.length() < 3)
+			mil = "0" + mil;
+		while (sec.length() < 2)
+			sec = "0" + sec;
+		while (min.length() < 2)
+			min = "0" + min;
+		while (hrs.length() < 2)
+			hrs = "0" + hrs;
+
+		return hrs + ":" + min + ":" + sec + "." + mil;
+	}
+
+	public String transcodeVideo(String streamName, long audioDelay, String type)
+	{
+		String fileName = null;
+		// FIXME make it so that it can work if I am recording only audio or
+		// only video
+		String audioFileString = getFileFromStream(streamName + SUFFIX_AUDIO);
+		String videoFileString = getFileFromStream(streamName + SUFFIX_VIDEO);
+		String[] outputFFMPEG;
+		String[] inputFFMPEG;
+		File newFile = null;
+		if (type.equals(OUTPUT_TYPE_H264))
+		{
+			fileName = videoFileString.substring(0,
+					videoFileString.indexOf("_"))
+					+ ".mp4";
+			newFile = new File(FilenameGenerator.recordPath + fileName);
+
+			outputFFMPEG = new String[] { "-vcodec", "copy", "-acodec",
+					"libfaac", "-ar", "22050", "-ab", "64000", "-ac", "1",
+					newFile.getAbsolutePath() };
+		}
+		else if (type.equals(OUTPUT_TYPE_WEBM))
+		{
+			fileName = videoFileString.substring(0,
+					videoFileString.indexOf("_"))
+					+ ".webm";
+			newFile = new File(FilenameGenerator.recordPath + fileName);
+			outputFFMPEG = new String[] { "-acodec", "libvorbis", "-ar",
+					"22050", "-ab", "64000", "-ac", "1",
+					newFile.getAbsolutePath() };
+
+		}
+		else if (type.equals(OUTPUT_TYPE_OGV))
+		{
+			fileName = videoFileString.substring(0,
+					videoFileString.indexOf("_"))
+					+ ".ogv";
+			newFile = new File(FilenameGenerator.recordPath + fileName);
+			outputFFMPEG = new String[] { "-acodec", "libvorbis", "-ar",
+					"22050", "-ab", "64000", "-ac", "1",
+					newFile.getAbsolutePath() };
+
+		}
+		else
+			return null;
+		File audioFile = new File(FilenameGenerator.recordPath
+				+ audioFileString);
+		File videoFile = new File(FilenameGenerator.recordPath
+				+ videoFileString);
+		ProcessBuilder p;
+		// MUST transcode to the appropriate video/audio codec
+		if (audioDelay < 0)
+		{ // must delay the audio
+			audioDelay *= -1;
+			String time = parseFFMPEGTime(audioDelay);
+			inputFFMPEG = new String[] { FFMPEG, "-i",
+					videoFile.getAbsolutePath(), "-itsoffset", time, "-i",
+					audioFile.getAbsolutePath(), "-map", "0:0", "-map", "1:1" };
+			// p = new ProcessBuilder(FFMPEG, "-i", videoFile.getAbsolutePath(),
+			// "-itsoffset", time, "-i", audioFile.getAbsolutePath(),
+			// "-map", "0:0", "-map", "1:1", "-vcodec", "copy", "-acodec",
+			// "libfaac", "-ar", "22050", "-ab", "64000", "-ac", "1",
+			// newFile.getAbsolutePath());
+		}
+		else
+		{ // must delay the video
+
+			String time = parseFFMPEGTime(audioDelay);
+			inputFFMPEG = new String[] { FFMPEG, "-i",
+					audioFile.getAbsolutePath(), "-itsoffset", time, "-i",
+					videoFile.getAbsolutePath(), "-map", "1:0", "-map", "0:1" };
+			// p = new ProcessBuilder(FFMPEG, "-i", audioFile.getAbsolutePath(),
+			// "-itsoffset", time, "-i", videoFile.getAbsolutePath(),
+			// "-map", "1:0", "-map", "0:1", "-vcodec", "copy", "-acodec",
+			// "libfaac", "-ar", "22050", "-ab", "64000", "-ac", "1",
+			// newFile.getAbsolutePath());
+		}
+		p = new ProcessBuilder(concatenateArrays(inputFFMPEG, outputFFMPEG));
+		try
+		{
+			Process process = p.start();
+			process.waitFor();
+			// Delete the original files
+			deleteFile(streamName + SUFFIX_AUDIO);
+			deleteFile(streamName + SUFFIX_VIDEO);
+			cancelDeleteTimer(streamName + SUFFIX_AUDIO);
+			cancelDeleteTimer(streamName + SUFFIX_VIDEO);
+			streamFileNames.put(streamName, newFile.getName());
+			startDeleteTimer(streamName);
+			// audioFile.delete();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return fileName;
+	}
+
+	private void startDeleteTimer(final String streamName)
+	{
+		ScheduledExecutorService executor = Executors
+				.newSingleThreadScheduledExecutor();
+		ScheduledFuture<?> future = executor.schedule(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				// TODO Auto-generated method stub
+				deleteFile(streamName);
+			}
+		}, DELETE_DELAY, TimeUnit.MILLISECONDS);
+		futureEvents.put(streamName, future);
+	}
+
+	public String getFileFromStream(String stream)
+	{
+		return streamFileNames.get(stream);
+	}
+
+	public void resetDeleteTimer(String streamName)
+	{
+		ScheduledFuture<?> f = (ScheduledFuture<?>) futureEvents
+				.remove(streamName);
+		if (f != null)
+		{
+			f.cancel(true);
+		}
+		startDeleteTimer(streamName);
+	}
+
+	public void cancelDeleteTimer(String streamName)
+	{
+		ScheduledFuture<?> f = (ScheduledFuture<?>) futureEvents
+				.remove(streamName);
+		if (f != null)
+		{
+			f.cancel(true);
+		}
+		// Will not need to reference this stream anymore so remove it.
+		streamFileNames.remove(streamName);
+	}
+
+	private void deleteFile(String streamName)
+	{
+		String fileName = getFileFromStream(streamName);
+		streamFileNames.remove(streamName);
+		futureEvents.remove(streamName);
+
+		File f = new File(FilenameGenerator.recordPath + fileName);
+		if (f.exists())
+			f.delete();
+	}
+
+	/*
+	 * private String getStreamForFileName(String fileName) { String streamName
+	 * = fileName.substring(0, fileName.lastIndexOf("_")); return streamName; }
+	 */
+
+	public void saveFile(String streamName)
+	{
+		String fileName = getFileFromStream(streamName);
+
+		streamFileNames.remove(streamName);
+		futureEvents.remove(streamName).cancel(true);
+
+		File oldFile = new File(FilenameGenerator.recordPath + fileName);
+		File newFile = new File(FilenameGenerator.recordPath
+				+ fileName.substring(0, fileName.lastIndexOf(".")) + ".mp4");
+		ProcessBuilder p = new ProcessBuilder(FFMPEG, "-i",
+				oldFile.getAbsolutePath(), "-vcodec", "copy", "-an",
+				newFile.getAbsolutePath());
+		try
+		{
+			Process process = p.start();
+			process.waitFor();
+			oldFile.delete();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
@@ -238,5 +510,16 @@ public class Application extends ApplicationAdapter
 			}
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> T[] concatenateArrays(T[] a, T[] b)
+	{
+		T[] c = (T[]) Array.newInstance(a.getClass(), a.length + b.length);
+
+		System.arraycopy(a, 0, c, 0, a.length);
+		System.arraycopy(b, 0, c, a.length, b.length);
+
+		return c;
 	}
 }
