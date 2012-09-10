@@ -1,5 +1,6 @@
 package recorder.listeners
 {
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.TimerEvent;
@@ -12,6 +13,7 @@ package recorder.listeners
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.net.Responder;
+	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
@@ -66,6 +68,7 @@ package recorder.listeners
 		private var deleteTimerVideo:Timer;
 		private var deleteTimerAudio:Timer;
 		private var deleteTimerCombined:Timer;
+		private var urlLoader:URLLoader;
 		private const DELETE_TIMER_DELAY:Number = 5 * 60 * 1000; //5 minutes
 		private const RECORDING_CAMERA:int = 1;
 		private const RECORDING_AUDIO:int = 0;
@@ -384,13 +387,14 @@ package recorder.listeners
 					transcode();
 				}
 		}
-		
+		//FIXME Make this WEBM Only due to GPL/non-redistributable restrictions
 		private function transcode():void
 		{
 			startDeleteTimer(RECORDING_CAMERA);
 			startDeleteTimer(RECORDING_AUDIO);
 //			var o:Object = BrowserUtils.getVersion();
-			var supportedVideoType:String = BrowserUtils.getHTML5VideoSupport();
+			//Only use webm as video codec
+			var supportedVideoType:String = "webm" //BrowserUtils.getHTML5VideoSupport();
 //			trace("Name:"+o.appName+", Version:"+ o.version);
 			trace(supportedVideoType);
 			var audioDelay:Number = recordingCameraStartTime - recordingAudioStartTime;
@@ -479,6 +483,11 @@ package recorder.listeners
 		{
 			if (url==null)
 				refreshPage();
+			else if (url.indexOf("javascript:")==0)
+			{
+				url= url.substr(11);
+				ExternalInterface.call(url); 
+			}
 			else
 			{
 				var request:URLRequest = new URLRequest(url);
@@ -492,16 +501,31 @@ package recorder.listeners
 			if (url == null)
 				url = ExternalInterface.call('window.location.href.toString'); 
 			var request:URLRequest = new URLRequest(url);
-			
 			var variables:URLVariables = new URLVariables();
 			variables.vidfile = fName;
+			variables.type = 'record';
+			variables.keepvideofile = "false";
 			request.data = variables;
 			request.method = URLRequestMethod.POST;
+			if (isAjax)
+			{
+				urlLoader = new URLLoader();
+				urlLoader.addEventListener(Event.COMPLETE, onPostDataAjaxLoaded, false, 0, true);
+				urlLoader.load(request);
+			}
+			else
+			{
+				navigateToURL(request, "_self");	
+			}
 			
-			navigateToURL(request, "_self");
 		}
 
-		
+		private function onPostDataAjaxLoaded(e:Event):void
+		{
+		//	var xml:XML = new XML(urlLoader.data);
+			ExternalInterface.call("$('#"+WebcamRecorderClient.configurationVariables["elementID"]+"').html("+urlLoader.data+")");
+			
+		}
 		private function metaDataHandler(infoObject:Object):void
 		{
 			trace("metadata"+ infoObject.duration);

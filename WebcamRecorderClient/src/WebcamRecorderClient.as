@@ -45,8 +45,9 @@ package
 			configurationVariables["sliderHighlightedColor"] = 0x666666;
 			configurationVariables["buttonsBackgroundColor"] = 0xFFFFFF;
 			configurationVariables["postURL"] = null;
-			configurationVariables["cancelURL"] = null;
+			configurationVariables["cancelURL"] = "javascript:history.go(-1)";
 			configurationVariables["isAjax"] = false;
+			configurationVariables["elementID"] = "flashContent";
 			
 			configurationVariables["maxRecordingTime"] = 60000; //1 minute
 			this.loaderInfo.addEventListener(Event.COMPLETE, stageLoaded);//wait for this swf to be loaded and have flashVars ready
