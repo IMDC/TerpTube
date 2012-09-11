@@ -47,7 +47,7 @@ package
 			configurationVariables["postURL"] = null;
 			configurationVariables["cancelURL"] = "javascript:history.go(-1)";
 			configurationVariables["isAjax"] = false;
-			configurationVariables["elementID"] = "flashContent";
+			configurationVariables["elementID"] = "playerContent";
 			
 			configurationVariables["maxRecordingTime"] = 60000; //1 minute
 			this.loaderInfo.addEventListener(Event.COMPLETE, stageLoaded);//wait for this swf to be loaded and have flashVars ready

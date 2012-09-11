@@ -34,6 +34,7 @@ package recorder.listeners
 	
 	import utils.BrowserUtils;
 
+	//FIXME need to add a spinner when uploading/transcoding the video
 	public class CameraControlsListener 
 	{
 //		public static const MAX_RECORDING_TIME:Number = 60000; //Maximum recording time in milliseconds
@@ -509,9 +510,7 @@ package recorder.listeners
 			request.method = URLRequestMethod.POST;
 			if (isAjax)
 			{
-				urlLoader = new URLLoader();
-				urlLoader.addEventListener(Event.COMPLETE, onPostDataAjaxLoaded, false, 0, true);
-				urlLoader.load(request);
+				ExternalInterface.call("refreshPage", url, '{ vidfile: "'+fName+'", type: "record", keepvideofile: "false"}');
 			}
 			else
 			{
@@ -520,12 +519,6 @@ package recorder.listeners
 			
 		}
 
-		private function onPostDataAjaxLoaded(e:Event):void
-		{
-		//	var xml:XML = new XML(urlLoader.data);
-			ExternalInterface.call("$('#"+WebcamRecorderClient.configurationVariables["elementID"]+"').html("+urlLoader.data+")");
-			
-		}
 		private function metaDataHandler(infoObject:Object):void
 		{
 			trace("metadata"+ infoObject.duration);
