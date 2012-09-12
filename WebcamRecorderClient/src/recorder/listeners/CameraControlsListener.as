@@ -508,9 +508,11 @@ package recorder.listeners
 			variables.keepvideofile = "false";
 			request.data = variables;
 			request.method = URLRequestMethod.POST;
+			
 			if (isAjax)
 			{
-				ExternalInterface.call("refreshPage", url, '{ vidfile: "'+fName+'", type: "record", keepvideofile: "false"}');
+				var dataToSend:String = 'vidfile='+fName+'&type=record&keepvideofile=false';
+				ExternalInterface.call("refreshPage", url, dataToSend);
 			}
 			else
 			{
