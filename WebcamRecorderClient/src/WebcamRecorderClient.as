@@ -48,8 +48,12 @@ package
 			configurationVariables["cancelURL"] = "javascript:history.go(-1)";
 			configurationVariables["isAjax"] = false;
 			configurationVariables["elementID"] = "playerContent";
+			configurationVariables["blurFunction"] = "setBlur";
+			configurationVariables["blurFunctionText"] = "setBlurText";
 			
 			configurationVariables["maxRecordingTime"] = 60000; //1 minute
+			configurationVariables["minRecordingTime"] = 1000; //1 second
+			
 			this.loaderInfo.addEventListener(Event.COMPLETE, stageLoaded);//wait for this swf to be loaded and have flashVars ready
 			//close the connection
 //			netConnection.close();

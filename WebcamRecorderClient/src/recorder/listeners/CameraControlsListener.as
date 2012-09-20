@@ -34,7 +34,6 @@ package recorder.listeners
 	
 	import utils.BrowserUtils;
 
-	//FIXME need to add a spinner when uploading/transcoding the video
 	public class CameraControlsListener 
 	{
 //		public static const MAX_RECORDING_TIME:Number = 60000; //Maximum recording time in milliseconds
@@ -70,6 +69,7 @@ package recorder.listeners
 		private var deleteTimerAudio:Timer;
 		private var deleteTimerCombined:Timer;
 		private var urlLoader:URLLoader;
+		private var totalBytesForUploading:Number;
 		private const DELETE_TIMER_DELAY:Number = 5 * 60 * 1000; //5 minutes
 		private const RECORDING_CAMERA:int = 1;
 		private const RECORDING_AUDIO:int = 0;
@@ -139,6 +139,7 @@ package recorder.listeners
 			netConnection.call("generateStream", streamNameResponder);
 			cameraControlsPanel.cancelButton.enabled = false;
 			cameraControlsPanel.nextButton.enabled = false;
+			cameraControlsPanel.recordButton.enabled = false;
 		}
 		
 		private function onCameraRecStreamStatus(event:NetStatusEvent):void
@@ -184,6 +185,10 @@ package recorder.listeners
 			{
 				recordButton.toggleButton();
 			}
+			if (cameraRecording && currentTime >= WebcamRecorderClient.configurationVariables["minRecordingTime"])
+			{
+				recordButton.enabled = true;
+			}
 		}
 		
 		public function toggleRecording(event:ButtonEvent):void
@@ -197,9 +202,12 @@ package recorder.listeners
 		public function stopRecording(event:RecordingEvent=null):void
 		{
 			//recordButton = (RecordButton)(event.target);
+			setBlur(true);
 			recordButton.enabled = false;
 			recordingTimer.stop();
 			recordingTimer = null;
+			
+			totalBytesForUploading = cameraNetStream.bufferLength + audioNetStream.bufferLength;
 			
 			flushTimerCamera = new Timer(100, 0);
 			flushTimerCamera.addEventListener(TimerEvent.TIMER, bufferCheckerCamera);
@@ -290,6 +298,8 @@ package recorder.listeners
 			}
 			else
 			{
+				var remainingBytesForUploading:Number = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
+				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
 				trace("Remaining buffer:"+ cameraNetStream.bufferLength);
 			}
 		}
@@ -314,6 +324,8 @@ package recorder.listeners
 			}
 			else
 			{
+				var remainingBytesForUploading:Number = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
+				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
 				trace("Remaining buffer:"+ audioNetStream.bufferLength);
 			}
 		}
@@ -393,6 +405,7 @@ package recorder.listeners
 		{
 			startDeleteTimer(RECORDING_CAMERA);
 			startDeleteTimer(RECORDING_AUDIO);
+			setBlurText("Converting video...");
 //			var o:Object = BrowserUtils.getVersion();
 			//Only use webm as video codec
 			var supportedVideoType:String = "webm" //BrowserUtils.getHTML5VideoSupport();
@@ -410,6 +423,7 @@ package recorder.listeners
 				WebcamRecorderClient.appendMessage("Status: " + i + " : "+obj[i]);
 				trace("Status: " + i + " : "+obj[i]);
 			}
+			setBlur(false);
 		}
 		
 		private function transcodeVideoSuccess(obj:Object):void
@@ -424,6 +438,8 @@ package recorder.listeners
 			stopDeleteTimer(RECORDING_CAMERA);
 			startDeleteTimer(RECORDING_COMBINED);
 			resultingVideoFile = fileName;
+			setBlur(false);
+			setBlurText("");
 			//postData(fileName);
 		}
 		
@@ -436,6 +452,7 @@ package recorder.listeners
 				WebcamRecorderClient.appendMessage("Status: " + i + " : "+obj[i]);
 				trace("Status: " + i + " : "+obj[i]);
 			}
+			setBlur(false);
 		}
 		
 		public function cameraReady(event:CameraReadyEvent):void
@@ -519,6 +536,16 @@ package recorder.listeners
 				navigateToURL(request, "_self");	
 			}
 			
+		}
+		
+		private function setBlur(flag:Boolean):void
+		{
+			ExternalInterface.call(WebcamRecorderClient.configurationVariables["blurFunction"], flag);			
+		}
+		
+		private function setBlurText(text:String):void
+		{
+			ExternalInterface.call(WebcamRecorderClient.configurationVariables["blurFunctionText"], text);			
 		}
 
 		private function metaDataHandler(infoObject:Object):void
