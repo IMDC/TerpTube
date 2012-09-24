@@ -379,9 +379,12 @@ package recorder.listeners
 				trace("StopRecordingCamera Success:"+obj);
 				if (!audioRecording)
 				{
-					
-					transcode();
+					setButtonsEnabled(true);
+					setBlur(false);
+					setBlurText("");
+//					transcode();
 				}
+
 		}
 		
 		
@@ -397,8 +400,12 @@ package recorder.listeners
 				trace("StopRecordingAudio Success:"+obj);
 				if (!cameraRecording)
 				{
-					transcode();
+//					transcode();
+					setButtonsEnabled(true);
+					setBlur(false);
+					setBlurText("");
 				}
+
 		}
 		//FIXME Make this WEBM Only due to GPL/non-redistributable restrictions
 		private function transcode():void
@@ -426,11 +433,15 @@ package recorder.listeners
 			setBlur(false);
 		}
 		
+		private function setButtonsEnabled(flag:Boolean):void
+		{
+			recordButton.enabled  = flag;
+			cameraControlsPanel.nextButton.enabled = flag;
+			cameraControlsPanel.cancelButton.enabled = flag;
+		}
 		private function transcodeVideoSuccess(obj:Object):void
 		{
-			recordButton.enabled  = true;
-			cameraControlsPanel.nextButton.enabled = true;
-			cameraControlsPanel.cancelButton.enabled = true;
+			setButtonsEnabled(true);
 			var fileName:String = obj.toString();
 			WebcamRecorderClient.appendMessage("Transcoding successfull. File: " +fileName);
 			trace("Transcoding successfull. File: " +fileName);
@@ -440,6 +451,8 @@ package recorder.listeners
 			resultingVideoFile = fileName;
 			setBlur(false);
 			setBlurText("");
+			netConnection.close();
+			postData(resultingVideoFile, WebcamRecorderClient.configurationVariables["postURL"], WebcamRecorderClient.configurationVariables["isAjax"]);
 			//postData(fileName);
 		}
 		
@@ -452,6 +465,7 @@ package recorder.listeners
 				WebcamRecorderClient.appendMessage("Status: " + i + " : "+obj[i]);
 				trace("Status: " + i + " : "+obj[i]);
 			}
+			setBlurText("");
 			setBlur(false);
 		}
 		
@@ -479,8 +493,7 @@ package recorder.listeners
 		public function nextButtonHandler(event:ButtonEvent):void
 		{
 			netConnection.call("cancelDeleteTimer",null, streamName);
-			netConnection.close();
-			postData(resultingVideoFile, WebcamRecorderClient.configurationVariables["postURL"], WebcamRecorderClient.configurationVariables["isAjax"]);
+			transcode();
 		}
 		
 		public function cancelButtonHandler(event:ButtonEvent):void
