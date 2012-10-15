@@ -152,7 +152,7 @@ package recorder.model
 			camera.addEventListener(StatusEvent.STATUS, cameraStatusHandler); 
 			
 			camera.setMode(640, 480, 30, true);
-			camera.setQuality(0, 85);
+			camera.setQuality(0, 95);
 			camera.setKeyFrameInterval(5);
 		}
 		

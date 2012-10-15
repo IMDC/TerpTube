@@ -202,6 +202,7 @@ package recorder.listeners
 		public function stopRecording(event:RecordingEvent=null):void
 		{
 			//recordButton = (RecordButton)(event.target);
+			setBlurText("Uploading...");
 			setBlur(true);
 			recordButton.enabled = false;
 			recordingTimer.stop();
@@ -298,7 +299,11 @@ package recorder.listeners
 			}
 			else
 			{
-				var remainingBytesForUploading:Number = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
+				var remainingBytesForUploading:Number;
+				if (audioNetStream!=null)
+					remainingBytesForUploading = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
+				else
+					remainingBytesForUploading = cameraNetStream.bufferLength;
 				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
 				trace("Remaining buffer:"+ cameraNetStream.bufferLength);
 			}
@@ -324,7 +329,11 @@ package recorder.listeners
 			}
 			else
 			{
-				var remainingBytesForUploading:Number = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
+				var remainingBytesForUploading:Number;
+				if (cameraNetStream!=null)
+					remainingBytesForUploading = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
+				else
+					remainingBytesForUploading = audioNetStream.bufferLength;
 				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
 				trace("Remaining buffer:"+ audioNetStream.bufferLength);
 			}
@@ -413,6 +422,7 @@ package recorder.listeners
 			startDeleteTimer(RECORDING_CAMERA);
 			startDeleteTimer(RECORDING_AUDIO);
 			setBlurText("Converting video...");
+			setBlur(true);
 //			var o:Object = BrowserUtils.getVersion();
 			//Only use webm as video codec
 			var supportedVideoType:String = "webm" //BrowserUtils.getHTML5VideoSupport();
