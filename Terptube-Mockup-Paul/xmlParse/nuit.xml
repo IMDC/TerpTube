@@ -1,0 +1,104 @@
+<aslproject>
+<version>5</version>
+<movie duration="93867" src="NuitBlanche017.mp4">
+<signicons>
+<signicon>
+<movietime end="19019" frametime="6839" start="5215"/>
+<frameoverlay height="120" left="100" top="114" width="160"/>
+<url>http://www.ocadu.ca</url>
+<browser target="_top"/>
+<label>OCAD</label>
+</signicon>
+<signicon>
+<movietime end="39265" frametime="26381" start="26259"/>
+<frameoverlay height="120" left="47" top="52" width="160"/>
+<url>http://www.ryerson.ca</url>
+<browser target="_top"/>
+<label> Ryerson</label>
+</signicon>
+<signicon>
+<movietime end="84051" frametime="78529" start="73314"/>
+<frameoverlay height="120" left="73" top="29" width="160"/>
+<url>http://ryerson.ca/clt</url>
+<browser target="_top"/>
+<label>LAB</label>
+</signicon>
+</signicons>
+<transcript>This section is for adding text. You can add text to transcribe the ASL content of the video for example.&lt;br&gt;&lt;br&gt;Thank you for visiting us! Have a nice day.</transcript>
+<captions>
+<settings>
+<font family="Serif" size="16"/>
+<background alpha="255" blue="0" green="0" red="0"/>
+<foreground blue="255" green="255" red="255"/>
+<alignment horizontal="CENTER" vertical="BOTTOM"/>
+<attributes bold="true" italics="false" underline="false"/>
+</settings>
+<list>
+<caption>
+<time end="13497" start="2147"/>
+<font family="Serif" size="16"/>
+<background alpha="255" blue="0" green="0" red="0"/>
+<foreground blue="255" green="255" red="255"/>
+<alignment horizontal="CENTER" vertical="BOTTOM"/>
+<text>&lt;b&gt;Hello and Welcome to IDI at OCAD&lt;/b&gt;</text>
+</caption>
+<caption>
+<time end="26994" start="15645"/>
+<font family="Serif" size="16"/>
+<background alpha="255" blue="255" green="0" red="255"/>
+<foreground blue="255" green="255" red="255"/>
+<alignment horizontal="CENTER" vertical="BOTTOM"/>
+<text>&lt;b&gt;We are showing inclusive design research&lt;/b&gt;</text>
+</caption>
+<caption>
+<time end="36197" start="27094"/>
+<font family="Serif" size="16"/>
+<background alpha="255" blue="255" green="0" red="0"/>
+<foreground blue="255" green="255" red="255"/>
+<alignment horizontal="CENTER" vertical="BOTTOM"/>
+<text>&lt;b&gt;We are showing our software&lt;/b&gt;</text>
+</caption>
+<caption>
+<time end="47854" start="37117"/>
+<font family="Serif" size="16"/>
+<background alpha="255" blue="0" green="0" red="0"/>
+<foreground blue="255" green="255" red="255"/>
+<alignment horizontal="CENTER" vertical="BOTTOM"/>
+<text>&lt;b&gt;for video accessiblity for Deaf signers online&lt;/b&gt;</text>
+</caption>
+<caption>
+<time end="60431" start="50001"/>
+<font family="Serif" size="16"/>
+<background alpha="255" blue="0" green="0" red="0"/>
+<foreground blue="255" green="255" red="255"/>
+<alignment horizontal="CENTER" vertical="BOTTOM"/>
+<text>&lt;b&gt;This uses visual interface for navigation which is accessible for       Deaf signers.&lt;/b&gt;</text>
+</caption>
+<caption>
+<time end="76075" start="62271"/>
+<font family="Serif" size="16"/>
+<background alpha="255" blue="0" green="0" red="255"/>
+<foreground blue="255" green="255" red="255"/>
+<alignment horizontal="CENTER" vertical="BOTTOM"/>
+<text>&lt;b&gt;If any questions please ask us!&lt;/b&gt;</text>
+</caption>
+<caption>
+<time end="88039" start="76689"/>
+<font family="Serif" size="16"/>
+<background alpha="255" blue="0" green="0" red="0"/>
+<foreground blue="255" green="255" red="255"/>
+<alignment horizontal="CENTER" vertical="BOTTOM"/>
+<text>&lt;b&gt;My name is Ellen Hibbard, PhD Communications and Culture&lt;/b&gt;</text>
+</caption>
+<caption>
+<time end="93253" start="88139"/>
+<font family="Serif" size="16"/>
+<background alpha="255" blue="0" green="0" red="0"/>
+<foreground blue="255" green="255" red="255"/>
+<alignment horizontal="CENTER" vertical="BOTTOM"/>
+<text>&lt;b&gt;with focus in Technology. Thank you!!&lt;/b&gt;</text>
+</caption>
+</list>
+</captions>
+</movie>
+</aslproject>

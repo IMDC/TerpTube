@@ -1,0 +1,29 @@
+.arduino {
+	color: red;
+	text-transform: uppercase;
+	font-family: "Helvetica Neue";
+	font-weight: lighter;
+}
+
+.captionator-title a {
+	text-decoration: none;
+	font-weight: bold;
+	letter-spacing: 5pt;
+	font-family: "Helvetica Neue";
+	font-weight: bolder;
+	color: red;
+}
+
+q.voice:before {
+	content: attr(title);
+	color:red;
+	margin-right: 0.5em;
+}
+
+q.voice:after {
+	content: "";
+}
+
+.customClass{
+	color:blue;
+}

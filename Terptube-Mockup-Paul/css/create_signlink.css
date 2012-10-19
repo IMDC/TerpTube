@@ -1,0 +1,28 @@
+.video{
+	float:left;
+}
+
+.video-text-description{
+     float:left;
+	 height:100px;
+	 width:300px;
+	 
+	 margin-left:30px;
+	 margin-top:50px;
+	 display:none;
+}
+
+.source-media-container{
+	width:520px;
+	height:auto;
+	margin-bottom:10px;
+	
+}
+
+#comment-video{
+   display:none;	
+}
+
+#add-signlink{
+	display:none;
+}

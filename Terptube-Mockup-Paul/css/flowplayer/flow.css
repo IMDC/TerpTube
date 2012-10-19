@@ -1,0 +1,24 @@
+section.blurb .box{
+    padding:0;
+}
+/* styling of the container. */
+a.myPlayer {
+    display:block;
+    width: 320px;
+    height:240px;
+    text-align:center;
+    margin:15px;
+    float:left;
+    border:1px solid #999;
+}
+
+/* play button */
+a.myPlayer img {
+    margin-top:70px;
+    border:0px;
+}
+
+/* when container is hovered we alter the border color */
+a.myPlayer:hover {
+    border:1px solid #000;
+}
