@@ -1,3 +1,7 @@
+.cleardiv {
+    clear: both;
+}
+
 .source-media-container{
 	width:auto;
 	height:auto;
@@ -14,7 +18,7 @@
 	width:auto;
 	float:left;
 	background:gray;
-	
+
 	padding:5px;
 }
 
@@ -26,10 +30,10 @@
 .source-text-container{
 	width:365px;
 	height:200px;
-	
+
 	margin-left:5px;
 	border:1px solid black;
-	
+
 	background:white;
 	display:none;
 	overflow:scroll;
@@ -37,7 +41,7 @@
 
 /*
  * Comment area
- * 
+ *
  */
 
 #linkCanvas{
@@ -51,7 +55,7 @@
 }
 
 form input{
-	
+
 }
 
 /*
@@ -71,10 +75,10 @@ form input{
 }
 
 .comment-container{
-	
+
 	float:left;
 	margin-left:30px;
-	
+
 	width:auto;
 	height:auto;
 }
@@ -97,7 +101,7 @@ form input{
 	width:70%;
 	height:100%;
 	background:#FFE4C4;
-	
+
 }
 
 .comment-content{
@@ -117,17 +121,17 @@ form input{
 
 .comment-content video{
 	position:relative;
-	
+
 	width:120px;
 	height:100px;
-	
+
 }
 
 .comment-avatar-div{
 	width:24%;
-	
+
 	text-align:center;
-    float:left;	
+    float:left;
 }
 
 .comment-avatar-div img
@@ -137,14 +141,14 @@ form input{
 }
 
 .feedback-properties{
-   width:5%; 
+   width:5%;
    height:100%;
-   float:right;	
+   float:right;
 }
 
 .feedback-properties img{
    width:25px;
-   height:25px;	
+   height:25px;
 }
 
 .comment-text{
@@ -159,7 +163,7 @@ form input{
 .reply-content{
 	width:98%;
 	border:1px solid black;
-	
+
 }
 
 .text_reply{
