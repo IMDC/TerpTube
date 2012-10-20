@@ -1,5 +1,99 @@
+/********************  MAIN containers **************/
+
+#container {
+	margin: 0;
+	width: 1300px;
+	background: #fff;
+}
+
+#header {
+	padding: 20px;
+}
+
+#header h1 { margin: 0; }
+
+#navigation {
+	float: left;
+	width: 1300px;
+	background: #333;
+}
+
+#navigation ul {
+	margin: 0;
+	padding: 0;
+}
+
+#navigation ul li {
+	list-style-type: none;
+	display: inline;
+}
+
+#navigation li a {
+	display: block;
+	float: left;
+	padding: 5px 10px;
+	color: #fff;
+	text-decoration: none;
+	border-right: 1px solid #fff;
+}
+
+#navigation li a:hover { background: #383; }
+
+#content-container {
+	float: left;
+	width: 1300px;
+	background: #fff;
+}
+
+#content-left {
+	clear: left;
+	float: left;
+	width: 700px;
+	padding: 20px 0;
+	margin: 0 0 0 30px;
+	display: inline;
+}
+
+#content h2 { margin: 0; }
+
+#content-right {
+	float: right;
+	width: 500px;
+	padding: 20px 0;
+	margin: 0 20px 0 0;
+	display: inline;
+}
+
+#footer {
+	clear: both;
+	text-align: right;
+	padding: 20px;
+	height: 1%;
+}
+
 .cleardiv {
     clear: both;
+}
+
+.clearfix:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+
+.clearfix {
+	display: inline-block;
+}
+
+html[xmlns] .clearfix {
+	display: block;
+}
+
+* html .clearfix {
+	height: 1%;
 }
 
 .source-media-container{
@@ -14,12 +108,13 @@
 
 /*media controls of main video*/
 .source-video-controls{
-	height:230px;
+	/*height:230px;*/
 	width:auto;
 	float:left;
-	background:gray;
-
+    position: absolute;
+	/*background:gray;*/
 	padding:5px;
+    z-index:1005;
 }
 
 /*media controls of main video for individual images*/
@@ -28,15 +123,16 @@
 }
 
 .source-text-container{
-	width:365px;
+	/*width:365px;*/
 	height:200px;
-
 	margin-left:5px;
+    margin-top: 25px;
 	border:1px solid black;
-
 	background:white;
 	display:none;
-	overflow:scroll;
+	overflow: auto;
+    line-height:135%;
+    padding: 10px;
 }
 
 /*
@@ -50,12 +146,32 @@
 	border: 1px solid black;
 }
 
-#play-button-container{
+#video-playback-buttons-container {
 	float:left;
 }
 
-form input{
+.comment-details {
+    width: 100%;
+    height: auto;
+    display:inline-block;
+}
 
+#new-comment-form input, textarea{
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  border:1px solid #ccc;
+  font-size:20px;
+  width:300px;
+  min-height:30px;
+  display:block;
+  margin-bottom:15px;
+  margin-top:5px;
+  outline: none;
+
+  -webkit-border-radius:5px;
+  -moz-border-radius:5px;
+  -o-border-radius:5px;
+  -ms-border-radius:5px;
+  border-radius:5px;
 }
 
 /*
@@ -75,10 +191,8 @@ form input{
 }
 
 .comment-container{
-
-	float:left;
-	margin-left:30px;
-
+	/*float:left;*/
+	/*margin-left:30px;*/
 	width:auto;
 	height:auto;
 }
@@ -121,7 +235,6 @@ form input{
 
 .comment-content video{
 	position:relative;
-
 	width:120px;
 	height:100px;
 
@@ -134,8 +247,7 @@ form input{
     float:left;
 }
 
-.comment-avatar-div img
-{
+.comment-avatar-div img {
 	width:50px;
 	height:50px;
 }
@@ -163,7 +275,6 @@ form input{
 .reply-content{
 	width:98%;
 	border:1px solid black;
-
 }
 
 .text_reply{
@@ -179,4 +290,19 @@ form input{
 	position:relative;
 	left:500px;
 	width:25px;
+}
+
+#commentButtonWrap {
+    float: left;
+    clear: both;
+    margin: 25px 0;
+    width: 100%;
+}
+
+#commentButtonWrap button {
+    padding: 15px;
+}
+
+img.clickable {
+    cursor: pointer;
 }
