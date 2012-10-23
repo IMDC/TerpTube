@@ -66,11 +66,11 @@
        function createUploader(){            
             var uploader = new qq.FileUploader({
                 element: document.getElementById('file-uploader-demo1'),
-                action: '../terpmock/scripts/ajaxupload/upload.php',
+                action: 'scripts/ajaxupload/upload.php',
                 debug: true,
                 onComplete: function(id, fileName, responseJSON){
                 	
-                	changeMovieSource('../terpmock/uploads/signlink/temp/' + fileName, fileName);
+                	changeMovieSource('uploads/signlink/temp/' + fileName, fileName);
                 }
             });           
         }

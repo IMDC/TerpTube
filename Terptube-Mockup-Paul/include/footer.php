@@ -734,7 +734,7 @@ mysqli_close($db);
                        function createUploader($this){
                            var uploader = new qq.FileUploaderBasic({
                                button: document.getElementById('input-upload-span'),
-                               action: '../terpmock/scripts/ajaxupload/upload.php?v=source',
+                               action: 'scripts/ajaxupload/upload.php?v=source',
                                debug: true,
                                onComplete: function(id, fileName, responseJSON){
                                    $("[name=file-name]").val(fileName);
@@ -755,7 +755,7 @@ mysqli_close($db);
                            {
                                var uploader = new qq.FileUploaderBasic({
                                    button: $('.reply-upload-span').get()[i], // document.getElementByClassName('reply-upload-span'),
-                                   action: '../terpmock/scripts/ajaxupload/upload.php?v=reply&id=' + i,
+                                   action: 'scripts/ajaxupload/upload.php?v=reply&id=' + i,
                                    debug: true,
                                    onComplete: function(id, fileName, responseJSON){
                                        var obj = jQuery.parseJSON(responseJSON);
@@ -772,7 +772,7 @@ mysqli_close($db);
 
                    });
 </script>
-<script type="text/javascript" src="../terpmock/js/index/common_function.js"></script>
+<script type="text/javascript" src="js/index/common_function.js"></script>
 
 </body>
 </html>
