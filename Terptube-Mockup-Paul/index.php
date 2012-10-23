@@ -51,7 +51,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                         </canvas>
 
                         <!-- traversal canvas is the playhead -->
-                        <canvas id="traversalCanvas" width="640" height="40px"
+                        <canvas id="traversalCanvas" width="640" height="60px"
                                 style="margin:0;padding:0;position: absolute; left: 0; top: 0; z-index: 1;">
                         </canvas>
                     </div>

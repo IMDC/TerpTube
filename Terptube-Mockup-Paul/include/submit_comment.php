@@ -1,5 +1,5 @@
 <?php
-
+  require_once('../setup.php');
   require_once(INC_DIR . 'config.inc.php');
   require_once(INC_DIR . 'functions.inc.php');
 
