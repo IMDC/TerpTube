@@ -102,10 +102,19 @@ while ($row = mysqli_fetch_assoc($result)) {
                         </select>
 
 
-                        <p id="input-upload-span"> Upload Video: <input id="uploadedfileButton"  type="button" value="Choose Video" /> </p>
+	                    <div id="input-upload-div">
+	                    	Upload Video: 
+	                    	<input id="uploadedfileButton"  type="button" value="Choose Video" >
+	                    	</input> 
+	                    </div>
 
-                        Record Video:
-
+                        <div id="input-record-div">
+                        	Record Video:
+                        	<input id="recordButton" type="button" value="Record" />
+                        	<div id="videoRecordingOrPreview" style="display:hidden">
+                        		
+                        	</div>
+						</div>
                     </fieldset>
 
 

@@ -306,3 +306,13 @@ html[xmlns] .clearfix {
 img.clickable {
     cursor: pointer;
 }
+
+
+#input-upload-div
+{
+	width: 300px;
+}
+#new-comment-form fieldset
+{
+	width: 300px;
+}

@@ -733,7 +733,9 @@ mysqli_close($db);
                        //called when user uploads a video in the reply box
                        function createUploader($this){
                            var uploader = new qq.FileUploaderBasic({
-                               button: document.getElementById('input-upload-span'),
+                           	   multiple: false,
+                           	   element:document.getElementById('uploadedfileButton'),
+                               button: document.getElementById('input-upload-div'),
                                action: 'scripts/ajaxupload/upload.php?v=source',
                                debug: true,
                                onComplete: function(id, fileName, responseJSON){
