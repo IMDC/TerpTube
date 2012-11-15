@@ -22,6 +22,10 @@ package
 	[SWF(width=660)]
 	[SWF(height=620)]
 
+	/*
+	 * NEEDS FLEX SDK 4.6.0 in order to work.
+	 */
+	
 	public class WebcamRecorderClient extends Sprite
 	{
 		private var _netConnection:NetConnection;
