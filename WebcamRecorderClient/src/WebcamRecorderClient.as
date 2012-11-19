@@ -11,7 +11,6 @@ package
 	import flash.text.TextField;
 	import flash.ui.ContextMenu;
 	
-	import recorder.gui.CameraControlsPanel;
 	import recorder.gui.CameraViewer;
 	import recorder.listeners.CameraControlsListener;
 	import recorder.model.CameraMicSource;
@@ -19,8 +18,8 @@ package
 	import utils.BrowserUtils;
 
 	//[SWF(backgroundColor="0xcc99cc")]
-	[SWF(width=660)]
-	[SWF(height=620)]
+	[SWF(width=640)]
+	[SWF(height=480)]
 
 	/*
 	 * NEEDS FLEX SDK 4.6.0 in order to work.
@@ -38,11 +37,11 @@ package
 //			width = 486;
 //			height = 390;
 			configurationVariables = new Array();
-			configurationVariables["width"] = 660;
-			configurationVariables["height"] = 620;
+			configurationVariables["width"] = 640;
+			configurationVariables["height"] = 480;
 			configurationVariables["debug"] = false;
 			configurationVariables["backgroundColor"] = 0xDDDDDD;
-			configurationVariables["contentPadding"] = 10;
+			configurationVariables["contentPadding"] = 0;
 			configurationVariables["videoWidth"] = 640;
 			configurationVariables["videoHeight"] = 480;
 			configurationVariables["sliderBackgroundColor"] = 0xCCCCCC;
@@ -144,16 +143,9 @@ package
 			cameraViewer.y = configurationVariables["contentPadding"];
 			addChild(cameraViewer);
 			
-			var cameraControlsPanel:CameraControlsPanel = new CameraControlsPanel();
-			cameraControlsPanel.x = configurationVariables["contentPadding"];
-			cameraControlsPanel.y = configurationVariables["videoHeight"] +configurationVariables["contentPadding"]*2;
-			cameraControlsPanel.maxTime = configurationVariables["maxRecordingTime"];
-			addChild(cameraControlsPanel);
-			cameraControlsListener = new CameraControlsListener(netConnection, cameraControlsPanel);
+			cameraControlsListener = new CameraControlsListener(netConnection);
 			CameraMicSource.getInstance().addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
 			CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING,cameraControlsListener.microphoneReady);
-			
-			cameraControlsPanel.addControlsListener(cameraControlsListener);
 			
 		}
 		public static function appendMessage(message:String):void

@@ -27,9 +27,7 @@ package recorder.listeners
 	import recorder.events.CameraReadyEvent;
 	import recorder.events.MicrophoneReadyEvent;
 	import recorder.events.RecordingEvent;
-	import recorder.gui.CameraControlsPanel;
 	import recorder.gui.CameraViewer;
-	import recorder.gui.SpriteButton;
 	import recorder.model.CameraMicSource;
 	
 	import utils.BrowserUtils;
@@ -56,11 +54,9 @@ package recorder.listeners
 		private var audioRecording:Boolean;
 		private var streamNameResponder:Responder;
 		private var doneButtonResponder:Responder;
-		private var recordButton:SpriteButton;
 		private var recordingTimer:Timer;
 		private var recordingCameraStartTime:Number;
 		private var recordingAudioStartTime:Number;
-		private var cameraControlsPanel:CameraControlsPanel;
 		private var realFileNameVideo:String;
 		private var realFileNameAudio:String;
 		private var resultingVideoFile:String;
@@ -77,9 +73,8 @@ package recorder.listeners
 		private const SUFFIX_AUDIO:String = "_audio";
 		private const SUFFIX_CAMERA:String = "_video";
 		
-		public function CameraControlsListener(nc:NetConnection, cPanel:CameraControlsPanel)
+		public function CameraControlsListener(nc:NetConnection)
 		{
-			cameraControlsPanel = cPanel;
 			netConnection = nc;
 			startRecordingResponder = new Responder(startRecordingSuccess, startStopRecordingFailure);
 			stopRecordingCameraResponder = new Responder(stopRecordingCameraSuccess, startStopRecordingFailure);
@@ -125,7 +120,6 @@ package recorder.listeners
 				audioNetStream = CameraMicSource.getInstance().getAudioStream(netConnection);
 			}
 //			netStream.bufferTime = 60;
-			cameraControlsPanel.maxTime = WebcamRecorderClient.configurationVariables["maxRecordingTime"];
 			var h264Settings:H264VideoStreamSettings = new H264VideoStreamSettings();
 			h264Settings.setProfileLevel(H264Profile.MAIN, H264Level.LEVEL_3);
 			h264Settings.setQuality(0, 100);
@@ -137,9 +131,6 @@ package recorder.listeners
 			audioNetStream.addEventListener(NetStatusEvent.NET_STATUS, onAudioRecStreamStatus);
 			
 			netConnection.call("generateStream", streamNameResponder);
-			cameraControlsPanel.cancelButton.enabled = false;
-			cameraControlsPanel.nextButton.enabled = false;
-			cameraControlsPanel.recordButton.enabled = false;
 		}
 		
 		private function onCameraRecStreamStatus(event:NetStatusEvent):void
@@ -180,31 +171,22 @@ package recorder.listeners
 			}
 			else
 				currentTime = previewNetStream.time*1000;
-			cameraControlsPanel.setTime(currentTime);
+		//	cameraControlsPanel.setTime(currentTime);
 			if (cameraRecording && currentTime >= WebcamRecorderClient.configurationVariables["maxRecordingTime"])
 			{
-				recordButton.toggleButton();
+//				recordButton.toggleButton();
 			}
 			if (cameraRecording && currentTime >= WebcamRecorderClient.configurationVariables["minRecordingTime"])
 			{
-				recordButton.enabled = true;
+//				recordButton.enabled = true;
 			}
 		}
 		
-		public function toggleRecording(event:ButtonEvent):void
-		{
-			recordButton = (SpriteButton)(event.target);
-			if (SpriteButton(event.target).state==SpriteButton.DOWN_STATE)
-				record();
-			else
-				stopRecording();
-		}
 		public function stopRecording(event:RecordingEvent=null):void
 		{
 			//recordButton = (RecordButton)(event.target);
 			setBlurText("Uploading...");
 			setBlur(true);
-			recordButton.enabled = false;
 			recordingTimer.stop();
 			recordingTimer = null;
 			
@@ -388,7 +370,6 @@ package recorder.listeners
 				trace("StopRecordingCamera Success:"+obj);
 				if (!audioRecording)
 				{
-					setButtonsEnabled(true);
 					setBlur(false);
 					setBlurText("");
 //					transcode();
@@ -410,7 +391,6 @@ package recorder.listeners
 				if (!cameraRecording)
 				{
 //					transcode();
-					setButtonsEnabled(true);
 					setBlur(false);
 					setBlurText("");
 				}
@@ -443,15 +423,8 @@ package recorder.listeners
 			setBlur(false);
 		}
 		
-		private function setButtonsEnabled(flag:Boolean):void
-		{
-			recordButton.enabled  = flag;
-			cameraControlsPanel.nextButton.enabled = flag;
-			cameraControlsPanel.cancelButton.enabled = flag;
-		}
 		private function transcodeVideoSuccess(obj:Object):void
 		{
-			setButtonsEnabled(true);
 			var fileName:String = obj.toString();
 			WebcamRecorderClient.appendMessage("Transcoding successfull. File: " +fileName);
 			trace("Transcoding successfull. File: " +fileName);
@@ -574,7 +547,6 @@ package recorder.listeners
 		private function metaDataHandler(infoObject:Object):void
 		{
 			trace("metadata"+ infoObject.duration);
-			cameraControlsPanel.maxTime = infoObject.duration*1000;
 		}
 	}
 }
