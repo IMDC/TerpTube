@@ -85,6 +85,15 @@ package recorder.listeners
 			cameraRecording = false;
 			previewing = false;
 			doneRecording = true;
+			//Add callback functions for javascript
+			registerCallbacks();
+		}
+		
+		public function registerCallbacks():void
+		{
+			ExternalInterface.addCallback("startRecording", record);
+			ExternalInterface.addCallback("stopRecording", stopRecording);
+			ExternalInterface.addCallback("startTranscoding", transcode);
 		}
 		
 		public function doneButtonSuccess(obj:Object):void
@@ -140,10 +149,10 @@ package recorder.listeners
 			{
 				cameraRecording = true;
 				netConnection.call("record", startRecordingResponder, streamName, RECORDING_CAMERA);
-				recordingCameraStartTime = new Date().time;
-				recordingTimer = new Timer(200, 0);
-				recordingTimer.addEventListener(TimerEvent.TIMER, updateTime);
-				recordingTimer.start();
+//				recordingCameraStartTime = new Date().time;
+//				recordingTimer = new Timer(200, 0);
+//				recordingTimer.addEventListener(TimerEvent.TIMER, updateTime);
+//				recordingTimer.start();
 			}
 		}
 		
@@ -162,31 +171,31 @@ package recorder.listeners
 			
 		}
 		
-		private function updateTime(event:TimerEvent):void
-		{
-			var currentTime:Number;
-			if (cameraRecording)
-			{
-				currentTime= new Date().time - recordingCameraStartTime;
-			}
-			else
-				currentTime = previewNetStream.time*1000;
-		//	cameraControlsPanel.setTime(currentTime);
-			if (cameraRecording && currentTime >= WebcamRecorderClient.configurationVariables["maxRecordingTime"])
-			{
-//				recordButton.toggleButton();
-			}
-			if (cameraRecording && currentTime >= WebcamRecorderClient.configurationVariables["minRecordingTime"])
-			{
-//				recordButton.enabled = true;
-			}
-		}
+//		private function updateTime(event:TimerEvent):void
+//		{
+//			var currentTime:Number;
+//			if (cameraRecording)
+//			{
+//				currentTime= new Date().time - recordingCameraStartTime;
+//			}
+//			else
+//				currentTime = previewNetStream.time*1000;
+//		//	cameraControlsPanel.setTime(currentTime);
+//			if (cameraRecording && currentTime >= WebcamRecorderClient.configurationVariables["maxRecordingTime"])
+//			{
+////				recordButton.toggleButton();
+//			}
+//			if (cameraRecording && currentTime >= WebcamRecorderClient.configurationVariables["minRecordingTime"])
+//			{
+////				recordButton.enabled = true;
+//			}
+//		}
 		
 		public function stopRecording(event:RecordingEvent=null):void
 		{
 			//recordButton = (RecordButton)(event.target);
-			setBlurText("Uploading...");
-			setBlur(true);
+//			setBlurText("Uploading...");
+//			setBlur(true);
 			recordingTimer.stop();
 			recordingTimer = null;
 			
@@ -286,8 +295,11 @@ package recorder.listeners
 					remainingBytesForUploading = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
 				else
 					remainingBytesForUploading = cameraNetStream.bufferLength;
-				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
-				trace("Remaining buffer:"+ cameraNetStream.bufferLength);
+//				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
+
+				var percentDone:Number = Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100);
+				trace("Remaining buffer:"+ audioNetStream.bufferLength);
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingUploadProgressCallback"], percentDone);
 			}
 		}
 		
@@ -316,8 +328,10 @@ package recorder.listeners
 					remainingBytesForUploading = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
 				else
 					remainingBytesForUploading = audioNetStream.bufferLength;
-				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
+//				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
+				var percentDone:Number = Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100);
 				trace("Remaining buffer:"+ audioNetStream.bufferLength);
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingUploadProgressCallback"], percentDone);
 			}
 		}
 		
@@ -353,7 +367,8 @@ package recorder.listeners
 				doneRecording = false;
 				WebcamRecorderClient.appendMessage("Recording started");
 				trace("StartRecording Success:"+obj);
-				
+				//call the javascript function that recording has started
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingStartedCallback"]);
 			}
 			
 		}
@@ -370,9 +385,10 @@ package recorder.listeners
 				trace("StopRecordingCamera Success:"+obj);
 				if (!audioRecording)
 				{
-					setBlur(false);
-					setBlurText("");
+//					setBlur(false);
+//					setBlurText("");
 //					transcode();
+					ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingStoppedCallback"]);
 				}
 
 		}
@@ -391,8 +407,9 @@ package recorder.listeners
 				if (!cameraRecording)
 				{
 //					transcode();
-					setBlur(false);
-					setBlurText("");
+//					setBlur(false);
+//					setBlurText("");
+					ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingStoppedCallback"]);
 				}
 
 		}
@@ -436,6 +453,7 @@ package recorder.listeners
 			setBlurText("");
 			netConnection.close();
 			postData(resultingVideoFile, WebcamRecorderClient.configurationVariables["postURL"], WebcamRecorderClient.configurationVariables["isAjax"]);
+			ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingTranscodingFinishedCallback"], resultingVideoFile, true);
 			//postData(fileName);
 		}
 		
@@ -450,6 +468,7 @@ package recorder.listeners
 			}
 			setBlurText("");
 			setBlur(false);
+			ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingTranscodingFinishedCallback"], null, false);
 		}
 		
 		public function cameraReady(event:CameraReadyEvent):void

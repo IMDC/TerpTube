@@ -57,6 +57,11 @@ package
 			configurationVariables["maxRecordingTime"] = 60000; //1 minute
 			configurationVariables["minRecordingTime"] = 1000; //1 second
 			
+			configurationVariables["recordingStartedCallback"] = "recordingStarted";
+			configurationVariables["recordingStoppedCallback"] = "recordingStopped";
+			configurationVariables["recordingUploadProgressCallback"] = "recordingUploadProgress";
+			configurationVariables["recordingTranscodingFinishedCallback"] = "recordingTranscodingFinished";
+			
 			this.loaderInfo.addEventListener(Event.COMPLETE, stageLoaded);//wait for this swf to be loaded and have flashVars ready
 			//close the connection
 //			netConnection.close();
