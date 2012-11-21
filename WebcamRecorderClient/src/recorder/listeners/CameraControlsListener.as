@@ -194,10 +194,10 @@ package recorder.listeners
 		public function stopRecording(event:RecordingEvent=null):void
 		{
 			//recordButton = (RecordButton)(event.target);
-//			setBlurText("Uploading...");
-//			setBlur(true);
-			recordingTimer.stop();
-			recordingTimer = null;
+			setBlurText("Uploading...");
+			setBlur(true);
+//			recordingTimer.stop();
+//			recordingTimer = null;
 			
 			totalBytesForUploading = cameraNetStream.bufferLength + audioNetStream.bufferLength;
 			
@@ -295,7 +295,7 @@ package recorder.listeners
 					remainingBytesForUploading = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
 				else
 					remainingBytesForUploading = cameraNetStream.bufferLength;
-//				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
+				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
 
 				var percentDone:Number = Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100);
 				trace("Remaining buffer:"+ audioNetStream.bufferLength);
@@ -328,7 +328,7 @@ package recorder.listeners
 					remainingBytesForUploading = (cameraNetStream.bufferLength + audioNetStream.bufferLength);
 				else
 					remainingBytesForUploading = audioNetStream.bufferLength;
-//				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
+				setBlurText("Uploading: "+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100)+"%");
 				var percentDone:Number = Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100);
 				trace("Remaining buffer:"+ audioNetStream.bufferLength);
 				ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingUploadProgressCallback"], percentDone);
@@ -385,8 +385,8 @@ package recorder.listeners
 				trace("StopRecordingCamera Success:"+obj);
 				if (!audioRecording)
 				{
-//					setBlur(false);
-//					setBlurText("");
+					setBlur(false);
+					setBlurText("");
 //					transcode();
 					ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingStoppedCallback"]);
 				}
