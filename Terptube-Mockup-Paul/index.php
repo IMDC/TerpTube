@@ -2,7 +2,6 @@
 require_once('setup.php');
 require_once(INC_DIR . 'config.inc.php');
 require_once(INC_DIR . 'header.php');
-
 $videoNumber = intval($_GET['v']);
 
 $sql = "SELECT * From video_source WHERE source_id = '$videoNumber'";
@@ -46,12 +45,12 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                     <div class="play-canvas" style="position: relative; height:60px;"> <!--  top:-21px" -->
                         <!--  link canvas is the comments -->
-                        <canvas id="linkCanvas" width="640" height="25"
+                        <canvas id="linkCanvas" width="640px" height="25px"
                                 style="margin:0;padding:0;position: absolute; left: 0; bottom: 30%; z-index: 0;" >
                         </canvas>
 
                         <!-- traversal canvas is the playhead -->
-                        <canvas id="traversalCanvas" width="640" height="60px"
+                        <canvas id="traversalCanvas" width="640px" height="60px"
                                 style="margin:0;padding:0;position: absolute; left: 0; top: 0; z-index: 1;">
                         </canvas>
                     </div>
@@ -110,11 +109,12 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                         <div id="input-record-div">
                         	Record Video:
-                        	<input id="recordButton" type="button" value="Record" />
-                        	<div id="videoRecordingOrPreview" style="display:hidden">
-                        		
-                        	</div>
+                        	<input id="recordButton" type="button" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview')" />
+                        	
 						</div>
+						<div id="videoRecordingOrPreview" style="display:hidden">
+                        		
+                        </div>
                     </fieldset>
 
 

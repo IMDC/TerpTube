@@ -1,0 +1,235 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+.record-or-preview button
+{
+	width: 40px;
+	height: 40px;
+}
+
+#beginButton.record-or-preview 
+{
+	background: url(../../images/recordOrPreview/beginning.png) no-repeat;	
+}
+
+#endButton.record-or-preview 
+{
+	background: url(../../images/recordOrPreview/end.png) no-repeat;	
+}
+
+ stepBackwardButton.record-or-preview
+{
+	background: url(../../images/recordOrPreview/jumpback_small.png) no-repeat;	
+}
+
+#stepForwardButton.record-or-preview 
+{
+	background: url(../../images/recordOrPreview/jumpforward_small.png) no-repeat;	
+}
+
+#playButton.record-or-preview 
+{
+	background: url(../../images/recordOrPreview/play_small.png) no-repeat;	
+}
+
+#backButton.record-or-preview 
+{
+	background: url(../../images/recordOrPreview/previous_small.png) no-repeat;	
+}
+
+#submitButton.record-or-preview 
+{
+	background: url(../../images/recordOrPreview/submit_small.png) no-repeat;	
+}
+
+.record-or-preview .video 
+{
+	text-align:center;	
+	width:640px;
+	margin:auto;
+	
+}
+#track.record-or-preview 
+{
+	position:relative;
+	outline: 1px solid black;	
+	height:40px;
+}
+
+.record-or-preview .track
+{
+	position:absolute;
+	left:0px;
+    top:0px;
+    width: 640px;
+    height: 40px;
+}
+
+#densitybar.record-or-preview 
+{
+	z-index: 1;
+	width: 480px;
+}
+#selectedRegion.record-or-preview 
+{
+	z-index: 2;
+	width: 480px;
+}
+#thumb.record-or-preview 
+{
+	z-index: 3;	
+	width: 480px;
+
+}
+#videoControls.record-or-preview 
+{
+	float: left;
+	margin:auto;
+	text-align:center;
+	width: 80%;
+}
+
+#timeBox.record-or-preview 
+{
+	padding-left:2px;
+	padding-right:2px;
+	height: 40px;
+	font-size:0.9em;
+	line-height: 40px;
+	display: inline-block;
+	position: absolute;
+	left: 485px;
+}
+#volume.record-or-preview 
+{
+
+	width: 40px;
+	height: 40px;
+	float:right; 
+	text-align: center;
+}
+#volumeImage.record-or-preview 
+{
+	width: 80%;
+	height: 80%;
+	vertical-align: -50%;
+	line-height:40px;
+}
+#volumeSlider.record-or-preview
+{
+	display:none;
+	position: relative;
+	
+	width: 80px;
+	height: 20px;
+	left:-85px;
+	top: -25px;
+	border: 1px solid black;
+	text-align: center;
+}
+#volumeSlider.record-or-preview.ui-slider
+{
+	text-align: center;
+	margin: 0px;
+}
+#volumeSlider.record-or-preview.ui-slider-range
+{
+	background: green;
+	margin: 0px;
+}
+#volumeSlider.record-or-preview.ui-slider-handle
+{
+	left: 0px;
+	top: -2px;
+}
+#buttonsBar.record-or-preview 
+{
+	clear:both;	
+	margin-top:5px;	
+	margin-left: -40px;
+	margin-right: -40px;
+}
+
+#audioButtonsBar.record-or-preview 
+{
+	clear:both;
+	padding-top:5px;	
+}
+
+#backButtons.record-or-preview 
+{
+	float:left;
+	width: 10%;
+	text-align:left;
+}
+#forwardButtons.record-or-preview 
+{
+	float: right;	
+	width: 10%;
+	text-align:right;
+}
+
+#playerContent.record-or-preview 
+{
+/*	margin: auto;*/
+	text-align: center;
+	width: 660px;	
+/*	margin-left: 0.5px;*/
+}
+
+#videoContainer.record-or-preview 
+{
+	max-width: 100%;
+}
+/* hide the close x on the loading screen */
+/* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   speak for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+#modal.record-or-preview.modal {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('../../images/recordOrPreview/loading.gif') 
+                50% 40% 
+                no-repeat;
+                
+	font-size:	150%;
+   
+	-moz-box-orient:horizontal;
+	-moz-box-pack:center;
+	-moz-box-align:center;
+
+	/* Safari and Chrome */
+	
+	-webkit-box-orient:horizontal;
+	-webkit-box-pack:center;
+	-webkit-box-align:center;
+	
+	/* W3C */
+	
+	box-orient:horizontal;
+	box-pack:center;
+	box-align:center;
+}
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+#videoContainer.loading.record-or-preview  {
+    overflow: hidden;   
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+#videoContainer.loading.modal.record-or-preview  {
+    display: block;
+    display: -moz-box;
+    display: -webkit-box;
+    display: box;
+}

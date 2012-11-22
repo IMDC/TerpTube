@@ -4,7 +4,7 @@
 date_default_timezone_set("America/New_York");
 
 // define paths
-define('SITE_BASE', '//www.imdc.ca/projects/sls/terpmock-paul/');
+define('SITE_BASE', '/~martin/webcamrecord2/integrated2');
 define('APP_DIR', __DIR__ . DIRECTORY_SEPARATOR);
 
 // includes directory

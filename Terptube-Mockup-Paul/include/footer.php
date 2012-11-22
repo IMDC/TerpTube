@@ -325,8 +325,8 @@
 //            video_dom.height = canvas_draw.height = video_dom.offsetHeight;
 //            var ctx_draw = canvas_draw.getContext('2d');
             
-            video_dom.width = traversalCanvas.width = video_dom.offsetWidth;
-            video_dom.height = traversalCanvas.height = video_dom.offsetHeight;
+            video_dom.width = video_dom.offsetWidth;
+            video_dom.height = video_dom.offsetHeight;
             var ctx_draw = traversalCanvas.getContext('2d');
             
             playing=true;
@@ -751,6 +751,7 @@ mysqli_close($db);
                                    //martin here!!!!!!!!!!!!!!!
                                }
                            });
+                           
 
                            //loop for all reply upload spans
                            for(var i = 0; i < $('.reply-upload-span').length; i++)
@@ -771,10 +772,9 @@ mysqli_close($db);
 
                            }
                        }
-
+                       
                    });
 </script>
-<script type="text/javascript" src="js/index/common_function.js"></script>
 
 </body>
 </html>

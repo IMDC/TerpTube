@@ -4,7 +4,7 @@
 //TODO add current time/duration of selected video time on the right of the density bar
 //TODO if video is coming from an upload, Convert it first and then display it.
 require_once("transcodeFunctions.php");
-
+require_once("../setup.php");
 function getExtension($filename)
 {
 	return end(explode('.', $filename));	
@@ -475,13 +475,13 @@ function goBack()
  	if ($postType == "record")
 	{
 	?>
-		refreshPage("record.php","", "right");
+		refreshPage('playerContent', "record.php","", "right");
 	<?php
 	}
 	else if ($postType == "upload")
 	{
 	?>
-		refreshPage("index.php?feature=upload","", "right");
+		refreshPage('playerContent', "upload.php","", "right");
 	<?php
 	}
 	?>
@@ -581,43 +581,43 @@ function toggleMute()
 	drawTrack();
 </script>
 
-<div class="video" id="videoContainer">
-    <video onloadedmetadata="setupVideo()" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" controls="controls" preload="auto">
+<div class="record-or-preview video" id="videoContainer">
+    <video class="record-or-preview" onloadedmetadata="setupVideo()" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" controls="controls" preload="auto">
         <source src="<?php echo $video ?>" type="<?php echo getVideoType($video)?>">
         Browser cannot play video. 
     </video> 
-    <div class="video" id="track">
-        <canvas class="track" id="densitybar" >
+    <div class="record-or-preview video" id="track">
+        <canvas class="record-or-preview track" id="densitybar" >
         </canvas>
-        <canvas class="track" id="selectedRegion" >
+        <canvas class="record-or-preview track" id="selectedRegion" >
         </canvas>
-        <canvas class="track" id="thumb" onMouseOver="javascript:setVolumeBarVisible(false)">
+        <canvas class="record-or-preview track" id="thumb" onMouseOver="javascript:setVolumeBarVisible(false)">
         </canvas>
-      	<div id="timeBox">0:00:00/0:00:00</div>
-       	<div id="volume"  onMouseOver="javascript:setVolumeBarVisible(true)">
-       		<img id="volumeImage" alt="volume control" src="images/audioOn.png"  onClick="javascript:toggleMute()"/>
-       		<div id="volumeSlider"></div>
+      	<div class="record-or-preview" id="timeBox">0:00:00/0:00:00</div>
+       	<div class="record-or-preview" id="volume"  onMouseOver="javascript:setVolumeBarVisible(true)">
+       		<img class="record-or-preview" id="volumeImage" alt="volume control" src="images/audioOn.png"  onClick="javascript:toggleMute()"/>
+       		<div class="record-or-preview" id="volumeSlider"></div>
        	</div>
 	</div>
-    <div id="buttonsBar">
-        <div id="backButtons">
-        	<button id="backButton" type="button" onclick="javascript:goBack();"></button>
+    <div class="record-or-preview" id="buttonsBar">
+        <div class="record-or-preview" id="backButtons">
+        	<button class="record-or-preview" id="backButton" type="button" onclick="javascript:goBack();"></button>
         </div>
-        <div id="videoControls">
-            <button id="beginButton" type="button" onclick="javascript:jumpTo(0);"></button>
-            <button id="stepBackwardButton" type="button" onclick="javascript:stepBackward();"></button>
-            <button id="playButton" type="button" onclick="javascript:playPause();" ></button>
+        <div class="record-or-preview" id="videoControls">
+            <button class="record-or-preview" id="beginButton" type="button" onclick="javascript:jumpTo(0);"></button>
+            <button class="record-or-preview" id="stepBackwardButton" type="button" onclick="javascript:stepBackward();"></button>
+            <button class="record-or-preview" id="playButton" type="button" onclick="javascript:playPause();" ></button>
             
-            <button id="stepForwardButton" type="button" onclick="javascript:stepForward();"></button>
-            <button id="endButton" type="button" onclick="javascript:jumpTo(1);"></button>
+            <button class="record-or-preview" id="stepForwardButton" type="button" onclick="javascript:stepForward();"></button>
+            <button class="record-or-preview" id="endButton" type="button" onclick="javascript:jumpTo(1);"></button>
          <!--   <button type="button" onclick="javascript:previewClip();" >Preview</button> -->
         </div>
-        <div id="forwardButtons">
-   	     	<button id="submitButton" type="button" onclick="javascript:transcodeAjax();"></button>
+        <div class="record-or-preview" id="forwardButtons">
+   	     	<button class="record-or-preview" id="submitButton" type="button" onclick="javascript:transcodeAjax();"></button>
         </div>
-        <div id="audioButtonsBar">
+        <div class="record-or-preview" id="audioButtonsBar">
         Remove audio from the video?<br />	<label for="audioOff"><img src="images/audioOff.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="false" id="audioOff" />
-            <label for="audioOn"><img src="images/audioOn.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="true" id="audioOn" checked="checked" />
+            <label for="audioOn"><img src="images/audioOn.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="true" class="record-or-preview" id="audioOn" checked="checked" />
              
         </div>
     </div>

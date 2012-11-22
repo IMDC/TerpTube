@@ -13,12 +13,12 @@ function getFFMPEGPath()
 	 *            in the format HH:MM:SS.mmm
 	 * @return time in seconds
 	 */
-	function parseFFMPEGTimeToSeconds($time)
-	{
-		$array = preg_split(":|\.", $time);
-		$timeMilliseconds = $array[0]* 60 * 60 * 1000; + $array[1]*60*1000 + $array[2]*1000 + $array[3];
-		return $timeMilliseconds / 1000.0;
-	}
+function parseFFMPEGTimeToSeconds($time)
+{
+	$array = preg_split(":|\.", $time);
+	$timeMilliseconds = $array[0]* 60 * 60 * 1000; + $array[1]*60*1000 + $array[2]*1000 + $array[3];
+	return $timeMilliseconds / 1000.0;
+}
 
 	/**
 	 * convert from time in seconds to FFMPEG String
@@ -27,24 +27,24 @@ function getFFMPEGPath()
 	 *            in seconds
 	 * @return String representation of time in the format HH:MM:SS,mmm
 	 */
-	function parseSecondsToFFMPEGTime($time)
-	{
-		$time = intval($time*1000);
-		$mil = "" . ($time % 1000);
-		$sec = "" . (($time / 1000) % 60);
-		$min = "" . ((($time / 1000) / 60) % 60);
-		$hrs = "" . ((($time / 1000) / 60) / 60) % 60;
-		while (strlen($mil) < 3)
-			$mil = "0" . $mil;
-		while (strlen($sec) < 2)
-			$sec = "0" . $sec;
-		while (strlen($min) < 2)
-			$min = "0" . $min;
-		while (strlen($hrs) < 2)
-			$hrs = "0" . $hrs;
+function parseSecondsToFFMPEGTime($time)
+{
+	$time = intval($time*1000);
+	$mil = "" . ($time % 1000);
+	$sec = "" . (($time / 1000) % 60);
+	$min = "" . ((($time / 1000) / 60) % 60);
+	$hrs = "" . ((($time / 1000) / 60) / 60) % 60;
+	while (strlen($mil) < 3)
+		$mil = "0" . $mil;
+	while (strlen($sec) < 2)
+		$sec = "0" . $sec;
+	while (strlen($min) < 2)
+		$min = "0" . $min;
+	while (strlen($hrs) < 2)
+		$hrs = "0" . $hrs;
 
-		return $hrs . ":" . $min . ":" . $sec . "." . $mil;
-	}
+	return $hrs . ":" . $min . ":" . $sec . "." . $mil;
+}
 
 
 function trimVideo($inputVideoFile, $outputVideoFile, $startTime, $endTime, $keepInputFile)
