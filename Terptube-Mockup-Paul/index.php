@@ -2,6 +2,7 @@
 require_once('setup.php');
 require_once(INC_DIR . 'config.inc.php');
 require_once(INC_DIR . 'header.php');
+
 $videoNumber = intval($_GET['v']);
 
 $sql = "SELECT * From video_source WHERE source_id = '$videoNumber'";
