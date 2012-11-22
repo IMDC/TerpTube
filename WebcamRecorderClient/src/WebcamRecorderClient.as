@@ -51,16 +51,18 @@ package
 			configurationVariables["cancelURL"] = "javascript:history.go(-1)";
 			configurationVariables["isAjax"] = false;
 			configurationVariables["elementID"] = "playerContent";
-			configurationVariables["blurFunction"] = "setBlur";
-			configurationVariables["blurFunctionText"] = "setBlurText";
+//			configurationVariables["blurFunction"] = "setBlur";
+//			configurationVariables["blurFunctionText"] = "setBlurText";
 			
 			configurationVariables["maxRecordingTime"] = 60000; //1 minute
 			configurationVariables["minRecordingTime"] = 1000; //1 second
 			
-			configurationVariables["recordingStartedCallback"] = "recordingStarted";
-			configurationVariables["recordingStoppedCallback"] = "recordingStopped";
-			configurationVariables["recordingUploadProgressCallback"] = "recordingUploadProgress";
-			configurationVariables["recordingTranscodingFinishedCallback"] = "recordingTranscodingFinished";
+			configurationVariables["recordingStartedCallback"] = "recording_recordingStarted";
+			configurationVariables["recordingStoppedCallback"] = "recording_recordingStopped";
+			configurationVariables["recordingUploadProgressCallback"] = "recording_recordingUploadProgress";
+			configurationVariables["recordingTranscodingFinishedCallback"] = "recording_recordingTranscodingFinished";
+			configurationVariables["cameraReadyCallback"] = "recording_cameraReady";
+			configurationVariables["microphoneReadyCallback"] = "recording_microphoneReady";
 			
 			this.loaderInfo.addEventListener(Event.COMPLETE, stageLoaded);//wait for this swf to be loaded and have flashVars ready
 			//close the connection
@@ -143,14 +145,17 @@ package
 		
 		public function setup():void
 		{
+			//Setup the controls listener first so that it will get the event when the camera is ready
+			cameraControlsListener = new CameraControlsListener(netConnection);
+			CameraMicSource.getInstance().addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
+			CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING,cameraControlsListener.microphoneReady);
+			
 			var cameraViewer:CameraViewer = CameraViewer.getInstance();
 			cameraViewer.x = configurationVariables["contentPadding"];
 			cameraViewer.y = configurationVariables["contentPadding"];
 			addChild(cameraViewer);
 			
-			cameraControlsListener = new CameraControlsListener(netConnection);
-			CameraMicSource.getInstance().addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
-			CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING,cameraControlsListener.microphoneReady);
+			
 			
 		}
 		public static function appendMessage(message:String):void

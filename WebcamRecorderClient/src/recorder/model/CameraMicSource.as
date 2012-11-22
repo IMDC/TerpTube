@@ -359,7 +359,7 @@ package recorder.model
 					_cameraVideo.attachCamera(camera);
 				}
 			}
-			if (cameraAccess)
+			if (cameraAccess || !camera.muted)
 				this.dispatchEvent(new CameraReadyEvent(CAMERA_READY_STRING, camera));
 			
 			return _cameraVideo;
@@ -370,6 +370,7 @@ package recorder.model
 			if (camera.muted) 
 			{ 
 				cameraAccess = false;
+				this.dispatchEvent(new CameraReadyEvent(CAMERA_READY_STRING, camera));
 				WebcamRecorderClient.appendMessage("User prevented access to camera");
 				trace("Unable to connect to active camera."); 
 				//No camera Access
@@ -380,7 +381,7 @@ package recorder.model
 				cameraAccess = true;
 				trace("Connected to camera");
 				this.dispatchEvent(new CameraReadyEvent(CAMERA_READY_STRING, camera));
-				camera.removeEventListener(StatusEvent.STATUS, cameraStatusHandler); 
+//				camera.removeEventListener(StatusEvent.STATUS, cameraStatusHandler); 
 			}
 
 		}
