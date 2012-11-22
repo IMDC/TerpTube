@@ -13,17 +13,18 @@
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/index.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/playr.css" type="text/css" media="screen" />
         
+        <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/common.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/record.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/preview.css" type="text/css" media="screen" />
 		
         <!-- jquery -->
         <script type="text/javascript" src="<?php echo SITE_BASE ?>js/jquery-1.8.2.js"></script>
 
-		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/jquery-ui-1.9.0.custom.min.js">
-		</script>
+		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/jquery-ui-1.9.0.custom.min.js"></script>
+		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/toolbox.flashembed.min.js"></script>
 		
 		<!-- Modernizr -->
-		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/modernizr.js">
-		</script>    
+		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/modernizr.js"></script>    
         <!--  jacarousel -->
         <script type="text/javascript" src="<?php echo SITE_BASE ?>js/jcarousel/jquery.jcarousel.js"></script>
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>js/jcarousel/skin.css" type="text/css" media="screen" />

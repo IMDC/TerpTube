@@ -1,180 +1,26 @@
 @charset "utf-8";
 /* CSS Document */
 
-
-button
+#recordButton.record-or-preview.record 
 {
-	width: 40px;
-	height: 40px;
+	background: url(../../images/recordOrPreview/rec1_small.gif) no-repeat;	
 }
 
-#recordButton
+#backButton.record-or-preview.record
 {
-	background: url(../images/rec1_small.gif) no-repeat;	
+	background: url(../../images/recordOrPreview/cancel_small.png) no-repeat;	
 }
 
-#backButton
+#submitButton.record-or-preview.record
 {
-	background: url(../images/cancel_small.png) no-repeat;	
+	background: url(../../images/recordOrPreview/next_small.png) no-repeat;	
 }
 
-#submitButton
-{
-	background: url(../images/next_small.png) no-repeat;	
-}
 
-.video 
-{
-	text-align:center;	
-	width:640px;
-	margin:auto;
-	
-}
-
-#flashContent
+#flashContent.record-or-preview
 {
 	width: 640px;
 	height: 480px;
 	text-align: center;
 	margin: auto;
-}
-#track
-{
-	position:relative;
-	outline: 1px solid black;	
-	height: 40px;
-}
-
-.track
-{
-	position:absolute;
-	left:0px;
-    top:0px;
-    width: 640px;
-    height: 40px;
-}
-
-#densitybar
-{
-	z-index: 1;
-	width: 480px;
-	height: 40px;
-}
-#selectedRegion
-{
-	z-index: 2;
-	width: 480px;
-	height: 40px;
-}
-#thumb
-{
-	z-index: 4;	
-	width: 480px;
-	height: 40px;
-
-}
-#videoControls
-{
-	float: left;
-	margin:auto;
-	text-align:center;
-	width: 80%;
-}
-
-#timeBox
-{
-	padding-left:2px;
-	padding-right:2px;
-	height: 40px;
-	font-size:0.9em;
-	line-height: 40px;
-	display: inline-block;
-	position: absolute;
-	left: 485px;
-}
-
-
-#buttonsBar
-{
-	clear:both;	
-	margin-top:5px;	
-	margin-left: -40px;
-	margin-right: -40px;
-}
-
-
-#backButtons
-{
-	float:left;
-	width: 10%;
-	text-align:left;
-}
-#forwardButtons
-{
-	float: right;	
-	width: 10%;
-	text-align:right;
-}
-
-#playerContent
-{
-	margin: auto;
-	text-align: center;
-	width: 660px;	
-}
-
-#videoContainer
-{
-	max-width: 100%;
-}
-/* hide the close x on the loading screen */
-/* Start by setting display:none to make this hidden.
-   Then we position it in relation to the viewport window
-   with position:fixed. Width, height, top and left speak
-   speak for themselves. Background we set to 80% white with
-   our animation centered, and no-repeating */
-.modal {
-    display:    none;
-    position:   fixed;
-    z-index:    1000;
-    top:        0;
-    left:       0;
-    height:     100%;
-    width:      100%;
-    background: rgba( 255, 255, 255, .8 ) 
-                url('../images/loading.gif') 
-                50% 40% 
-                no-repeat;
-                
-	font-size:	150%;
-   
-	-moz-box-orient:horizontal;
-	-moz-box-pack:center;
-	-moz-box-align:center;
-
-	/* Safari and Chrome */
-	
-	-webkit-box-orient:horizontal;
-	-webkit-box-pack:center;
-	-webkit-box-align:center;
-	
-	/* W3C */
-	
-	box-orient:horizontal;
-	box-pack:center;
-	box-align:center;
-}
-/* When the body has the loading class, we turn
-   the scrollbar off with overflow:hidden */
-body.loading {
-    overflow: hidden;   
-}
-
-/* Anytime the body has the loading class, our
-   modal element will be visible */
-body.loading .modal {
-    display: block;
-    display: -moz-box;
-    display: -webkit-box;
-    display: box;
 }

@@ -122,7 +122,7 @@ function recording_toggleRecording()
 
 function recording_startRecording()
 {
-	$("#recordButton")[0].style.backgroundImage = "url(images/rec2_small.gif)";
+	$("#recordButton")[0].style.backgroundImage = "url(images/recordOrPreview/rec2_small.gif)";
 	recording_setInputEnabled("recordButton", false);
 	recording_setInputEnabled("submitButton", false);
 	recording_currentMinSelected = recording_minSelected;
@@ -152,7 +152,7 @@ function recording_stopRecording()
 	recording_setInputEnabled("backButton", false);
 	recording_setInputEnabled("submitButton", false);
 	recording_recordTimer = clearInterval(recording_recordTimer);
-	$("#recordButton")[0].style.backgroundImage = "url(images/rec1_small.gif)";
+	$("#recordButton")[0].style.backgroundImage = "url(images/recordOrPreview/rec1_small.gif)";
 	recording_isRecording = false;
 	$("#flashContentObject")[0].stopRecording();
 }
@@ -165,7 +165,6 @@ function recording_recordingStopped(success)
 	if (success)
 	{
 		recording_setInputEnabled("submitButton", true);
-		alert("Recording uploaded/stopped");
 	}
 	else
 	{
@@ -232,7 +231,7 @@ function recording_recordingTranscodingFinished(fileName)
 	else
 	{
 		alert("Transcoding finished successfully: "+fileName);
-		refreshPage("preview.php", 'vidfile='+fileName+'&type=record&keepvideofile=false')
+		refreshPage("playerContent", "recordOrPreview/preview.php", 'vidfile='+fileName+'&type=record&keepvideofile=false')
 	}
 }
 
@@ -285,11 +284,9 @@ function recording_setupVideo()
 }
 
 
-function recording_goBack(page)
+function recording_goBack()
 {
- //Check if person came from recording video, or from uploading video
-		refreshPage(page,"", "right");
-		
+	closeRecorderPopUp('videoRecordingOrPreview')
 }
 
 function recording_setInputEnabled(inputName, enabled)

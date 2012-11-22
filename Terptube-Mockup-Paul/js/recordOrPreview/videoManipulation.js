@@ -26,9 +26,9 @@ function getTimeCodeFromSeconds(time)
 function setBlur(flag, loadingText)
 {
 	if (flag)
-		$("#videoContainer").addClass("loading"); 
+		$("#videoRecordingOrPreview").addClass("loading"); 
 	else
-		$("#videoContainer").removeClass("loading");
+		$("#videoRecordingOrPreview").removeClass("loading");
 	setBlurText(loadingText); 	
 }
 

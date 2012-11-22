@@ -110,7 +110,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                         <div id="input-record-div">
                         	Record Video:
-                        	<input id="recordButton" type="button" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview')" />
+                        	<input id="popUpRecordingWindowButton" type="button" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview')" />
                         	
 						</div>
 						<div id="videoRecordingOrPreview" style="display:hidden">

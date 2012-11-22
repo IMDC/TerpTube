@@ -97,8 +97,7 @@ else
 }
 ?>
 
-<script type="text/javascript" src="js/recordOrPreview/preview.js"></script>
-
+<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/preview.js"></script>
 
 <div class="record-or-preview video" id="videoContainer">
     <video class="record-or-preview" onloadedmetadata="setupVideo()" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" controls="controls" preload="auto">
@@ -114,29 +113,29 @@ else
         </canvas>
       	<div class="record-or-preview" id="timeBox">0:00:00/0:00:00</div>
        	<div class="record-or-preview" id="volume"  onMouseOver="javascript:setVolumeBarVisible(true)">
-       		<img class="record-or-preview" id="volumeImage" alt="volume control" src="images/audioOn.png"  onClick="javascript:toggleMute()"/>
+       		<img class="record-or-preview" id="volumeImage" alt="volume control" src="images/recordOrPreview/audioOn.png"  onClick="javascript:toggleMute()"/>
        		<div class="record-or-preview" id="volumeSlider"></div>
        	</div>
 	</div>
     <div class="record-or-preview" id="buttonsBar">
         <div class="record-or-preview" id="backButtons">
-        	<button class="record-or-preview" id="backButton" type="button" onclick="javascript:goBack(<?php echo $postType?>);"></button>
+        	<button class="record-or-preview preview" id="backButton" type="button" onclick="javascript:goBack('<?php echo $postType?>');"></button>
         </div>
         <div class="record-or-preview" id="videoControls">
-            <button class="record-or-preview" id="beginButton" type="button" onclick="javascript:jumpTo(0);"></button>
-            <button class="record-or-preview" id="stepBackwardButton" type="button" onclick="javascript:stepBackward();"></button>
-            <button class="record-or-preview" id="playButton" type="button" onclick="javascript:playPause();" ></button>
+            <button class="record-or-preview preview" id="beginButton" type="button" onclick="javascript:jumpTo(0);"></button>
+            <button class="record-or-preview preview" id="stepBackwardButton" type="button" onclick="javascript:stepBackward();"></button>
+            <button class="record-or-preview preview" id="playButton" type="button" onclick="javascript:playPause();" ></button>
             
-            <button class="record-or-preview" id="stepForwardButton" type="button" onclick="javascript:stepForward();"></button>
-            <button class="record-or-preview" id="endButton" type="button" onclick="javascript:jumpTo(1);"></button>
+            <button class="record-or-preview preview" id="stepForwardButton" type="button" onclick="javascript:stepForward();"></button>
+            <button class="record-or-preview preview" id="endButton" type="button" onclick="javascript:jumpTo(1);"></button>
          <!--   <button type="button" onclick="javascript:previewClip();" >Preview</button> -->
         </div>
         <div class="record-or-preview" id="forwardButtons">
-   	     	<button class="record-or-preview" id="submitButton" type="button" onclick="javascript:transcodeAjax(<?php echo $video.",".$keepVideoFile ?>);"></button>
+   	     	<button class="record-or-preview preview" id="submitButton" type="button" onclick="javascript:transcodeAjax('<?php echo $video?>',<?php echo $keepVideoFile ?>);"></button>
         </div>
         <div class="record-or-preview" id="audioButtonsBar">
-        Remove audio from the video?<br />	<label for="audioOff"><img src="images/audioOff.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="false" id="audioOff" />
-            <label for="audioOn"><img src="images/audioOn.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="true" class="record-or-preview" id="audioOn" checked="checked" />
+        Remove audio from the video?<br />	<label for="audioOff"><img src="images/recordOrPreview/audioOff.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="false" id="audioOff" />
+            <label for="audioOn"><img src="images/recordOrPreview/audioOn.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="true" class="record-or-preview" id="audioOn" checked="checked" />
              
         </div>
     </div>

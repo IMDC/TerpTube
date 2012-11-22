@@ -19,11 +19,11 @@ else {
 			{
 		?>
 			var flashVars = {};
-			flashVars.postURL = "<?php echo SITE_BASE ?>recordOrPreview/preview.php";
-            flashVars.cancelURL = "javascript:history.go(-1)";
-            flashVars.isAjax = "true";
-            flashVars.blurFunction = "setBlur";
-            flashVars.blurFunctionText = "setBlurText";
+//			flashVars.postURL = "<?php echo SITE_BASE ?>recordOrPreview/preview.php";
+//           flashVars.cancelURL = "javascript:history.go(-1)";
+//            flashVars.isAjax = "true";
+//            flashVars.blurFunction = "setBlur";
+//            flashVars.blurFunctionText = "setBlurText";
             
 			var dataSend = {flashVars: flashVars};
 			refreshPage('playerContent', "<?php echo SITE_BASE ?>recordOrPreview/record.php", dataSend,"none")		

@@ -176,12 +176,12 @@ function setPlayButtonIconSelected(isPlayIcon)
 	if (isPlayIcon)
 	{
 		//set the icon to the play icon	
-		playButton.style.backgroundImage = "url(images/play_small.png)";
+		playButton.style.backgroundImage = "url(images/recordOrPreview/play_small.png)";
 	}
 	else
 	{
 		//set the icon to the pause icon	
-		playButton.style.backgroundImage = "url(images/pause_small.png)";
+		playButton.style.backgroundImage = "url(images/recordOrPreview/pause_small.png)";
 	}
 }
 
@@ -391,7 +391,7 @@ function transcodeAjax(inputVideoFile, keepVideoFile)
 	setBlurText("Trimming Video...");
 	setBlur(true);
 	$.ajax({
-		url: "transcoder.php", 
+		url: "recordOrPreview/transcoder.php", 
 		type: "POST",
 		data: { 
 			trim:"yes", 
@@ -423,7 +423,7 @@ function transcodeSuccess(data)
 	setBlur(false);
 	setControlsEnabled(true);
 	alert("VideoFile created: "+data);
-	window.location.href = "streams.php";
+	window.location.href = "recordOrPreview/streams.php";
 }
 
 function transcodeError(data)

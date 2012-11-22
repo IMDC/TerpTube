@@ -1,0 +1,159 @@
+@charset "utf-8";
+/* CSS Document */
+
+.record-or-preview
+{
+	
+	font-size: 100%;
+}
+
+.record-or-preview button
+{
+	width: 40px;
+	height: 40px;
+}
+
+.record-or-preview .video 
+{
+	text-align:center;	
+	width:640px;
+	margin:auto;
+	padding: 0px;
+}
+
+
+
+#track.record-or-preview 
+{
+	position:relative;
+	outline: 1px solid black;	
+	height:40px;
+}
+
+.record-or-preview .track
+{
+	position:absolute;
+	left:0px;
+    top:0px;
+    width: 640px;
+    height: 40px;
+}
+
+#densitybar.record-or-preview 
+{
+	z-index: 1;
+	width: 480px;
+}
+#selectedRegion.record-or-preview 
+{
+	z-index: 2;
+	width: 480px;
+}
+#thumb.record-or-preview 
+{
+	z-index: 3;	
+	width: 480px;
+
+}
+#videoControls.record-or-preview 
+{
+	float: left;
+	margin:auto;
+	text-align:center;
+	width: 80%;
+}
+
+#timeBox.record-or-preview 
+{
+	padding-left:2px;
+	padding-right:2px;
+	height: 40px;
+	font-size:0.6em;
+	line-height: 40px;
+	display: inline-block;
+	position: absolute;
+	left: 485px;
+}
+
+#buttonsBar.record-or-preview 
+{
+	clear:both;	
+	margin-top:5px;	
+	margin-left: -40px;
+	margin-right: -40px;
+}
+
+#backButtons.record-or-preview 
+{
+	float:left;
+	width: 10%;
+	text-align:left;
+}
+#forwardButtons.record-or-preview 
+{
+	float: right;	
+	width: 10%;
+	text-align:right;
+}
+
+#videoContainer.record-or-preview 
+{
+	max-width: 100%;
+}
+/* hide the close x on the loading screen */
+/* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   speak for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+.record-or-preview.modal {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('../../images/recordOrPreview/loading.gif') 
+                50% 40% 
+                no-repeat;
+                
+	font-size:	150%;
+   
+	-moz-box-orient:horizontal;
+	-moz-box-pack:center;
+	-moz-box-align:center;
+
+	/* Safari and Chrome */
+	
+	-webkit-box-orient:horizontal;
+	-webkit-box-pack:center;
+	-webkit-box-align:center;
+	
+	/* W3C */
+	
+	box-orient:horizontal;
+	box-pack:center;
+	box-align:center;
+}
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+#videoRecordingOrPreview.loading  {
+    overflow: hidden;   
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+#videoRecordingOrPreview.loading .modal  {
+    display: block;
+    display: -moz-box;
+    display: -webkit-box;
+    display: box;
+}
+
+.record-or-preview-dialog
+{
+/*	position: fixed;*/
+/*	top: 0px;*/
+}

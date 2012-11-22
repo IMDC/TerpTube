@@ -11,7 +11,7 @@ function loadRecorderPage(targetID,address, dataSend)
 		contentType:"application/x-www-form-urlencoded", 
 		data: dataSend,
 		success: function (data){
-			alert(data);
+//			alert(data);
 			$('#'+targetID).append(data);	},
 		error:function(request){alert(request.statusText)}
 	});
@@ -27,6 +27,7 @@ function popUpRecorder(element)
 		modal: true,
 		draggable: false,
 		closeOnEscape: false,
+		dialogClass: "record-or-preview-dialog",
 		open: function(event, ui) {
 			$(".ui-dialog-titlebar-close", this.parentNode).hide(); 
 			//loadRecorderPage(element, "recordOrPreview/index.php","feature=record");
@@ -34,14 +35,21 @@ function popUpRecorder(element)
 				loadRecorderPage(element, "recordOrPreview/index.php", "feature=record" );});
 //			$("#"+element).load("recordOrPreview/index.php?feature=record");
 		},
-		position: { my: "center top", at: "center top" },
+		create: function(event, ui) {
+			$(event.target).parent().css('position', 'fixed');
+		},
+		position: { my: "center top", at: "center top", of: $("body") },
 		show: "blind",
 		hide: "blind",
-		minWidth: 700,
+		minWidth: 740,
 		title: "Video Record / Preview"
 	});
 	
 	$("#"+element).dialog ("open");
 //	alert(element);
-	
+}
+
+function closeRecorderPopUp(element)
+{
+	$("#"+element).dialog ("close");
 }
