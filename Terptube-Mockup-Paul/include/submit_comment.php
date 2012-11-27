@@ -57,7 +57,7 @@
   if(isset( $fileName))
   {
  	 if(copy($fileName, $target_path)) { // $_FILES['uploadedfile']['tmp_name']
-   		  createThumbnail("../uploads/comment/" . $comment_id . ".mp4", $comment_id, 2);
+   		  createThumbnail($target_path, $comment_id, 2);
           unlink($fileName);
   	 }
   }

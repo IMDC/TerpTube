@@ -1,7 +1,7 @@
 <?php
 require_once("../setup.php");
 $title = "Recording/previewing video";
- 
+$feature = "";
 if (isset($_REQUEST["feature"]) && $_REQUEST["feature"]!="")
 {
 	$feature = $_REQUEST["feature"];	
@@ -9,6 +9,17 @@ if (isset($_REQUEST["feature"]) && $_REQUEST["feature"]!="")
 else {
 	$feature = "record";
 }
+
+$type = "";
+if (isset($_REQUEST["$type"]) && $_REQUEST["$type"]!="")
+{
+	$type = $_REQUEST["$type"];	
+}
+else {
+	$type = "record";
+}
+
+
 
 ?>
 
@@ -32,7 +43,7 @@ else {
 			else if ($feature =="preview")
 			{
 			?>
-				refreshPage('playerContent', "<?php echo SITE_BASE ?>recordOrPreview/preview.php","type=record", "none");
+				refreshPage('playerContent', "<?php echo SITE_BASE ?>recordOrPreview/preview.php","type=<?php echo $type ?>", "none");
 			<?php
 			}
    		?>

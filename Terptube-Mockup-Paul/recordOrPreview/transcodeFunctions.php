@@ -79,6 +79,17 @@ function convertVideoToWEBM($inputVideoFile, $outputVideoFile, $keepAudio, $keep
 		unlink($inputVideoFile);
 }
 
+function moveFile($inputVideoFile, $outputVideoFile)
+{
+	 if(copy($inputVideoFile, $outputVideoFile)) { 
+          unlink($inputVideoFile);
+		 return true;
+  	 }
+	 else {
+		 return false;
+	 }
+}
+
 function tempnam_sfx($path, $suffix) 
    { 
       do 

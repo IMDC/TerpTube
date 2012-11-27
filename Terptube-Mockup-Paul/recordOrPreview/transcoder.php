@@ -1,12 +1,14 @@
 <?php
 require_once("transcodeFunctions.php");	
+require_once("../setup.php");
 
-$inputVideoDirectory= '/home/martin/public_html/webcamrecord/streams/';
-$outputVideoDirectory= '/home/martin/public_html/webcamrecord/streams/tempVideos/';
+$outputVideoDirectory= UPLOAD_DIR . 'temp/';;
+$inputVideoDirectory= $outputVideoDirectory;
 $trim = 'trim';
+$move = 'move';
 $inputVideoFile = 'inputVidFile';
 //$outputVideoFile = 'outputVidFile';
-$outputVideoFile = tempnam_sfx($outputVideoDirectory, ".webm");
+$outputVideoFile = 'outputVidFile';
 $startTime = 'startTime';
 $endTime = 'endTime';
 $keepInputFile = 'keepInputFile';
@@ -16,10 +18,22 @@ $keepAudio = 'keepAudio';
 
 if (isset($_POST[$trim]) && $_POST[$trim]=="yes")
 {  //trimming video
-	if(isset($_POST[$inputVideoFile]) && isset($_POST[$startTime]) && isset($_POST[$endTime]) && isset($_POST[$keepInputFile]))
-	{ //Input is proper
+	if (isset($_POST[$inputVideoFile]) && isset($_POST[$outputVideoFile]))
+	{
+		$inputFile = $inputVideoDirectory.$_POST[$inputVideoFile];
+		$outputVideoFile = $outputVideoDirectory.$_POST[$outputVideoFile];
+		if (isset($_POST[$move]))
+		{
+			moveFile($inputFile, $outputVideoFile);
+			echo basename($outputVideoFile); //returns the filename
+		}
+		else if(isset($_POST[$startTime]) && isset($_POST[$endTime]) && isset($_POST[$keepInputFile]))
+		{ //Input is proper
 			trimVideo($inputVideoDirectory.$_POST[$inputVideoFile], $outputVideoFile, $_POST[$startTime], $_POST[$endTime], $_POST[$keepInputFile]==true);
-			echo substr($outputVideoFile,strlen($outputVideoDirectory)+1); //returns the filename
+			echo basename($outputVideoFile); //returns the filename
+		}
+		else 
+			echo "Something is wrong";
 	}
 	else 
 		echo "Something is wrong";

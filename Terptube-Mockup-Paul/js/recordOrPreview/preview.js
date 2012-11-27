@@ -381,7 +381,7 @@ function goBack(where)
 	}
 		
 }
-function transcodeAjax(inputVideoFile, keepVideoFile)
+function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile)
 {
 	setControlsEnabled(false);
 	if (currentMinSelected == minSelected && currentMaxSelected == maxSelected)
@@ -396,6 +396,7 @@ function transcodeAjax(inputVideoFile, keepVideoFile)
 		data: { 
 			trim:"yes", 
 			inputVidFile: inputVideoFile, 
+			outputVidFile: outputVideoFile,
 			startTime: currentMinTimeSelected, 
 			endTime: currentMaxTimeSelected, 
 			keepInputFile: inputVideoFile},
@@ -423,9 +424,15 @@ function transcodeSuccess(data)
 	setBlur(false);
 	setControlsEnabled(true);
 	alert("VideoFile created: "+data);
-	window.location.href = "recordOrPreview/streams.php";
+	//window.location.href = "recordOrPreview/streams.php";
+	updateFileNameField("fileName", data);
+	closeRecorderPopUp('videoRecordingOrPreview');
 }
 
+function updateFileNameField(fieldName, fileName)
+{
+	$("#"+fieldName).val(fileName);
+}
 function transcodeError(data)
 {
 	setBlurText("");

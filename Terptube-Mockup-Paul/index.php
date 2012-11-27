@@ -127,7 +127,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                         </div>
                     </fieldset>
 
-                    <input type="hidden" name="file-name" />
+                    <input type="hidden" name="file-name" id="fileName" />
 
                     <input type="hidden" name="v" value="<?php echo $videoNumber; ?>" />
 

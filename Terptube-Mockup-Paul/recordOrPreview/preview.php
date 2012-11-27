@@ -26,12 +26,12 @@ function getVideoType($video)
 		return 'video/webm';	
 	}
 }
-$tempDirectory = 'streams/tempVideos';
+$tempDirectory = UPLOAD_DIR . 'temp';$tempURL = SITE_BASE.'uploads' . DIRECTORY_SEPARATOR. "temp/";
 //$tempDirectory = 'streams';
 $postType = 'type';
 $postParam = 'vidfile';
 $keepVideoFileParam = 'keepvideofile';
-$videosURL = "/~martin/webcamrecord/streams/";
+$videosURL = "/home/martin/public_html/webcamrecord/streams/";
 $videoWidth = 640;
 $videoHeight = 480;
 
@@ -63,7 +63,7 @@ $postType = $_POST[$postType];
 if (isset($_POST[$postParam]) && $_POST[$postParam]!= '')
 {
 //	echo "$video";
-	$video = $videosURL . $_POST[$postParam];
+	
 }
 else
 {
@@ -79,16 +79,24 @@ if ($postType == 'upload')
 	//transcode the video and then show it	
 	//Convert the video and delete the original
 	//FIXME need to make this AJAX
+	$video = $tempDirectory . $_POST[$postParam];
 	$outputVideoFile = tempnam_sfx($tempDirectory, ".webm");
-	$outputVideoFile = substr($outputVideoFile,strlen($tempDirectory)+1);
-	convertVideoToWEBM($video,$_POST[$postParam], 'true', $keepVideoFile); 
-	$video = $outputVideoFile;
+	$outputVideoFile = basename($outputVideoFile);
+	convertVideoToWEBM($video,$outputVideoFile, 'true', $keepVideoFile); 
+	$video = $tempURL.$outputVideoFile;
 	//Get a new output video File for after the cropping
 	$outputVideoFile = tempnam_sfx($tempDirectory, ".webm");
 }
 else if ($postType == 'record')
 {
-	//All is set
+	$video = $videosURL . $_POST[$postParam];
+	//move file from original location to a temporary file in the temp directory
+	$outputVideoFile = tempnam_sfx($tempDirectory, ".webm");
+	$outputVideoFile = basename($outputVideoFile);
+	moveFile($video,$tempDirectory.DIRECTORY_SEPARATOR.$outputVideoFile); 
+	$video = $tempURL.$outputVideoFile;
+	//Get a new output video File for after the cropping
+	$outputVideoFile = tempnam_sfx($tempDirectory, ".webm");
 }
 else 
 {
@@ -98,7 +106,9 @@ else
 ?>
 
 <script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/preview.js"></script>
-
+<script type="text/javascript">
+	alert("<?php echo $tempDirectory?>");
+</script>
 <div class="record-or-preview video" id="videoContainer">
     <video class="record-or-preview" onloadedmetadata="setupVideo()" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" controls="controls" preload="auto">
         <source src="<?php echo $video ?>" type="<?php echo getVideoType($video)?>">
@@ -131,7 +141,7 @@ else
          <!--   <button type="button" onclick="javascript:previewClip();" >Preview</button> -->
         </div>
         <div class="record-or-preview" id="forwardButtons">
-   	     	<button class="record-or-preview preview" id="submitButton" type="button" onclick="javascript:transcodeAjax('<?php echo $video?>',<?php echo $keepVideoFile ?>);"></button>
+   	     	<button class="record-or-preview preview" id="submitButton" type="button" onclick="javascript:transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>);"></button>
         </div>
         <div class="record-or-preview" id="audioButtonsBar">
         Remove audio from the video?<br />	<label for="audioOff"><img src="images/recordOrPreview/audioOff.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="false" id="audioOff" />
