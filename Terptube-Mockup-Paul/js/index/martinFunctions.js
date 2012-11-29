@@ -19,8 +19,9 @@ function loadRecorderPage(targetID,address, dataSend)
 	
 }
 
-function popUpRecorder(element)
+function popUpRecorder(element, feature, fileName, type)
 {
+	
 	$("#"+element).dialog ({
 		autoOpen: false,
 		resizable: false,
@@ -32,7 +33,12 @@ function popUpRecorder(element)
 			$(".ui-dialog-titlebar-close", this.parentNode).hide(); 
 			//loadRecorderPage(element, "recordOrPreview/index.php","feature=record");
 			jQuery.getScript("js/recordOrPreview/videoManipulation.js", function() {
-				loadRecorderPage(element, "recordOrPreview/index.php", "feature=record" );});
+				var arguments = "feature="+feature;
+				if (fileName)
+					arguments+="&vidfile="+fileName;
+				if (type)
+					arguments+="&type="+type;
+				loadRecorderPage(element, "recordOrPreview/index.php", arguments );});
 //			$("#"+element).load("recordOrPreview/index.php?feature=record");
 		},
 		create: function(event, ui) {

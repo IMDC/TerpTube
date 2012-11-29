@@ -145,7 +145,7 @@ class qqFileUploader {
         }
         
         if ($this->file->save($uploadDirectory . $filename . '.' . $ext)){
-            return array('success'=>true);
+            return array('success'=>true,'fileName'=>$filename. '.' . $ext);
         } else {
             return array('error'=> 'Could not save uploaded file.' .
                 'The upload was cancelled, or server error encountered');
@@ -170,7 +170,7 @@ else if($type = 'reply')
 	$result = $uploader->handleUpload('../../uploads/reply/temp/');
 }*/
 
-$result = '{"id": "' . $id . '"}';
+//$result['id'] = $id;
 // to pass data through iframe you will need to encode all html tags
 echo htmlspecialchars(json_encode($result), ENT_NOQUOTES);
 

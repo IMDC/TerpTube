@@ -21,11 +21,19 @@ function getVideoType($video)
 	{
 		return 'video/ogg';	
 	}
-	else
+	else if ( $extension == "webm" )
 	{
 		return 'video/webm';	
 	}
+	else {
+		return 'video/unknown';
+	}
 }
+?>
+
+<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/preview.js"></script>
+
+<?php
 $tempDirectory = UPLOAD_DIR . 'temp';$tempURL = SITE_BASE.'uploads' . DIRECTORY_SEPARATOR. "temp/";
 //$tempDirectory = 'streams';
 $postType = 'type';
@@ -79,13 +87,30 @@ if ($postType == 'upload')
 	//transcode the video and then show it	
 	//Convert the video and delete the original
 	//FIXME need to make this AJAX
-	$video = $tempDirectory . $_POST[$postParam];
+	$video = $tempDirectory.DIRECTORY_SEPARATOR.$_POST[$postParam];
 	$outputVideoFile = tempnam_sfx($tempDirectory, ".webm");
-	$outputVideoFile = basename($outputVideoFile);
-	convertVideoToWEBM($video,$outputVideoFile, 'true', $keepVideoFile); 
-	$video = $tempURL.$outputVideoFile;
+	//$outputVideoFile = basename($outputVideoFile);
+//	convertVideoToWEBM($video,$outputVideoFile, 'true', $keepVideoFile); 
+	$arguments = "'".$video."', '".$outputVideoFile."', { keepInputFile: '".$keepVideoFile."', keepAudio: 'true', convert: 'yes' }";
+	$video = $tempURL.basename($outputVideoFile);
 	//Get a new output video File for after the cropping
 	$outputVideoFile = tempnam_sfx($tempDirectory, ".webm");
+?>
+<script type="text/javascript">
+	transcodeAjax2(<?php echo $arguments?>, function(data){
+		$("#video-source").attr("src","<?php echo $video ?>");
+		setBlurText("");
+		setBlur(false);
+		setControlsEnabled(true);
+		$("#video").load();
+	}, function(data) {
+		alert("Converting of video failed!");
+	} );
+</script>
+
+<?php
+	
+	
 }
 else if ($postType == 'record')
 {
@@ -105,13 +130,10 @@ else
 }
 ?>
 
-<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/preview.js"></script>
-<script type="text/javascript">
-	alert("<?php echo $tempDirectory?>");
-</script>
+
 <div class="record-or-preview video" id="videoContainer">
     <video class="record-or-preview" onloadedmetadata="setupVideo()" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" controls="controls" preload="auto">
-        <source src="<?php echo $video ?>" type="<?php echo getVideoType($video)?>">
+        <source id="video-source" src="<?php echo $video ?>" type="<?php echo getVideoType($video)?>">
         Browser cannot play video. 
     </video> 
     <div class="record-or-preview video" id="track">

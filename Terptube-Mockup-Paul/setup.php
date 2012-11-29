@@ -12,4 +12,10 @@ define('INC_DIR', APP_DIR . 'include' . DIRECTORY_SEPARATOR);
 
 // upload directory
 define('UPLOAD_DIR', APP_DIR . 'uploads' . DIRECTORY_SEPARATOR);
+
+//log directory
+define('LOG_DIR', APP_DIR . "logs" . DIRECTORY_SEPARATOR);
+
+//ffmpeg error log
+define('FFMPEG_LOG_FILE', LOG_DIR . "ffmpeg-error.log" );
 ?>

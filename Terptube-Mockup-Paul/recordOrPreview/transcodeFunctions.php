@@ -1,11 +1,13 @@
 <?php
 
-$videoResolutionMinimumStandard = "640x480";
+require_once("../setup.php");
+
+define(VIDEO_RESOLUTION_MINIMUM_STANDARD, "640x480");
 
 function getFFMPEGPath()
-	{
-		return "/usr/local/bin/ffmpeg";
-	}
+{
+	return "/usr/local/bin/ffmpeg";
+}
 	/**
 	 * convert from FFMPEG Duration to seconds
 	 * 
@@ -65,29 +67,24 @@ function trimVideo($inputVideoFile, $outputVideoFile, $startTime, $endTime, $kee
 function convertVideoToWEBM($inputVideoFile, $outputVideoFile, $keepAudio, $keepInputFile)
 {
 	$ffmpeg = getFFMPEGPath();
+//	echo "converting video";
 	if ($keepAudio)
 	{
-			$command = "$ffmpeg -i $inputVideoFile -codec:a libvorbis -ar 22050 -b:a 64k -ac 1 -b:v 600k -qmin 10 -qmax 42 -quality good -buffsize 1200k -s $videoResolutionMinimumStandard -y $outputVideoFile";
+			$command = "$ffmpeg -i $inputVideoFile -codec:a libvorbis -ar 22050 -b:a 64k -ac 1 -b:v 600k -qmin 10 -qmax 42 -quality good -s ". VIDEO_RESOLUTION_MINIMUM_STANDARD." -y $outputVideoFile 2>&1";
 	}
 	else
 	{
-			$command = "$ffmpeg -i $inputVideoFile -an -b:v 600k -s $videoResolutionMinimumStandard -y $outputVideoFile";	
+			$command = "$ffmpeg -i $inputVideoFile -an -b:v 600k -s ".VIDEO_RESOLUTION_MINIMUM_STANDARD." -y $outputVideoFile 2>&1";	
 	}
-	
+	echo ($command);
 	exec($command);
-	if ($keepInputFile)
+	if (!$keepInputFile)
 		unlink($inputVideoFile);
 }
 
 function moveFile($inputVideoFile, $outputVideoFile)
 {
-	 if(copy($inputVideoFile, $outputVideoFile)) { 
-          unlink($inputVideoFile);
-		 return true;
-  	 }
-	 else {
-		 return false;
-	 }
+	 return rename($inputVideoFile, $outputVideoFile); 
 }
 
 function tempnam_sfx($path, $suffix) 

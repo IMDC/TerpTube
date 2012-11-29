@@ -405,6 +405,35 @@ function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile)
 	});	
 }
 
+/**
+ * Possible arguments: trim(yes/no),convert(yes/no) startTime(seconds), endTime(seconds), keepInputFile(true/false), keepAudio(true/false) 
+ */
+function transcodeAjax2(inputVideoFile, outputVideoFile, arguments, onSuccess, onError)
+{
+	setControlsEnabled(false);
+	if (currentMinSelected == minSelected && currentMaxSelected == maxSelected)
+	{
+		//No need to trim as the user has not moved the start/end points
+	}
+	if (arguments.blurText)
+		setBlurText(arguments.blurText);
+	else
+		setBlurText("Converting Video.");
+	setBlur(true);
+	var ajaxArgs = new Array();
+	ajaxArgs = arguments;
+	ajaxArgs['inputVidFile'] = inputVideoFile;
+	ajaxArgs['outputVidFile'] = outputVideoFile;
+		$.ajax({
+		url: "recordOrPreview/transcoder.php", 
+		type: "POST",
+		data: ajaxArgs,
+		success: onSuccess,
+		error: onError
+	});	
+}
+
+
 function setControlsEnabled(flag)
 {
 	if (flag)
@@ -426,6 +455,12 @@ function transcodeSuccess(data)
 	alert("VideoFile created: "+data);
 	//window.location.href = "recordOrPreview/streams.php";
 	updateFileNameField("fileName", data);
+	
+	var $optionFieldset = $('[name=video-option-fiedset]');
+	var $videoNameFieldset= $('[name=video-name-fieldset]');
+	$optionFieldset.hide();
+	$videoNameFieldset.show();
+	$('.video-title').text(data);
 	closeRecorderPopUp('videoRecordingOrPreview');
 }
 

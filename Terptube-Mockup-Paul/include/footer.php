@@ -738,17 +738,16 @@ mysqli_close($db);
                                button: document.getElementById('input-upload-div'),
                                action: 'scripts/ajaxupload/upload.php?v=source',
                                debug: true,
-                               onComplete: function(id, fileName, responseJSON){
-                                   $("[name=file-name]").val(fileName);
+                               onComplete: function(id, fileName1, responseJSON){
+                                   $("[name=file-name]").val(responseJSON.fileName);
                                    $optionFieldset.hide();
                                    $videoNameFieldset.show();
-                                   selectedVideoName = fileName;
+                                   selectedVideoName = responseJSON.fileName;
                                    $('.video-title').text(selectedVideoName);
-
-
-
-
+                                   
+                                   
                                    //martin here!!!!!!!!!!!!!!!
+                                   popUpRecorder('videoRecordingOrPreview','preview',selectedVideoName, "upload");
                                }
                            });
                            
