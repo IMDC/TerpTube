@@ -179,7 +179,7 @@ html[xmlns] .clearfix {
  */
 
 .arrow-container{
-	background:red;
+	background: #dedede;
 	width:100%;
 	height:25px
 }
@@ -193,8 +193,38 @@ html[xmlns] .clearfix {
 .comment-container{
 	/*float:left;*/
 	/*margin-left:30px;*/
+    min-width: 600px;
 	width:auto;
 	height:auto;
+}
+
+.comment-left-side-wrap {
+    width: 25%;
+    height: auto;
+    min-height: 150px;
+    float: left;
+}
+
+.comment-tools-div {
+    width: 100%;
+    float: left;
+    display: inline-block;
+}
+
+.comment-tools-div ul li,a {
+    display: inline;
+}
+
+.comment-edit-link {
+    
+}
+
+.comment-delete-link {
+    
+}
+
+#dialog-confirm {
+    display: none;
 }
 
 .feedback-container{
@@ -203,19 +233,29 @@ html[xmlns] .clearfix {
 	width:500px;
 	clear:right;
 	margin-bottom:10px;
-	background:#dcd3e3;
-	border:2px solid gray;
+/*	background:#dcd3e3;*/
+	background:#efefef;
+	border:1px solid gray;
 	overflow:hidden;
 }
 
+.reply-container {
+    border: none;
+    background: #fff url('../images/line-down-right.gif') 5px 15px no-repeat;
+}
 
+.generic-reply-form-container {
+	border: 1px solid grey;
+	width: 90%;
+	margin-bottom: 30px;
+}
 
-.comment-content-container{
-	float:left;
-	width:70%;
-	height:100%;
-	background:#FFE4C4;
-
+.comment-content-container {
+	float: left;
+	width: 70%;
+	height: 100%;
+	background: #efefef;
+	border: 1px solid #dedede;
 }
 
 .comment-content{
@@ -241,21 +281,23 @@ html[xmlns] .clearfix {
 }
 
 .comment-avatar-div{
-	width:24%;
-
+/*	width:24%;*/
 	text-align:center;
-    float:left;
+/*    float:left;*/
+/*    display: inline-block;*/	
+	font-size: 0.85em;
+	margin-bottom: 5px;
 }
 
 .comment-avatar-div img {
-	width:50px;
-	height:50px;
+	width: 75px;
+	height: 75px;
 }
 
 .feedback-properties{
-   width:5%;
-   height:100%;
-   float:right;
+   width: 3%;
+   height: 100%;
+   float: right;
 }
 
 .feedback-properties img{
@@ -267,14 +309,17 @@ html[xmlns] .clearfix {
 	overflow-y:auto;
 	width:90%;
 	height:auto;
+	min-height: 45px;
 	margin:5px auto;
 	background:white;
-	border:1px solid black;
+/*	border:1px solid black;*/
 }
 
-.reply-content{
-	width:98%;
-	border:1px solid black;
+.reply-content {
+	width:auto%;
+	border: 1px solid black;
+    margin-left: 25px;
+    
 }
 
 .text_reply{
@@ -315,4 +360,8 @@ img.clickable {
 #new-comment-form fieldset
 {
 	width: 300px;
+}
+
+#new-comment-form input[type="button"]:hover, input[type="submit"]:hover, input[type="file"]:hover {
+    background: #ccffcc;
 }

@@ -9,12 +9,15 @@
 
   $videoNumber = intval($_POST['v']);
 
-  $author = "joe";
+  //$author = "joe";
+  $author_id = "0";
+  
   $comment = $_POST['comment'];
   //$fileName = $_FILES['uploadedfile']['name'];
 //  $fileName = '../uploads/temp/' . $_POST['file-name'];
   $fileName = UPLOAD_DIR . 'temp/' . $_POST['file-name'];
-  $pID = $_POST['pID'];
+  //$pID = $_POST['pID'];
+  $pID = intval($_GET['pID']);
 
 
   /*********Insert into database and pull out the comment id it just created ********/
@@ -24,7 +27,8 @@
 
   	$now = date('Y-m-d G:i:s');
 
-  	$sql = "INSERT INTO video_comment (source_id, parent_id, author,text_comments,comment_start_time,comment_end_time, date) VALUES ('$videoNumber', '$pID',  '$author', '$comment', '$start',  '$end', '$now')";
+  	//$sql = "INSERT INTO video_comment (source_id, parent_id, author,text_comments,comment_start_time,comment_end_time, date) VALUES ('$videoNumber', '$pID',  '$author', '$comment', '$start',  '$end', '$now')";
+	$sql = "INSERT INTO video_comment (source_id, parent_id, author_id,text_comments,comment_start_time,comment_end_time, date) VALUES ('$videoNumber', '$pID',  '$author_id', '$comment', '$start',  '$end', DEFAULT)";
   	$result = mysqli_query($db, $sql);
 
 	$sql = "SELECT comment_id FROM video_comment ORDER BY comment_id DESC LIMIT 1";

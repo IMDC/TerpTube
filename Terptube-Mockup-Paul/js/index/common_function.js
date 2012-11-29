@@ -36,3 +36,10 @@ function get_random_color() {
 function clearCanvas(ctx) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
+
+
+function stringToIntegersOnly(idstring) {
+    var str = idstring.replace(/\D/g, '');
+    
+    return str;
+}

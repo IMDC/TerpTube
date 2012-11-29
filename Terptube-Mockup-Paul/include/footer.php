@@ -6,7 +6,6 @@
         var CAPTION_HIDDEN = 1;
         var CAPTION_SHOW = 2;
 
-
         //set up variables
         var speedSlow = false;
         var video_dom = $('video#myPlayer').get(0);
@@ -22,7 +21,7 @@
         var selectedVideoName;
 
         var signlinkArray = new Array();
-        var commentArray = new Array();
+        var commentArray  = new Array();
 
         var tempStartTime;
         var tempEndtTime;
@@ -30,24 +29,24 @@
         var tempComment;
         var tempLink;
 
-        var plusSignVisible = false;
+        var plusSignVisible      = false;
         var creatingTimedComment = false;
 
-        var regionPointer = 0; // used to keep track where the link index is for LinkTimes array
-        var playing = false;
-        var textVisible = false;
+        var regionPointer   = 0; // used to keep track where the link index is for LinkTimes array
+        var playing         = false;
+        var textVisible     = false;
         
-        var linkCanvas=document.getElementById('linkCanvas');
-        var ctx=linkCanvas.getContext('2d');
-        ctx.globalAlpha = 0.4;
-        var traversalCanvas=document.getElementById('traversalCanvas');
-        var traversalctx=traversalCanvas.getContext('2d');
+        var linkCanvas          = document.getElementById('linkCanvas');
+        var ctx                 = linkCanvas.getContext('2d');
+        ctx.globalAlpha         = 0.4;
+        var traversalCanvas     = document.getElementById('traversalCanvas');
+        var traversalctx        = traversalCanvas.getContext('2d');
         var traversalCanvasDrag = false;
 
-        var myRectangle = {x: -10,y: 17 - 1,width: 1,height: ctx.canvas.height,borderWidth: 1};
-        var plusCircle =  {x: 0,y: 8 ,width: 7, height: Math.PI*2};
+        var myRectangle = { x: -10, y: 17 - 1, width: 1, height: ctx.canvas.height, borderWidth: 1 };
+        var plusCircle  = { x: 0,   y: 8 , width: 7, height: Math.PI*2 };
 
-        var selectorRectLeft = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
+        var selectorRectLeft  = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
         var selectorRectRight = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
         var selectorInBetween = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
 
@@ -69,15 +68,31 @@
         selectorRightImg.src = "images/feedback_icons/selector_right.png";
 
         //current link is the video the user has selected or the play head is in contact with
-        var currentLink = -1;
+        var currentLink           = -1;
         var currentClickableIndex = -1;
-        var sourceVideoClickable = false;
+        var sourceVideoClickable  = false;
 
-        window.onload = createUploader($(this));
+        createUploader($(this));
 
         //jQuery('#mycarousel').jcarousel();
-//        var duration;
-        var duration = video_dom.duration;
+        
+        // duration here functions as a 'global'
+        var duration = 0;
+        
+        // event listener to set the correct duration when the video metadata has been loaded
+        video_dom.addEventListener('loadedmetadata', function() {
+            console.log(video_dom.duration);
+            setSourceDuration(video_dom.duration);
+        });
+        
+        // sets the global 'duration' variable to the argument passed in
+        // also changes the html span element representing the video total time
+        function setSourceDuration(theDur) {
+            duration = theDur;
+            // change the html duration value to reflect this
+            $("span#video-total-time").html(formatVideoTime(duration))
+        }
+        //var duration = video_dom.duration;
 
         $selectVideoDrop.change(function() {
             $optionFieldset.hide();
@@ -98,20 +113,20 @@
 
         });
 
-
         $(".edit-video-link").click(function(){
             $optionFieldset.show();
             $videoNameFieldset.hide();
         });
 
+		// show seek bar plus sign for new comment on mouse hover
         $("#traversalCanvas").hover(
-            function(){
-                plusSignVisible = true;
-            },
-            function(){
-                plusSignVisible = false;
-            }
-        );
+	        function(){
+	            plusSignVisible = true;
+	        },
+	        function(){
+	            plusSignVisible = false;
+	        }
+    	);
 
 
         //Clicking the clock icon will move the density bar to the comments time
@@ -121,18 +136,59 @@
         });
 
         //This will delete the specific comment when the user clicks the x icon
-        $(".delete-comment").click(function(){
-            alert('to do: delete this comment and its children');
+        $(".comment-delete-link").click(function(){
+            // get the comment's ID
+            var commentID = stringToIntegersOnly($(this).attr('id'));
+            
+            // fade out the comment in question
+            $("div#comment-" + commentID).fadeTo('slow', 0.5);
+//            alert(commentID);
+
+            // show a dialog box asking for confirmation of delete
+            $( "#dialog-confirm" ).dialog({
+                resizeable: false,
+                height: 275,
+                modal: true,
+                buttons: {
+                    "Yes": function() {
+                        $.ajax({
+                            type: "POST",
+                            url: "include/delete_comment.php",
+                            data: "cID=" + commentID,
+                            success: function(data){
+                                var retdata = $.parseJSON(data);
+                                if ( retdata.status === "success" ) {
+                                    alert('awesome');
+                                    $("div#comment-" + retdata.id).remove();
+                                }
+                            console.log(data);
+                            return true; 
+                             },
+                            complete: function() {},
+                            error: function(xhr, textStatus, errorThrown) {
+                                console.log('ajax loading error...');
+                                return false;
+                            }
+                        });
+                        $( this ).dialog( "close" );
+                    },
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                        $("div#comment-" + commentID).fadeTo('slow', 1.0);
+                    }
+                }
+            });
+                       
         });
 
         $(".feedback-container").hover(
-            function(){
-                $(this).children(".delete-comment").show();
-            },
-            function(){
-                $(this).children(".delete-comment").hide();
-            }
-        );
+        //            function(){
+        //                $(this).children(".delete-comment").show();
+        //            },
+        //            function(){
+        //                $(this).children(".delete-comment").hide();
+        //            }
+    );
 
 
         $("form#submitReply").submit(function() {
@@ -145,7 +201,7 @@
             var parent_id = $(this).children('.text_reply').attr('parent_id');
             var file = $(this).children('[name=reply-file-name]').val();
 
-            if(reply || file > 0) {
+            if ( reply || file > 0 ) {
                 $.ajax({
                     type: "POST",
                     url: "include/submit_comment.php",
@@ -158,7 +214,7 @@
                     }
                 });
             }
-            else{
+            else {
                 alert('Please fill out a reply and then submit');
                 return false;
             }
@@ -168,16 +224,20 @@
 
 
         $(".arrow-container").click(function() {
-            var $video = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-video");
+//            var $video = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-video");
+            var $video = $(this).parent(".comment-content-container").find(".comment-video");
+            var $commentContainer = $(this).parent(".comment-content-container");
 
-            if ($(this).children(".feedback-expand").attr("src") == "images/feedback_icons/arrow_down.png") {
+            if ( $(this).children(".feedback-expand").attr("src") == "images/feedback_icons/arrow_down.png") {
 
-                $(this).parent(".comment-content-container").children(".comment-content").css({'height': 'auto'});
+//                $(this).parent(".comment-content-container").children(".comment-content").css({'height': 'auto'});
+                $commentContainer.find(".comment-content").css({'height': 'auto'});
 
                 //$(".comment-content").css({'height': 'auto'}); //make this specific by doing the parent child thing
-                $(this).children(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_up.png');
+                $(this).find(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_up.png');
 
-                var $text = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-text");
+//                var $text = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-text");
+                var $text = $commentContainer.find(".comment-text");
 
                 if ($video.length > 0) { //.children(".comment-video")   //.parent(".feedback-container").children(".comment-video").exists())
                     initializeCommentVideo($video);
@@ -189,8 +249,8 @@
 
             }
             else {
-                $(this).parent(".comment-content-container").children(".comment-content").css({'height': '100px'});
-                $(this).children(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_down.png');
+                $commentContainer.find(".comment-content").css({'height': '100px'});
+                $(this).find(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_down.png');
 
                 collapseCommentVideo($video);
             }
@@ -303,7 +363,7 @@
         });
 
 
-        //toggles the
+        //toggles the display of the supplemental text of the source video
         $("#source-text-comment-button").click(function() {
             $(".source-text-container").toggle();
             if(textVisible)
@@ -321,15 +381,15 @@
         //code to run every second and run through the canvas
         video_dom.addEventListener('play', function() {
             
-//            video_dom.width = canvas_draw.width = video_dom.offsetWidth;
-//            video_dom.height = canvas_draw.height = video_dom.offsetHeight;
-//            var ctx_draw = canvas_draw.getContext('2d');
+            //            video_dom.width = canvas_draw.width = video_dom.offsetWidth;
+            //            video_dom.height = canvas_draw.height = video_dom.offsetHeight;
+            //            var ctx_draw = canvas_draw.getContext('2d');
             
             video_dom.width = video_dom.offsetWidth;
             video_dom.height = video_dom.offsetHeight;
             var ctx_draw = traversalCanvas.getContext('2d');
             
-            playing=true;
+            playing = true;
             draw_interval = setInterval(function() {
             }, 1000)
         }, false);
@@ -350,12 +410,13 @@
 
         traversalCanvas.addEventListener('mousedown', function(e) {
             var offset = $(this).offset();
-            var position = $('#traversalCanvas').position();
-
+            // var position = $('#traversalCanvas').position();
+            var position = $(this).position();
             e.clientX = e.clientX - offset.left;
             //if they click on the plus sign
             var relX = e.clientX - offset.left;
             var relY = e.clientY - offset.top;
+            console.log("e.clientX: " + e.clientX + " e.clientY: " + e.clientY + " relX: " + relX + " relY: " + relY);
 
             //if user clicks arrow
             if (relX < plusCircle.x + plusCircle.width && relX > plusCircle.x - plusCircle.width && !creatingTimedComment
@@ -370,7 +431,7 @@
                 $(".comment-details").show();
                 startTimeInput.val(roundNumber(video_dom.currentTime,2));
                 endTimeInput.val(roundNumber(video_dom.currentTime + 2,2));
-                $("[name=previewButton]").css("display","inline");
+                $(":button[name=previewButton]").css("display","inline");
 
 
             }
@@ -391,7 +452,7 @@
                     }, true);
                 }
 
-                //right comment traingle
+                //right comment triangle
                 if (relX > selectorRectRight.x  && relX < selectorRectRight.x + selectorRightImg.width
                     && relY > selectorRectRight.y + selectorRectRight.height  && relY < selectorRectRight.y + selectorRightImg.height + selectorRectRight.height){
                     selectorRightDrag = true;
@@ -484,13 +545,13 @@
             // calculate the percentage of current time in relation to the canvas size
             //call move Playhead to advance the play head
             var currentTime = video_dom.currentTime;
-            var duration = video_dom.duration;
+            //var duration = video_dom.duration; //edited to use global
             var percentage = currentTime/duration;
             var xPosition = percentage*traversalCanvas.width;
 
             // draw times on the bar
             $("span#video-current-time").html(formatVideoTime(currentTime));
-            $("span#video-total-time").html(formatVideoTime(duration));
+            //$("span#video-total-time").html(formatVideoTime(duration));
 
             // clear
             traversalctx.clearRect(0, 0, traversalCanvas.width, traversalCanvas.height);
@@ -596,8 +657,9 @@
 
         //canvas code generated by database start and end times
         //Generate the colored region for the comments
-//        duration = 33;
-        duration = $("video#myPlayer").get(0).duration;
+        //        duration = 33;
+        // duration = $("video#myPlayer").get(0).duration;
+        // duration
 
 <?php
 $sql = "Select * From video_comment WHERE source_id = $videoNumber Order By comment_start_time ASC";
@@ -608,12 +670,14 @@ while ($row = mysqli_fetch_assoc($result)) {
     //if there is no video associated to the comment it means it is purely a text comment
     if (file_exists('uploads/comment/' . $row['comment_id'] . '.mp4')) {
         ?>
-                tempStartTime =  <?php echo $row['comment_start_time']; ?>;
-                tempEndTime = <?php echo $row['comment_end_time']; ?>;
-    <?php } else {
+                        tempStartTime =  <?php echo $row['comment_start_time']; ?>;
+                        tempEndTime = <?php echo $row['comment_end_time']; ?>;
+    <?php
+    }
+    else {
         ?>
-                tempStartTime = -1;
-                tempEndTime = -1;
+                        tempStartTime = -1;
+                        tempEndTime = -1;
     <?php } ?>
 
                 tempName = "<?php echo $row['comment_id']; ?>";
@@ -628,152 +692,152 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 //-----------ADD SIGNLINKS TO DENSITY BAR ------------------------------------------//
 
-$sql = "Select * From video_signlink WHERE source_id = '$videoNumber' Order By start_time ASC";
-$result = mysqli_query($db, $sql);
+        $sql = "Select * From video_signlink WHERE source_id = '$videoNumber' Order By start_time ASC";
+        $result = mysqli_query($db, $sql);
+        
+        while ($row = mysqli_fetch_assoc($result)) {
+            ?>
+        
+                var postObject = new signlink(<?php echo $row['start_time']; ?>, <?php echo $row['end_time']; ?>, <?php echo $row['signlink_id']; ?>);
+                signlinkArray.push(postObject);
+        
+            <?php
+        }
+        
+        mysqli_close($db);
+        ?>
 
-while ($row = mysqli_fetch_assoc($result)) {
-    ?>
-
-    var postObject = new signlink(<?php echo $row['start_time']; ?>, <?php echo $row['end_time']; ?>, <?php echo $row['signlink_id']; ?>);
-    signlinkArray.push(postObject);
-
-    <?php
-}
-
-mysqli_close($db);
-?>
-
-                       drawAreaOnBar(commentArray);
-                       drawAreaOnBar(signlinkArray);
-
-
-                       function initializeCommentVideo($video) {
-
-                           if(!($video.get(0).currentTime > 0 && $video.get(0).ended == false))
-                           {
-                               $video.attr('autoplay', 'true');
-                               $video.load();
-                           }
-
-                           $video.css({
-                               'height' : '240px',
-                               'width' : '320px',
-                               'left': '5%',
-                               'top' : '0px'
-                           });
-
-                           $video.attr("controls", 'controls');
-                           $video.get()[0].play();
-
-                       }
-
-                       function collapseCommentVideo($video, $source) {
-                           $video.css({
-                               'height' : '100px',
-                               'width' : '120px',
-                               'left': '35%',
-                               'top' : '0px'
-                           });
+        drawAreaOnBar(commentArray);
+        drawAreaOnBar(signlinkArray);
 
 
-                           $video.attr('autoplay', 'false');
-                           //$video.attr('src', '');
-                           $video.removeAttr("controls");
-                           $video.get()[0].pause();
+        function initializeCommentVideo($video) {
 
-                       }
+            if(!($video.get(0).currentTime > 0 && $video.get(0).ended == false))
+            {
+                $video.attr('autoplay', 'true');
+                $video.load();
+            }
+
+            $video.css({
+                'height' : '240px',
+                'width' : '320px',
+                'left': '5%',
+                'top' : '0px'
+            });
+
+            $video.attr("controls", 'controls');
+            $video.get()[0].play();
+
+        }
+
+        function collapseCommentVideo($video, $source) {
+            $video.css({
+                'height' : '100px',
+                'width' : '120px',
+                'left': '35%',
+                'top' : '0px'
+            });
+
+            $video.attr('autoplay', 'false');
+            //$video.attr('src', '');
+            $video.removeAttr("controls");
+            $video.get()[0].pause();
+
+        }
+
+        function signlink(startTime,endTime,link) {
+            this.startTime=startTime;
+            this.endTime=endTime;
+            this.link = link;
+        }
+
+        function comment(start,end,videoName,comment) {
+            this.startTime=start;
+            this.endTime=end;
+            this.name = videoName;
+            this.comment = comment;
+        }
+
+        function drawAreaOnBar(object) {
+            for(var i = 0; i < object.length; i++) {
+
+                if(object[i].name > 0 || object[i].comment > 0) {
+                    //canvas color get random colors for each comment
+                    ctx.fillStyle = get_random_color();
+                }
+                else {
+                    //canvas color get random colors for each comment
+                    ctx.fillStyle = "rgb(0,0,0)";
+                }
+                //calulate start of canvas comment
+                var videoPercentageStart = object[i].startTime / duration;
+                var canvasPercentageStart = videoPercentageStart*ctx.canvas.width;
+
+                //calculate end of canvas comment
+                var videoPercentageEnd = object[i].endTime / duration;
+                var canvasPercentageEnd = videoPercentageEnd*ctx.canvas.width;
+
+                var width = Math.floor(canvasPercentageEnd) - Math.floor(canvasPercentageStart);
+
+                if(width == 0)
+                {
+                    width = 1;
+                }
+
+                //rect x,y,width,height
+                ctx.fillRect(canvasPercentageStart ,0, width, ctx.canvas.height);
+            }
+        }
 
 
-
-                       function signlink(startTime,endTime,link) {
-                           this.startTime=startTime;
-                           this.endTime=endTime;
-                           this.link = link;
-                       }
-
-                       function comment(start,end,videoName,comment) {
-                           this.startTime=start;
-                           this.endTime=end;
-                           this.name = videoName;
-                           this.comment = comment;
-                       }
-
-                       function drawAreaOnBar(object) {
-                           for(var i = 0; i < object.length; i++) {
-
-                               if(object[i].name > 0 || object[i].comment > 0) {
-                                   //canvas color get random colors for each comment
-                                   ctx.fillStyle = get_random_color();
-                               }
-                               else {
-                                   //canvas color get random colors for each comment
-                                   ctx.fillStyle = "rgb(0,0,0)";
-                               }
-                               //calulate start of canvas comment
-                               var videoPercentageStart = object[i].startTime / duration;
-                               var canvasPercentageStart = videoPercentageStart*ctx.canvas.width;
-
-                               //calculate end of canvas comment
-                               var videoPercentageEnd = object[i].endTime / duration;
-                               var canvasPercentageEnd = videoPercentageEnd*ctx.canvas.width;
-
-                               var width = Math.floor(canvasPercentageEnd) - Math.floor(canvasPercentageStart);
-
-                               if(width == 0)
-                               {
-                                   width = 1;
-                               }
-
-                               //rect x,y,width,height
-                               ctx.fillRect(canvasPercentageStart ,0, width, ctx.canvas.height);
-                           }
-                       }
-
-
-                       //called when user uploads a video in the reply box
-                       function createUploader($this){
-                           var uploader = new qq.FileUploaderBasic({
-                           	   multiple: false,
-                           	   element:document.getElementById('uploadedfileButton'),
-                               button: document.getElementById('input-upload-div'),
-                               action: 'scripts/ajaxupload/upload.php?v=source',
-                               debug: true,
+        //called when user uploads a video in the reply box
+        function createUploader($this){
+            var uploader = new qq.FileUploaderBasic({
+                multiple: false,
+                element:document.getElementById('uploadedfileButton'),
+                button: document.getElementById('input-upload-div'),
+                action: 'scripts/ajaxupload/upload.php?v=source',
+                debug: true,
                                onComplete: function(id, fileName1, responseJSON){
                                    $("[name=file-name]").val(responseJSON.fileName);
-                                   $optionFieldset.hide();
-                                   $videoNameFieldset.show();
+                    $optionFieldset.hide();
+                    $videoNameFieldset.show();
                                    selectedVideoName = responseJSON.fileName;
-                                   $('.video-title').text(selectedVideoName);
-                                   
-                                   
-                                   //martin here!!!!!!!!!!!!!!!
+                    $('.video-title').text(selectedVideoName);
+
+
+                    //martin here!!!!!!!!!!!!!!!
                                    popUpRecorder('videoRecordingOrPreview','preview',selectedVideoName, "upload");
-                               }
-                           });
-                           
+                }
+            });
 
-                           //loop for all reply upload spans
-                           for(var i = 0; i < $('.reply-upload-span').length; i++)
-                           {
-                               var uploader = new qq.FileUploaderBasic({
-                                   button: $('.reply-upload-span').get()[i], // document.getElementByClassName('reply-upload-span'),
-                                   action: 'scripts/ajaxupload/upload.php?v=reply&id=' + i,
-                                   debug: true,
-                                   onComplete: function(id, fileName, responseJSON){
-                                       var obj = jQuery.parseJSON(responseJSON);
-                                       var $label = $(".reply-file-label");
-                                       var $hiddenFile = $("[name=reply-file-name]");
 
-                                       $label.get()[obj.id].innerHTML = fileName;
-                                       $hiddenFile.get()[obj.id].value = fileName;
-                                   }
-                               });
+            //loop for all reply upload spans
+            for(var i = 0; i < $('.reply-upload-span').length; i++)
+            {
+                var uploader = new qq.FileUploaderBasic({
+                    button: $('.reply-upload-span').get()[i], // document.getElementByClassName('reply-upload-span'),
+                    action: 'scripts/ajaxupload/upload.php?v=reply&id=' + i,
+                    debug: true,
+                    onComplete: function(id, fileName, responseJSON){
+                        var obj = jQuery.parseJSON(responseJSON);
+                        var $label = $(".reply-file-label");
+                        var $hiddenFile = $("[name=reply-file-name]");
 
-                           }
-                       }
-                       
-                   });
+                        $label.get()[obj.id].innerHTML = fileName;
+                        $hiddenFile.get()[obj.id].value = fileName;
+                    }
+                });
+
+            }
+        }
+
+    });
 </script>
 
 </body>
+<div id="dialog-confirm" title="Delete this comment?">
+    <p style="line-height:150%;"><span class="ui-icon ui-icon-alert" style="float:left;margin:0 30px 50px 0;"></span>This will delete this comment permanently. Are you sure?</p>
+</div>
 </html>

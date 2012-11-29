@@ -3,9 +3,9 @@
 $path = "/media/storage/projects/sls/public_html";
 
 function strip_ext($filename) {
-   // strip extension and get only video name
-   $fnameonly = substr($filename, 0, strrpos($filename, '.')); 
-   return $fnameonly;
+    // strip extension and get only video name
+    $fnameonly = substr($filename, 0, strrpos($filename, '.'));
+    return $fnameonly;
 }
 
 /**
@@ -15,117 +15,328 @@ function strip_ext($filename) {
  * @param string $videoPath  the full path to the video file eg) /nuitBlancheFiles/dirname002/dirname002.mp4
  * @param string $size  the size of a video thumbnail, WxH eg) 144x112 
  */
-
-
 /*
  * The following function was altered to add the thumbnail to the thumb folder
  * It was taken from the signlinkcms so for the original look there. The folder structure differed from the one in the signlinkcms folder
  * The function returns only a file name, because the calling form knows where the files will be placed ex. test.jpg
  * Freeze time is the time ffmpeg will snap the photo for the thumbnail
  */
-function createThumbnail($videoPath, $thumbName, $freezeTime, $size="144x112") {
-   // $videoPath is of the format "/streams/489_134141341341.flv"
-   // change this to alter the default thumbnail image
-	
-	$default_thumbnail = "default_videothumb.png";
-   
+function createThumbnail($videoPath, $thumbName, $freezeTime, $size = "144x112") {
+    // $videoPath is of the format "/streams/489_134141341341.flv"
+    // change this to alter the default thumbnail image
+
+    $default_thumbnail = "default_videothumb.png";
+
     $videoPath = escapeshellcmd($videoPath);
-    $size = escapeshellcmd($size); 
+    $size = escapeshellcmd($size);
     $fnameonly = strip_ext($videoPath);
 
     $newthumbjpg = "../uploads/comment/thumb/" . $thumbName . ".jpg";
-    $tempthumbjpg = $fnameonly . 'temp.jpg';  
-   
-    $stringToExecuteRegular = "ffmpeg/ffmpeg -i " .  $videoPath . " -ss " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $tempthumbjpg; 
+    $tempthumbjpg = $fnameonly . 'temp.jpg';
+
+    $stringToExecuteRegular = "ffmpeg/ffmpeg -i " . $videoPath . " -ss " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $tempthumbjpg;
 
     $escaped_command = escapeshellcmd($stringToExecuteRegular);
-   
+
     //echo $escaped_command;
     //$output = shell_exec($escaped_command); 
     $output = shell_exec($escaped_command);
 
     // make sure new JPG file exists
     if (!file_exists($tempthumbjpg)) {
-    	error_log("**functions.inc.php ** No image file created for " . $videoPath . ", does ffmpeg have correct permissions and dir writeable?", 0);
-       return $default_thumbnail;
+        error_log("**functions.inc.php ** No image file created for " . $videoPath . ", does ffmpeg have correct permissions and dir writeable?", 0);
+        return $default_thumbnail;
     }
 
-	// use the newly created thumbnail
-	$image = imagecreatefromjpeg($tempthumbjpg);
-	
-	if ( !$image ) {
-	      //echo '<p>no image file created, does ffmpeg have correct permissions and dir writeable?</p>';
-	     error_log("**functions.inc.php ** No image file created for " . $videoPath . ", does ffmpeg have correct permissions and dir writeable?", 0);
-         return $default_thumbnail;
-	}
+    // use the newly created thumbnail
+    $image = imagecreatefromjpeg($tempthumbjpg);
 
-   // declare the path to our play button image
-	$pathToDefImage = '../images/play_btn.png';
-   
-   $watermark = imagecreatefrompng($pathToDefImage);
-	
-	if (!$watermark) {
-		error_log("**ERROR functions.inc.php** - no watermark made, check the path to the play_btn image",0);
-      return $default_thumbnail;
+    if (!$image) {
+        //echo '<p>no image file created, does ffmpeg have correct permissions and dir writeable?</p>';
+        error_log("**functions.inc.php ** No image file created for " . $videoPath . ", does ffmpeg have correct permissions and dir writeable?", 0);
+        return $default_thumbnail;
+    }
 
-	}
-	
-	imagealphablending($image, true);
-	imagealphablending($watermark, true); 
-	
-	 // render play button .png file on top of thumb.jpg file
-	 imagecopy($image, $watermark, imagesx($image)/2-22, imagesy($image)/2-22, 0, 0, imagesx($watermark), imagesy($watermark));
-	
-	// create new thumbnail with play button overlayed on top in the same folder
-	if ( !imagejpeg($image, $newthumbjpg) ) {
-      //print "**ERROR** - Error creating new thumbnail jpeg file, check directory permissions";
-      error_log("**ERROR functions.inc.php** - Error creating new thumbnail jpeg file for " . $videoPath . ", check directory permissions",0);
-      return $default_thumbnail;
-	}
-   
+    // declare the path to our play button image
+    $pathToDefImage = '../images/play_btn.png';
+
+    $watermark = imagecreatefrompng($pathToDefImage);
+
+    if (!$watermark) {
+        error_log("**ERROR functions.inc.php** - no watermark made, check the path to the play_btn image", 0);
+        return $default_thumbnail;
+    }
+
+    imagealphablending($image, true);
+    imagealphablending($watermark, true);
+
+    // render play button .png file on top of thumb.jpg file
+    imagecopy($image, $watermark, imagesx($image) / 2 - 22, imagesy($image) / 2 - 22, 0, 0, imagesx($watermark), imagesy($watermark));
+
+    // create new thumbnail with play button overlayed on top in the same folder
+    if (!imagejpeg($image, $newthumbjpg)) {
+        //print "**ERROR** - Error creating new thumbnail jpeg file, check directory permissions";
+        error_log("**ERROR functions.inc.php** - Error creating new thumbnail jpeg file for " . $videoPath . ", check directory permissions", 0);
+        return $default_thumbnail;
+    }
+
     unlink($tempthumbjpg);
-	imagedestroy($image);
-	imagedestroy($watermark);
+    imagedestroy($image);
+    imagedestroy($watermark);
     echo basename($newthumbjpg);
     return basename($newthumbjpg);
 }
 
+function createSignlinkThumb($videoPath, $thumbName, $freezeTime, $size = "144x112") {
+    // $videoPath is of the format "/streams/489_134141341341.flv"
 
-function createSignlinkThumb($videoPath, $thumbName, $freezeTime, $size="144x112")
-{
-  	// $videoPath is of the format "/streams/489_134141341341.flv"
-  	
-  	$default_thumbnail = "default_videothumb.png";
+    $default_thumbnail = "default_videothumb.png";
 
-  	$videoPath = escapeshellcmd($videoPath);
-  	$size = escapeshellcmd($size);
-  	//$fnameonly = strip_ext(thumbName);
-  	
+    $videoPath = escapeshellcmd($videoPath);
+    $size = escapeshellcmd($size);
+    //$fnameonly = strip_ext(thumbName);
+
     $newthumbjpg = '../uploads/signlink/' . $thumbName . '.jpg';
-   
-    $stringToExecuteRegular = "../include/ffmpeg/ffmpeg -i " .  $videoPath . " -frames " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $newthumbjpg; 
-  	
-  	$escaped_command = escapeshellcmd($stringToExecuteRegular);
-  	$output = shell_exec($escaped_command);
-  	
-  	// use the newly created thumbnail
-  	$image = imagecreatefromjpeg($newthumbjpg);
-  	
-  	//make sure new JPG file exists
-  	if (!file_exists($newthumbjpg)) {
-  		//echo returned . "<br/>";
-  		return $default_thumbnail;
-  	}
-  	
-  	if ( !$image ) {
-  		error_log("**functions.inc.php ** No image file created for " . $videoPath . ", does ffmpeg have correct permissions and dir writeable?", 0);
-  		return $default_thumbnail;
-  	}
-  	
-  	imagedestroy($image);
-  	return basename($newthumbjpg);
-  }
 
+    $stringToExecuteRegular = "../include/ffmpeg/ffmpeg -i " . $videoPath . " -frames " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $newthumbjpg;
+
+    $escaped_command = escapeshellcmd($stringToExecuteRegular);
+    $output = shell_exec($escaped_command);
+
+    // use the newly created thumbnail
+    $image = imagecreatefromjpeg($newthumbjpg);
+
+    //make sure new JPG file exists
+    if (!file_exists($newthumbjpg)) {
+        //echo returned . "<br/>";
+        return $default_thumbnail;
+    }
+
+    if (!$image) {
+        error_log("**functions.inc.php ** No image file created for " . $videoPath . ", does ffmpeg have correct permissions and dir writeable?", 0);
+        return $default_thumbnail;
+    }
+
+    imagedestroy($image);
+    return basename($newthumbjpg);
+}
+
+/**
+ * This function does not remove a comment from the database!
+ * It simply sets the 'deleted' field in the database to 1 to indicate it's deletion
+ * This is for the purposes of tracking any content created by participants in the future
+ * 
+ * @param commid the comment id as an integer
+ * @return the id of the deleted comment on success, otherwise will return false
+ */
+function deleteCommentByID($commid) {
+    global $db;
+
+    $id = intval($commid);
+    
+    
+    /* create a prepared statement */
+    if ($stmt = mysqli_prepare($db, "Update video_comment set deleted=1 where comment_id=?")) {
+
+        /* bind parameters for markers */
+        mysqli_stmt_bind_param($stmt, "i", $id);
+
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        if (mysqli_stmt_affected_rows($stmt) >= 1) {
+            mysqli_stmt_close($stmt);	
+            return $id;
+        }
+
+        error_log("Could not set deleted value of comment id: $id");
+		
+		/* close statement */
+        mysqli_stmt_close($stmt);
+        
+        return false;
+    }
+
+    
+}
+
+/**
+ * This function removes the entire database row associated with a comment id from the video_comment table
+ * 
+ * @param commid the ocmment id as an integer
+ * @return the comment id that was deleted on success, otherwise will return false on failure
+ */
+function removeCommentFromDatabaseByID($commid) {
+    global $db;
+
+    $id = intval($commid);
+    
+    
+    /* create a prepared statement */
+    if ($stmt = mysqli_prepare($db, "delete from video_comment where comment_id=?")) {
+
+        /* bind parameters for markers */
+        mysqli_stmt_bind_param($stmt, "i", $id);
+
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        if (mysqli_stmt_affected_rows($stmt) >= 1) {
+            mysqli_stmt_close($stmt);	
+            return $id;
+        }
+
+        error_log("Could not delete video comment id: $id from the database");
+		
+		/* close statement */
+        mysqli_stmt_close($stmt);
+        
+        return false;
+    }
+
+    
+}
+
+
+/**
+ * Returns an array of top level comment details stored in an array, given a source video id
+ * Uses the video_comment table to return this info, will not return 'deleted' comments
+ * @param $sourceid the id of the source video
+ * @return an array object filled with comments that are associative arrays
+ */
+function getTopLevelCommentsForSourceID($sourceID) {
+    global $db;
+    $sID = intval($sourceID);
+    
+    /* create a prepared statement */
+    $query = "Select comment_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename from video_comment where source_id=? AND deleted=0 AND parent_id=0";
+    $stmt = mysqli_stmt_init($db);
+    if ( !mysqli_stmt_prepare($stmt, $query)) {
+        error_log("Failed to prepare statement in " . __FUNCTION__);
+        print "Failed to prepare statement"; 
+    }
+    else {
+
+        /* bind parameters */
+        mysqli_stmt_bind_param($stmt, "i", $sID);
+
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        /* bind results */
+        mysqli_stmt_bind_result($stmt, $commID, $authID, $textcont, $start, $end, $commdate, $tempcommentbool, $hasvideobool, $videofilename);
+        
+        $commentArray = array();
+        while (mysqli_stmt_fetch($stmt)) {
+            $singleCommentArray = array("id" => $commID, 
+                                        "author" => $authID, 
+                                        "text" => htmlentities($textcont), 
+                                        "starttime" => $start, 
+                                        "endtime" => $end, 
+                                        "date" => $commdate,
+										"istemporalcomment" => $tempcommentbool,
+										"hasvideo" => $hasvideobool,
+										"videofilename" => $videofilename);
+                                        
+            array_push($commentArray, $singleCommentArray);
+        }
+        
+        /* close statement */
+        mysqli_stmt_close($stmt);
+        
+        return $commentArray;
+
+    }
+}
+
+
+/**
+ * This function returns all replies to a selected top level comment that was made about a given source id
+ * @param $thesourceID the id of the source video the top level comment was made on
+ * @param $thecommentID the id of the top level comment 
+ */
+function getCommentRepliesForSourceID($thesourceID, $thecommentID) {
+    global $db;
+    $sourceID  = intval($thesourceID);
+	$commentID = intval($thecommentID);
+    
+    /* create a prepared statement */
+    $query = "Select comment_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename from video_comment where source_id=? AND parent_id =? AND deleted=0";
+    $stmt = mysqli_stmt_init($db);
+    if ( !mysqli_stmt_prepare($stmt, $query)) {
+        error_log("Failed to prepare statement in " . __FUNCTION__);
+        print "Failed to prepare statement";
+    }
+    else {
+
+        /* bind parameters */
+        mysqli_stmt_bind_param($stmt, "ii", $sourceID, $commentID);
+
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        /* bind results */
+        mysqli_stmt_bind_result($stmt, $commID, $authID, $textcont, $start, $end, $commdate, $tempcommentbool, $hasvideobool, $videofilename);
+        
+        $commentArray = array();
+        while (mysqli_stmt_fetch($stmt)) {
+            $singleCommentArray = array("id" => $commID, 
+                                        "author" => $authID, 
+                                        "text" => htmlentities($textcont), 
+                                        "starttime" => $start, 
+                                        "endtime" => $end, 
+                                        "date" => $commdate,
+										"istemporalcomment" => $tempcommentbool,
+										"hasvideo" => $hasvideobool,
+										"videofilename" => $videofilename);
+                                        
+            array_push($commentArray, $singleCommentArray);
+        }
+        
+        /* close statement */
+        mysqli_stmt_close($stmt);
+        
+        return $commentArray;
+
+    }
+}
+
+
+function getExistingVideosForSourceID($theid) {
+	global $db;
+	$sourceid = intval($theid);
+	
+	/* create a prepared statement */
+    $query = "Select ev.title from evids_to_sourcevids as es, existing_video as ev where es.source_id = ? AND es.existingvideo_id = es.source_id";
+    $stmt = mysqli_stmt_init($db);
+    if ( !mysqli_stmt_prepare($stmt, $query)) {
+        error_log("Failed to prepare statement in 'getExistingVideosForSourceID'");
+        print "Failed to prepare statement";
+    }
+    else {
+
+        /* bind parameters */
+        mysqli_stmt_bind_param($stmt, "i", $sourceid);
+
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        /* bind results */
+        mysqli_stmt_bind_result($stmt, $existingVideoTitle);
+        
+        $existingVideoTitles = array();
+        while (mysqli_stmt_fetch($stmt)) {
+                                        
+            array_push($existingVideoTitles, $existingVideoTitle);
+        }
+        
+        /* close statement */
+        mysqli_stmt_close($stmt);
+        
+        return $existingVideoTitles;
+
+    }
+}
 
 
 

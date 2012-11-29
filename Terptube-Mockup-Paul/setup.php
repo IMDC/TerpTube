@@ -18,4 +18,5 @@ define('LOG_DIR', APP_DIR . "logs" . DIRECTORY_SEPARATOR);
 
 //ffmpeg error log
 define('FFMPEG_LOG_FILE', LOG_DIR . "ffmpeg-error.log" );
+
 ?>

@@ -3,8 +3,9 @@
 ?>
 
 <!doctype html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="utf-8" />
         <title>Signlink Studio @ IDI</title>
 
         <!-- CSS files -->
@@ -12,14 +13,14 @@
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/reset.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/index.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/playr.css" type="text/css" media="screen" />
-        
+
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/common.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/record.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/preview.css" type="text/css" media="screen" />
 		
         <!-- jquery -->
         <script type="text/javascript" src="<?php echo SITE_BASE ?>js/jquery-1.8.2.js"></script>
-
+        
 		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/jquery-ui-1.9.0.custom.min.js"></script>
 		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/toolbox.flashembed.min.js"></script>
 		
@@ -47,6 +48,6 @@
         </script>
     	<script type="text/javascript" src="<?php echo SITE_BASE ?>js/index/common_function.js"></script>
 		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/index/martinFunctions.js"></script>
-
+        
     </head>
     <body>

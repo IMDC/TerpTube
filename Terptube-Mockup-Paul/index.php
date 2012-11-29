@@ -2,7 +2,9 @@
 require_once('setup.php');
 require_once(INC_DIR . 'config.inc.php');
 require_once(INC_DIR . 'header.php');
+require_once(INC_DIR . 'functions.inc.php');
 
+// grab the id from the url to match the video_source table in the database
 $videoNumber = intval($_GET['v']);
 
 $sql = "SELECT * From video_source WHERE source_id = '$videoNumber'";
@@ -19,7 +21,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     </div>
     <div id="navigation"></div>
 
-    <div id="content-container">
+    <div id="content-container" class="testfakeclass">
 
         <div id="content-left">
             <!-- Houses the main player with the canvas and sample videos -->
@@ -62,6 +64,17 @@ while ($row = mysqli_fetch_assoc($result)) {
                     </div>
 
                     <div class="cleardiv"></div>
+                    
+                    <?php
+                        $commentsArray = getTopLevelCommentsForSourceID($videoNumber);
+                        foreach ($commentsArray as $comment) {
+                            echo '<div class="video-comment-id" dataval=' . $comment["id"] . '">';
+                            echo '<span>' . $comment["author"] . '</span>' . $comment["text"];
+                            echo '</div>';
+                        }
+                    ?>
+                    
+                    <div class="cleardiv"></div>
                     <!------------ Source video description Box ------------------------>
                     <div class="source-text-container">
                         <span>Hello welcome to SignlinkStudio.com. I will be using the acronym SLS. SignlinkStudio.com explains the concept of signlinking and how it works. There are different areas you can visit in this website. If you don't understand signlinking, you can select "Getting Started" section. If you do understand you can select other section of this website. This section is "About SignlinkStudio" Explain the process involved and how signlinking works. Under "Software" there are two software available that you can download to your computer. The cost is free, no cost to you. Also have online support for how to develop signlinks, using the software, filming and other information. Here is the various research papers we have submitted to conferences around the world. If you have a question related to signlinking, the software or the website, please contact us. Enjoy your visit! </span>
@@ -95,10 +108,13 @@ while ($row = mysqli_fetch_assoc($result)) {
                         <legend>Choose a Video Upload Option:</legend>
 
                         <label>Existing Video:</label>
+                        <?php $existingvideos = getExistingVideosForSourceID($videoNumber); ?>
                         <select name="select-video-names">
-                            <option value="video-1">Video 1</option>
-                            <option value="video-2">Video 2</option>
-                            <option value="video-3">Video 3</option>
+                        	<?php 
+                        	foreach ($existingvideos as $existingVid) {
+                        		print '<option value="'.$existingVid.'">'.$existingVid. '</option>';
+							}
+                        	?>
                         </select>
 
 
@@ -149,71 +165,54 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                 <?php
                 //This will pull non generic comments
-                $sql = "Select * From video_comment WHERE source_id = $videoNumber AND comment_start_time != 0 AND comment_end_time != 0 AND parent_id = 0 ORDER BY date DESC";
-                $result = mysqli_query($db, $sql);
-
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $videoExists = file_exists('uploads/comment/' . $row['comment_id'] . '.mp4');
+//                $sql = "Select * From video_comment WHERE source_id = $videoNumber AND comment_start_time != 0 AND comment_end_time != 0 AND parent_id = 0 ORDER BY date DESC";
+                // $sql = "Select * From video_comment WHERE source_id = $videoNumber AND parent_id = 0 ORDER BY date DESC";
+                // $result = mysqli_query($db, $sql);
+// 
+                // while ($row = mysqli_fetch_assoc($result)) {
+                    // $videoExists = file_exists('uploads/comment/' . $row['comment_id'] . '.mp4');
+                    // $comID = $row['comment_id'];
+                    
+				$toplevelcomments = getTopLevelCommentsForSourceID($videoNumber);
+				foreach ($toplevelcomments as $comment) {
+					
                     ?>
 
-                    <div class="feedback-container clearfix">
-
-                        <img class="delete-comment" src="images/feedback_icons/x_icon.png" alt=""/>
-
-                        <div class="comment-avatar-div">
-                            <img src="images/avatar/avatar1.png" />
-                            <p>Name: Joe</p>
-                            <p>Date Created: June</p>
+                    <div id="comment-<?php echo $comment["id"]; ?>" class="feedback-container clearfix">
+                        <div class="comment-left-side-wrap">
+                            <div class="comment-avatar-div">
+                            	<!-- put avatar specific lookups in here -->
+                                <img src="images/avatar/avatar1.png" />
+                                <p>Name: Joe</p>
+                                <p>Date Created: June</p>
+                            </div>
+                            <div class="comment-tools-div">
+                                <ul>
+                                    <li><a href="#" id="edit-<?php echo $comment["id"]; ?>" class="comment-edit-link">Edit</a></li>
+                                    <li><a href="#" id="delete-<?php echo $comment["id"]; ?>" class="comment-delete-link">Delete</a></li>
+                                </ul>
+    <!--                            <img class="delete-comment" src="images/feedback_icons/x_icon.png" alt=""/>-->
+                            </div>
                         </div>
+                        <div class="clearfix"></div>
 
-                        <div class="comment-content-container">
+                        <div id="comment-content-container-<?php echo $comment["id"]; ?>" class="comment-content-container">
                             <div class="comment-content">
 
-                                <?php if ($videoExists) { ?>
-                                    <video  class="comment-video" preload="auto" poster="uploads/comment/thumb/<?php echo $row['comment_id']; ?>" style="left:35%">
-                                        <source src="<?php echo 'uploads/comment/' . $row['comment_id'] . '.mp4'; ?>" type="video/mp4" />
+                                <?php if ($comment["hasvideo"] === 1) { ?>
+                                    <video  class="comment-video" preload="auto" poster="uploads/comment/thumb/<?php echo $comment["id"]; ?>" style="left:35%">
+                                        <source src="uploads/comment/<?php echo $comment["id"]; ?>.webm" type="video/webm" />
+<!--                                     	<source src="<?php echo 'uploads/comment/' . $comment["videofilename"]; ?>" type="video/webm" /> -->
+                                        <?php //TODO: check after a comment is uploaded that it is converted to webm or mp4 ?? ?>
                                     </video>
                                 <?php } ?>
 
 
-                                <?php if ($row[text_comments] != "") { ?>
-                                    <div class="comment-text" <?php if ($videoExists) { ?> style="display:none" <?php } ?> >
-                                        <span><?php echo $row[text_comments]; ?></span>
+                                <?php if ($comment["text"] != "") { ?>
+                                    <div class="comment-text">
+                                        <span><?php echo htmlentities($comment["text"]); ?></span>
                                     </div>
                                 <?php } ?>
-
-                                <div class="reply-container">
-                                    <?php
-                                    //This will pull replies to comments
-                                    $sql_reply = "Select * From video_comment WHERE parent_id = '$row[comment_id]' AND source_id = '$videoNumber' ORDER BY date ASC";
-                                    $res = mysqli_query($db, $sql_reply);
-
-
-                                    //this is the container for the reply to a reply
-                                    while ($list = mysqli_fetch_assoc($res)) {
-                                        ?>
-                                        <div class="reply-content" id="<?php echo $list['comment_id'] ?>" >
-
-                                            <img src="images/avatar/avatar2.png" style="width:25px;height:25px;"  />
-
-                                            <?php if (file_exists('uploads/comment/' . $list['comment_id'] . '.mp4')) {
-                                                ?>
-
-                                                <video class="comment-video" width="240" height="180"  preload="auto" controls="controls" poster="uploads/comment/thumb/<?php echo $list['comment_id'] ?>.jpg">
-                                                    <source src="uploads/comment/<?php echo $list['comment_id'] . '.mp4'; ?>" type="video/mp4" />
-                                                </video>
-
-                                            <?php } ?>
-
-                                            <div class="comment-text" >
-                                                <span><?php echo $list['text_comments']; ?></span>
-                                            </div>
-                                        </div>
-
-
-                                    <?php }
-                                    ?>
-                                </div>
 
 
                                 <fieldset name="reply-fieldset" >
@@ -225,16 +224,14 @@ while ($row = mysqli_fetch_assoc($result)) {
                                         <p class="reply-upload-span"><img alt="Upload Video" src="images/feedback_icons/upload.png" style="position:relative;left:0px;height:25px;width:25px;float:left"  /></p>
 
                                         <label class="reply-file-label">Comment:</label>
-                                        <input class="text_reply" name="text_reply" type="text" parent_id="<?php echo $row['comment_id']; ?>" />
+                                        <input class="text_reply" name="text_reply" type="text" parent_id="<?php echo $comment["id"]; ?>" />
 
                                         <input type="submit" style="float:right" src="images/feedback_icons/reply-arrow.png" value="Submit">
 
                                         <input type="hidden" name="reply-file-name" />
                                     </form>
-
-
                                 </fieldset>
-
+                            
                             </div>
 
                             <div class="arrow-container">
@@ -243,19 +240,61 @@ while ($row = mysqli_fetch_assoc($result)) {
                         </div>
 
                         <div class="feedback-properties">
-                            <img class="clock-icon clickable" src="images/feedback_icons/clock.png" alt="<?php echo $row[comment_start_time]; ?>"/><br/>
-
+                    		<?php if ($comment["istemporalcomment"] === 1) { ?>
+                            	<img class="clock-icon clickable" src="images/feedback_icons/clock.png" alt="<?php echo $comment["starttime"]; ?>"/><br/>
+                        	<?php } ?>
                         </div>
 
 <!--                        <div class="cleardiv"></div>-->
                     </div>
 
-                <?php } ?>
+                    <?php
+                        //This will pull replies to comments
+                        // $sql_reply = "Select * From video_comment WHERE parent_id = '$row[comment_id]' AND source_id = '$videoNumber' ORDER BY date ASC";
+                        // $res = mysqli_query($db, $sql_reply);
+// 
+                        // //this is the container for the reply to a reply
+                        // while ($list = mysqli_fetch_assoc($res)) {
+                        	
+						$commentReplies = getCommentRepliesForSourceID($videoNumber, $comment["id"]);
+						foreach ($commentReplies as $reply) {
+								
+                            ?>
+                        <div class="feedback-container reply-container clearfix">
+                            <div class="reply-content" id="<?php echo $reply['id'] ?>" >
 
+                                <img src="images/avatar/avatar2.png" style="width:25px;height:25px;"  />
 
+                                <?php 
+                                    if (file_exists('uploads/comment/' . $reply['id'] . '.mp4')) {
+                                ?>
+                                    <video class="comment-video" width="240" height="180"  preload="auto" controls="controls" poster="uploads/comment/thumb/<?php echo $reply['id'] ?>.jpg">
+                                        <source src="uploads/comment/<?php echo $reply['id'] . '.webm'; ?>" type="video/webm" />
+                                    </video>
 
+                                <?php
+                                    } // end if
+                                ?>
+
+                                <div class="comment-text" >
+                                    <span><?php echo $reply['text']; ?></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php 
+                        
+                        } // end foreach loop to process replies to the top level comments
+                        
+                        ?>
+                
+                <?php 
+                
+                    } // end foreach loop to process top level comments 
+                ?>
 
             </div>
+            
         </div>
 
         <div id="footer">
