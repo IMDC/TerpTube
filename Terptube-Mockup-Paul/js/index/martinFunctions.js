@@ -59,3 +59,21 @@ function closeRecorderPopUp(element)
 {
 	$("#"+element).dialog ("close");
 }
+
+
+function setBlur(flag, loadingText)
+{
+	//#videoRecordingOrPreview
+	if (flag)
+		$("#loadingIndicator").addClass("modal"); 
+	else
+		$("#loadingIndicator").removeClass("modal");
+	setBlurText(loadingText); 	
+}
+
+function setBlurText(text)
+{
+	//check for null values or no argument sent
+	if (text!=null && typeof text !== "undefined")
+		$("#loadingIndicator").html(text);
+}

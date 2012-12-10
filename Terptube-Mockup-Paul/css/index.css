@@ -365,3 +365,50 @@ img.clickable {
 #new-comment-form input[type="button"]:hover, input[type="submit"]:hover, input[type="file"]:hover {
     background: #ccffcc;
 }
+
+/* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   speak for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+.modal {
+    display:    block;
+    display: -moz-box;
+    display: -webkit-box;
+    display: box;
+    position:   fixed;
+    z-index:    2000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('../images/recordOrPreview/loading.gif') 
+                50% 40% 
+                no-repeat;
+                
+	font-size:	200%;
+   
+	-moz-box-orient:horizontal;
+	-moz-box-pack:center;
+	-moz-box-align:center;
+
+	/* Safari and Chrome */
+	
+	-webkit-box-orient:horizontal;
+	-webkit-box-pack:center;
+	-webkit-box-align:center;
+	
+	/* W3C */
+	
+	box-orient:horizontal;
+	box-pack:center;
+	box-align:center;
+}
+/*.modal .loading
+{
+	display: block;
+    display: -moz-box;
+    display: -webkit-box;
+    display: box;
+}*/

@@ -377,6 +377,8 @@ function goBack(where)
 		refreshPage('playerContent', "record.php","", "right");
 	else if (where == "upload")
 	{
+		//Delete current video.
+		closeRecorderPopUp('videoRecordingOrPreview');
 		refreshPage('playerContent', "upload.php","", "right");
 	}
 		
@@ -416,10 +418,10 @@ function transcodeAjax2(inputVideoFile, outputVideoFile, arguments, onSuccess, o
 		//No need to trim as the user has not moved the start/end points
 	}
 	if (arguments.blurText)
-		setBlurText(arguments.blurText);
+		setBlur(true,arguments.blurText);
 	else
-		setBlurText("Converting Video.");
-	setBlur(true);
+		setBlur(true,"Converting Video.");
+	
 	var ajaxArgs = new Array();
 	ajaxArgs = arguments;
 	ajaxArgs['inputVidFile'] = inputVideoFile;

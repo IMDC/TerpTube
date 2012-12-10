@@ -17,8 +17,10 @@ function getFFMPEGPath()
 	 */
 function parseFFMPEGTimeToSeconds($time)
 {
-	$array = preg_split(":|\.", $time);
-	$timeMilliseconds = $array[0]* 60 * 60 * 1000; + $array[1]*60*1000 + $array[2]*1000 + $array[3];
+	$array = preg_split("/[:.]/", $time);
+	
+	error_log("FFMPEG TIME PARSED: $array[0] $array[1] $array[2] $array[3]");
+	$timeMilliseconds = $array[0]* 60 * 60 * 1000 + $array[1]*60*1000 + $array[2]*1000 + $array[3];
 	return $timeMilliseconds / 1000.0;
 }
 
@@ -64,7 +66,30 @@ function trimVideo($inputVideoFile, $outputVideoFile, $startTime, $endTime, $kee
 
 }
 
-function convertVideoToWEBM($inputVideoFile, $outputVideoFile, $keepAudio, $keepInputFile)
+/**
+ * Returns the duration of the video in seconds time format
+ */
+function getVideoDuration($inputVideoFile)
+{
+	$ffmpeg = getFFMPEGPath();
+	$command = "$ffmpeg -i $inputVideoFile 2>&1";
+	$output="";
+	$result = exec($command, $output);
+	$duration = "";	
+	foreach ($output as $lineNumber => $lineText) 
+	{
+		if (($pos = strpos($lineText, "Duration:"))!==false)
+		{
+			$duration = substr($lineText, $pos+10);
+			$duration = explode(",", $duration);
+			$duration = $duration[0];
+			break;
+		} 
+	}
+	return parseFFMPEGTimeToSeconds("$duration");
+}
+
+function convertVideoToWEBM($inputVideoFile, $outputVideoFile, $keepAudio, $keepInputFile, $progressOutput)
 {
 	$ffmpeg = getFFMPEGPath();
 //	echo "converting video";
@@ -76,10 +101,27 @@ function convertVideoToWEBM($inputVideoFile, $outputVideoFile, $keepAudio, $keep
 	{
 			$command = "$ffmpeg -i $inputVideoFile -an -b:v 600k -s ".VIDEO_RESOLUTION_MINIMUM_STANDARD." -y $outputVideoFile 2>&1";	
 	}
-	echo ($command);
-	exec($command);
+	$duration = getVideoDuration($inputVideoFile);
+	error_log("Duration: ".$duration);
+	$pointer = popen($command, "r");
+	error_log("Started converting");
+	while (($line = fgets($pointer, 300)) !== false)
+	{
+		//error_log("Inside loop: ".$line);
+		//read the output and update the progress
+		if (($index = strpos($line, "time=")) !== false)
+		{
+			$line= substr($line, $index+5);
+			$line = substr($line,0, strpos($line, " "));
+			$time = $line;
+			$time = parseFFMPEGTimeToSeconds($time);
+			$progressOutput =  ceil($time * 100 / $duration);
+			error_log("Progress: ".$progressOutput);
+		}
+	}
 	if (!$keepInputFile)
 		unlink($inputVideoFile);
+		return ($duration);
 }
 
 function moveFile($inputVideoFile, $outputVideoFile)

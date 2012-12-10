@@ -90,7 +90,6 @@ if ($postType == 'upload')
 	$video = $tempDirectory.DIRECTORY_SEPARATOR.$_POST[$postParam];
 	$outputVideoFile = tempnam_sfx($tempDirectory, ".webm");
 	//$outputVideoFile = basename($outputVideoFile);
-//	convertVideoToWEBM($video,$outputVideoFile, 'true', $keepVideoFile); 
 	$arguments = "'".$video."', '".$outputVideoFile."', { keepInputFile: '".$keepVideoFile."', keepAudio: 'true', convert: 'yes' }";
 	$video = $tempURL.basename($outputVideoFile);
 	//Get a new output video File for after the cropping

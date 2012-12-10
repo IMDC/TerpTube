@@ -23,14 +23,6 @@ function getTimeCodeFromSeconds(time)
 	return timecode;
 }
 
-function setBlur(flag, loadingText)
-{
-	if (flag)
-		$("#videoRecordingOrPreview").addClass("loading"); 
-	else
-		$("#videoRecordingOrPreview").removeClass("loading");
-	setBlurText(loadingText); 	
-}
 
 function ajaxSuccess(targetID, data, direct)
 {
@@ -73,20 +65,3 @@ function refreshPage(targetID,address, dataSend, direct)
 	});
 	
 }
-function setBlurText(text)
-{
-	//check for null values or no argument sent
-	if (text!=null && typeof text !== "undefined")
-		$("#modal").html(text);
-}
-
-/*$("body").bind({
-    ajaxStart: function() { 
-        setBlur(true); 
-    },
-    ajaxStop: function() { 
-        setBlur(false); 
-    }    
-});
-
-*/

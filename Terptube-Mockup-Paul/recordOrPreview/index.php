@@ -60,5 +60,4 @@ else {
    		?>
    	</script>
 </div>	
-<div class="record-or-preview modal" id="modal"></div>
  
