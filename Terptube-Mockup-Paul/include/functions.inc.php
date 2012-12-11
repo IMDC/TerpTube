@@ -2,6 +2,11 @@
 
 $path = "/media/storage/projects/sls/public_html";
 
+/**
+ * Strip the extension part of a file, return only the filename
+ * @param $filename the full name of the file
+ * @return string with the extension part removed
+ */
 function strip_ext($filename) {
     // strip extension and get only video name
     $fnameonly = substr($filename, 0, strrpos($filename, '.'));
@@ -25,16 +30,20 @@ function createThumbnail($videoPath, $thumbName, $freezeTime, $size = "144x112")
     // $videoPath is of the format "/streams/489_134141341341.flv"
     // change this to alter the default thumbnail image
 
-    $default_thumbnail = "default_videothumb.png";
+    $default_thumbnail = IMAGES_DIR . "default_videothumb.png";
 
     $videoPath = escapeshellcmd($videoPath);
     $size = escapeshellcmd($size);
     $fnameonly = strip_ext($videoPath);
 
-    $newthumbjpg = "../uploads/comment/thumb/" . $thumbName . ".jpg";
-    $tempthumbjpg = $fnameonly . 'temp.jpg';
+    // $newthumbjpg = "../uploads/comment/thumb/" . $thumbName . ".jpg";
+	$newthumbjpg = UPLOAD_DIR . "comment/thumb/" . $thumbName . ".jpg";
+	
+    //$tempthumbjpg = $fnameonly . 'temp.jpg';
+	$tempthumbjpg = UPLOAD_DIR . "comment/thumb/" . $fnameonly . 'temp.jpg';
 
-    $stringToExecuteRegular = "ffmpeg/ffmpeg -i " . $videoPath . " -ss " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $tempthumbjpg;
+    // $stringToExecuteRegular = "ffmpeg/ffmpeg -i " . $videoPath . " -ss " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $tempthumbjpg;
+	$stringToExecuteRegular = FFMPEG_PATH . " -i " . $videoPath . " -ss " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $tempthumbjpg;
 
     $escaped_command = escapeshellcmd($stringToExecuteRegular);
 
@@ -58,7 +67,9 @@ function createThumbnail($videoPath, $thumbName, $freezeTime, $size = "144x112")
     }
 
     // declare the path to our play button image
-    $pathToDefImage = '../images/play_btn.png';
+    $pathToDefImage = "../images/play_btn.png";
+    //$pathToDefImage = IMAGES_DIR . "play_btn.png";
+
 
     $watermark = imagecreatefrompng($pathToDefImage);
 
@@ -83,7 +94,9 @@ function createThumbnail($videoPath, $thumbName, $freezeTime, $size = "144x112")
     unlink($tempthumbjpg);
     imagedestroy($image);
     imagedestroy($watermark);
-    echo basename($newthumbjpg);
+	
+    //echo basename($newthumbjpg);
+    
     return basename($newthumbjpg);
 }
 
@@ -119,6 +132,33 @@ function createSignlinkThumb($videoPath, $thumbName, $freezeTime, $size = "144x1
 
     imagedestroy($image);
     return basename($newthumbjpg);
+}
+
+/**
+ * Checks for existence of a .jpg file with the same name as the comment id
+ * in thumbnail directory specified in the setup.php file
+ * If a jpg file is not found for a comment, it returns a default
+ * thumbnail image
+ * 
+ * @param $commid the id of the comment
+ * @param $idonly if set to 1 will return the id only, not the full path of the file
+ * @return the string name of the comment.jpg file, or a default thumbnail file
+ */
+function getVideoThumbnail( $commid, $idonly=1 ) {
+	$cid = intval($commid);	
+	
+	$thumb = THUMBNAIL_DIR . $cid . ".jpg";
+	error_log("trying to find comment id: $cid in getVideoThumbnail function");
+	if (!file_exists($thumb)) {
+		error_log("thumbnail not found for comment id: " . $cid . " when searching in $thumb");
+		return THUMBNAIL_DEFAULT;
+	}
+	
+	if ( intval($idonly) == 1 )
+		return $cid . ".jpg";
+	else
+		return $thumb;
+	
 }
 
 /**
@@ -249,6 +289,21 @@ function getTopLevelCommentsForSourceID($sourceID) {
     }
 }
 
+function printCommentVideoSource($commentArray) {
+    // if the comment has a video filename, it means it came from a prepopulated existing source    
+    if ($commentArray["videofilename"]) {
+        $thesource = REL_UPLOAD_DIR . "video" . DIRECTORY_SEPARATOR . $commentArray["videofilename"];
+        return "<source src='$thesource' type='video/webm' />";
+    }
+    else { 
+        $thesource = VIDCOMMENT_DIR . $commentArray["id"];
+        // have to add the webm extension here   
+        return "<source src='$thesource.webm' type='video/webm' />";
+    }
+        
+  
+}
+
 
 /**
  * This function returns all replies to a selected top level comment that was made about a given source id
@@ -338,6 +393,47 @@ function getExistingVideosForSourceID($theid) {
     }
 }
 
+/**
+ * Basics of an error output using sessions
+ */
+function checkError() {
+	if ( isset($_SESSION['error']) ) {
+		$errorArray = $_SESSION['error'];
+		
+		if ( !empty($errorArray) ) {
+					
+			$errorString = '';
+			
+			foreach ($errorArray as $errstring) {
+				$errorString .= "<p class='error-red'>$errstring</p>";
+			}
+			$divstring = "<div class='error-wrap'><p>An error has occured, please try again.</p>$errorString</div><div class='cleardiv'></div>";
+			
+			// clear errors now 
+			unset($_SESSION['error']);
+			return $divstring;
+		}
+		else {
+			unset($_SESSION['error']);
+			return;
+		}
+	}
+}
+
+
+function addError($errorString) {
+	// grab existing errors from session var
+	/*
+	$arr = $_SESSION['error'];
+	
+	// add new one
+	array_push($arr, $errorString);
+    
+    $_SESSION['error'] = $arr;
+    */
+    
+    $_SESSION['error'][] = $errorString;
+}
 
 
 ?>

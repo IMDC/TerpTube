@@ -20,7 +20,7 @@ $(document).ready(function() {
     var startTimeInput = $('[name=start_time]');
     var endTimeInput = $('[name=end_time]');
     var $postCommentButton = $('[name=postCommentbutton]');
-    var $selectVideoDrop = $('[name=select-video-names]');
+    var $selectVideoDrop = $('[name=user-existing-video]');
     var $optionFieldset = $('[name=video-option-fiedset]');
     var $videoNameFieldset= $('[name=video-name-fieldset]');
     var $cancelButton = $('[name=cancel-button]');

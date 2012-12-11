@@ -15,7 +15,10 @@
         var startTimeInput = $('[name=start_time]');
         var endTimeInput = $('[name=end_time]');
         var $postCommentButton = $('[name=postCommentbutton]');
-        var $selectVideoDrop = $('[name=select-video-names]');
+        
+        var $selectVideoDrop = $('[name=user-existing-video]');
+        var $existingVideoDropDown = $("form[name=user-existing-video]");
+        
         var $optionFieldset = $('[name=video-option-fiedset]');
         var $videoNameFieldset= $('[name=video-name-fieldset]');
         var $cancelButton = $('[name=cancel-button]');
@@ -116,7 +119,7 @@
 
         //Clicking the clock icon will move the density bar to the comments time
         $(".clock-icon").click(function(){
-            video_dom.currentTime = $(this).attr("alt");
+            video_dom.currentTime = $(this).attr("start-val");
             movePlayHead();
         });
 
@@ -135,11 +138,14 @@
         );
 
 
+		// javascript for submitting a reply to a comment
         $("form#submitReply").submit(function() {
             // we want to store the values from the form input box, then send via ajax below
 
             var vidNumber =<?php echo $videoNumber; ?>;
+            
             var $reply_container = $(this).parent('.comment-container').children('.reply-container');
+            
             var $form_input =  $(this).children('.text_reply');
             var reply = $form_input.attr('value');
             var parent_id = $(this).children('.text_reply').attr('parent_id');
@@ -223,7 +229,7 @@
             //changeMovieSource("uploads/comment/" + signlinkArray[currentLink] + ".mp4", linkVideoName[currentLink] + ".mp4"); //this.alt
         });
 
-        //Change the video speed whent the slowdown button is clicked
+        //Change the video speed when the slowdown button is clicked
         $("#video-speed").click(function() {
             if(!speedSlow)
             {

@@ -1,4 +1,4 @@
-/********************  MAIN containers **************/
+/************* MAIN containers *****************/
 
 #container {
 	margin: 0;
@@ -250,6 +250,10 @@ html[xmlns] .clearfix {
 	margin-bottom: 30px;
 }
 
+form.commentReplyForm {
+	display: inline;
+}
+
 .comment-content-container {
 	float: left;
 	width: 70%;
@@ -322,6 +326,18 @@ html[xmlns] .clearfix {
     
 }
 
+.comment-reply-span {
+	display: block;	
+}
+
+.comment-reply-span hover {
+	background: green;
+}
+
+.reply-wrap {
+	display: none;
+}
+
 .text_reply{
 	width:100%;
 }
@@ -365,6 +381,21 @@ img.clickable {
 #new-comment-form input[type="button"]:hover, input[type="submit"]:hover, input[type="file"]:hover {
     background: #ccffcc;
 }
+
+/************ error stuff ************/
+.error-wrap {
+	clear: both;
+	display: block;
+	padding: 25px;
+	border: 1px solid red;
+	margin: 10px;
+}
+
+.error-red {
+	color: red;
+	padding-top: 10px;
+}
+
 
 /* Start by setting display:none to make this hidden.
    Then we position it in relation to the viewport window

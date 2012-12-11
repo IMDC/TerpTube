@@ -36,7 +36,7 @@
 		       	 var changeMovieCallback = function(){ changeMovieSource(url, title);}
 		      	 var t = setTimeout(changeMovieCallback, 800);
 
-		       }
+			}
 		  	
 		  	 //to make the bar move
 			   function animate(lastTime, myRectangle){
@@ -46,11 +46,13 @@
 	             //if it slectes a comment at the time it akes currentLink the array id and will keep checking until it is off
 	             //and change it back to blue
 	             
-		           if(currentLink == -1){
-				     for(var i = 0; i < linkStartTimes.length; i++)
-				     {
-					     if((video_dom.currentTime >= linkStartTimes[i] && video_dom.currentTime <= linkEndTimes[i]) || (video_dom.currentTime == linkStartTimes[i]))
-					     {
+		           if(currentLink == -1) {
+		           	
+				     for(var i = 0; i < linkStartTimes.length; i++) {
+				     	
+					     if( (video_dom.currentTime >= linkStartTimes[i] 
+					     	&& video_dom.currentTime <= linkEndTimes[i]) || (video_dom.currentTime == linkStartTimes[i])) {
+					     		
 					    	 $(".source-media-container").css("background", "red");
 					    	 currentLink = i;
 					    	 sourceVideoClickable = true;
@@ -59,17 +61,18 @@
 					    
 				      }       
 		           }
-		           else if ((video_dom.currentTime >= linkStartTimes[currentLink] && video_dom.currentTime <= linkEndTimes[currentLink]) || (video_dom.currentTime == linkStartTimes[currentLink])){
+		           else if ((video_dom.currentTime >= linkStartTimes[currentLink] && video_dom.currentTime <= linkEndTimes[currentLink]) 
+		           			|| (video_dom.currentTime == linkStartTimes[currentLink])) {
 		        	    
 			       } 
-		           else{
+		           else {
 		        	   $(".source-media-container").css("background", "blue");
 		        	     currentLink = -1;
 		        	     sourceVideoClickable = false;
 			       }
 
 
-			    	if(playing){
+			    	if( playing ) {
 				        // calculate the percentage of current time in relation to the canvas size
 				        //call move Playhead to advance the play head
 			    	    var currentTime = video_dom.currentTime;
@@ -85,7 +88,7 @@
 			    	 });
 			    } 
 
-			    function movePlayHead(xVar){
+			    function movePlayHead(xVar) {
 
 			    	// clear
 		    	    traversalctx.clearRect(0, 0, traversalCanvas.width, traversalCanvas.height);
@@ -101,4 +104,5 @@
 		    	    traversalctx.stroke();
 
 			    }
-   }
+});
+

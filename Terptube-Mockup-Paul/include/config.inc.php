@@ -19,4 +19,6 @@ if (mysqli_connect_errno()) {
 	echo 'no!!!!';
 	die('Connect failed: ' . mysqli_connect_error());
 }
+
+session_start();
 ?>

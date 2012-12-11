@@ -20,7 +20,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <h3>Terptube Interpretation Review/Discussion <?php echo SITE_BASE; ?> </h3>
     </div>
     <div id="navigation"></div>
-
+	<?php echo checkError(); ?>
     <div id="content-container" class="testfakeclass">
 
         <div id="content-left">
@@ -37,7 +37,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                         </div> <!-- source-video-controls -->
 
                         <video id="myPlayer" id="videoTest" width="640" preload="auto">
-                            <source src="uploads/video/<?php echo $videoName; ?>" type="video/mp4" />
+                            <source src="uploads/video/<?php echo $videoName; ?>" type="video/webm" />
                             <track id="enTrack" kind="captions" src="uploads/caption/upc.vtt" type="text/vtt" srclang="en" label="English Subtitles" default />
                             <!--  <source src="movie.ogg" type="video/ogg" /> -->
                             Your browser does not support the video tag.
@@ -109,7 +109,8 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                         <label>Existing Video:</label>
                         <?php $existingvideos = getExistingVideosForSourceID($videoNumber); ?>
-                        <select name="select-video-names">
+                        <select name="user-existing-video">
+                        	<option value=""> </option>
                         	<?php 
                         	foreach ($existingvideos as $existingVid) {
                         		print '<option value="'.$existingVid.'">'.$existingVid. '</option>';
@@ -121,7 +122,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 	                    <div id="input-upload-div">
 	                    	Upload Video: 
 	                    	<input id="uploadedfileButton"  type="button" value="Choose Video" >
-	                    	</input> 
+	                    	</input>
 	                    </div>
 
                         <div id="input-record-div">
@@ -165,6 +166,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                 <?php
                 //This will pull non generic comments
+                
 //                $sql = "Select * From video_comment WHERE source_id = $videoNumber AND comment_start_time != 0 AND comment_end_time != 0 AND parent_id = 0 ORDER BY date DESC";
                 // $sql = "Select * From video_comment WHERE source_id = $videoNumber AND parent_id = 0 ORDER BY date DESC";
                 // $result = mysqli_query($db, $sql);
@@ -175,7 +177,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                     
 				$toplevelcomments = getTopLevelCommentsForSourceID($videoNumber);
 				foreach ($toplevelcomments as $comment) {
-					
+	
                     ?>
 
                     <div id="comment-<?php echo $comment["id"]; ?>" class="feedback-container clearfix">
@@ -200,8 +202,11 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <div class="comment-content">
 
                                 <?php if ($comment["hasvideo"] === 1) { ?>
-                                    <video  class="comment-video" preload="auto" poster="uploads/comment/thumb/<?php echo $comment["id"]; ?>" style="left:35%">
-                                        <source src="uploads/comment/<?php echo $comment["id"]; ?>.webm" type="video/webm" />
+                                    <!--  <video class="comment-video" preload="auto" poster="uploads/comment/thumb/<?php echo getVideoThumbnail($comment["id"],1); ?>" style="left:35%"> -->
+                                    <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($comment["id"], 0); ?>" style="left:35%">
+                                        <!-- <source src="uploads/comment/<?php echo $comment["id"]; ?>.webm" type="video/webm" /> -->
+                                        <!--   <source src="<?php echo VIDCOMMENT_DIR . $comment["id"]; ?>.webm" type="video/webm" />	-->
+                                        <?php echo printCommentVideoSource($comment); ?>
 <!--                                     	<source src="<?php echo 'uploads/comment/' . $comment["videofilename"]; ?>" type="video/webm" /> -->
                                         <?php //TODO: check after a comment is uploaded that it is converted to webm or mp4 ?? ?>
                                     </video>
@@ -213,35 +218,34 @@ while ($row = mysqli_fetch_assoc($result)) {
                                         <span><?php echo htmlentities($comment["text"]); ?></span>
                                     </div>
                                 <?php } ?>
-
-
-                                <fieldset name="reply-fieldset" >
-                                    <legend>Reply:</legend>
-
-                                    <form id="submitReply" enctype="multipart/form-data" method="post">
-
-                                        <img alt="Record Video" src="images/feedback_icons/clock.png" style="position:relative;left:0px;height:25px;width:25px;float:left"  />
-                                        <p class="reply-upload-span"><img alt="Upload Video" src="images/feedback_icons/upload.png" style="position:relative;left:0px;height:25px;width:25px;float:left"  /></p>
-
-                                        <label class="reply-file-label">Comment:</label>
-                                        <input class="text_reply" name="text_reply" type="text" parent_id="<?php echo $comment["id"]; ?>" />
-
-                                        <input type="submit" style="float:right" src="images/feedback_icons/reply-arrow.png" value="Submit">
-
-                                        <input type="hidden" name="reply-file-name" />
-                                    </form>
-                                </fieldset>
                             
                             </div>
 
                             <div class="arrow-container">
                                 <img class="feedback-expand clickable" src="images/feedback_icons/arrow_down.png" />
                             </div>
+                            <div class="reply-wrap">
+                            <p>Reply:
+
+                                <form id="submitReply" class="commentReplyForm" enctype="multipart/form-data" method="post">
+
+                                    <img alt="Record Video" src="images/feedback_icons/clock.png" style="position:relative;left:0px;height:25px;width:25px;float:left" />
+                                    <p class="reply-upload-span"><img alt="Upload Video" src="images/feedback_icons/upload.png" style="position:relative;left:0px;height:25px;width:25px;float:left" /></p>
+
+                                    <label class="reply-file-label">Comment:</label>
+                                    <input class="text_reply" name="text_reply" type="text" parent_id="<?php echo $comment["id"]; ?>" />
+
+                                    <input type="submit" style="float:right" src="images/feedback_icons/reply-arrow.png" value="Submit">
+
+                                    <input type="hidden" name="reply-file-name" />
+                                </form>
+                            </p>
+                            </div>
                         </div>
 
                         <div class="feedback-properties">
                     		<?php if ($comment["istemporalcomment"] === 1) { ?>
-                            	<img class="clock-icon clickable" src="images/feedback_icons/clock.png" alt="<?php echo $comment["starttime"]; ?>"/><br/>
+                            	<img class="clock-icon clickable" src="images/feedback_icons/clock.png" alt="Jump to comment start time" start-val="<?php echo $comment["starttime"]; ?>"/><br/>
                         	<?php } ?>
                         </div>
 
