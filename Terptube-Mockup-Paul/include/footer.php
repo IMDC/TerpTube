@@ -15,10 +15,7 @@
         var startTimeInput = $('[name=start_time]');
         var endTimeInput = $('[name=end_time]');
         var $postCommentButton = $('[name=postCommentbutton]');
-        
-        var $selectVideoDrop = $('[name=user-existing-video]');
-        var $existingVideoDropDown = $("form[name=user-existing-video]");
-        
+        var $selectVideoDrop = $('[name=select-video-names]');
         var $optionFieldset = $('[name=video-option-fiedset]');
         var $videoNameFieldset= $('[name=video-name-fieldset]');
         var $cancelButton = $('[name=cancel-button]');
@@ -79,8 +76,24 @@
         window.onload = createUploader($(this));
 
         //jQuery('#mycarousel').jcarousel();
-//        var duration;
-        var duration = video_dom.duration;
+
+        // duration here functions as a 'global'
+        var duration = 0;
+        
+        // event listener to set the correct duration when the video metadata has been loaded
+        video_dom.addEventListener('loadedmetadata', function() {
+            console.log(video_dom.duration);
+            setSourceDuration(video_dom.duration);
+        });
+        
+        // sets the global 'duration' variable to the argument passed in
+        // also changes the html span element representing the video total time
+        function setSourceDuration(theDur) {
+            duration = theDur;
+            // change the html duration value to reflect this
+            $("span#video-total-time").html(formatVideoTime(duration))
+        }
+        //var duration = video_dom.duration;
 
         $selectVideoDrop.change(function() {
             $optionFieldset.hide();
@@ -107,6 +120,7 @@
             $videoNameFieldset.hide();
         });
 
+		// show seek bar plus sign for new comment on mouse hover
         $("#traversalCanvas").hover(
             function(){
                 plusSignVisible = true;
@@ -119,33 +133,71 @@
 
         //Clicking the clock icon will move the density bar to the comments time
         $(".clock-icon").click(function(){
-            video_dom.currentTime = $(this).attr("start-val");
+            video_dom.currentTime = $(this).attr("alt");
             movePlayHead();
         });
 
         //This will delete the specific comment when the user clicks the x icon
-        $(".delete-comment").click(function(){
-            alert('to do: delete this comment and its children');
+        $(".comment-delete-link").click(function(){
+            // get the comment's ID
+            var commentID = stringToIntegersOnly($(this).attr('id'));
+            
+            // fade out the comment in question
+            $("div#comment-" + commentID).fadeTo('slow', 0.5);
+//            alert(commentID);
+
+            // show a dialog box asking for confirmation of delete
+            $( "#dialog-confirm" ).dialog({
+                resizeable: false,
+                height: 275,
+                modal: true,
+                buttons: {
+                    "Yes": function() {
+                        $.ajax({
+                            type: "POST",
+                            url: "include/delete_comment.php",
+                            data: "cID=" + commentID,
+                            success: function(data){
+                                var retdata = $.parseJSON(data);
+                                if ( retdata.status === "success" ) {
+                                    alert('awesome');
+                                    $("div#comment-" + retdata.id).remove();
+                                }
+                            console.log(data);
+                            return true; 
+                             },
+                            complete: function() {},
+                            error: function(xhr, textStatus, errorThrown) {
+                                console.log('ajax loading error...');
+                                return false;
+                            }
+                        });
+                        $( this ).dialog( "close" );
+                    },
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                        $("div#comment-" + commentID).fadeTo('slow', 1.0);
+                    }
+                }
+            });
+                       
         });
 
         $(".feedback-container").hover(
-            function(){
-                $(this).children(".delete-comment").show();
-            },
-            function(){
-                $(this).children(".delete-comment").hide();
-            }
+        //            function(){
+        //                $(this).children(".delete-comment").show();
+        //            },
+        //            function(){
+        //                $(this).children(".delete-comment").hide();
+        //            }
         );
 
 
-		// javascript for submitting a reply to a comment
         $("form#submitReply").submit(function() {
             // we want to store the values from the form input box, then send via ajax below
 
             var vidNumber =<?php echo $videoNumber; ?>;
-            
             var $reply_container = $(this).parent('.comment-container').children('.reply-container');
-            
             var $form_input =  $(this).children('.text_reply');
             var reply = $form_input.attr('value');
             var parent_id = $(this).children('.text_reply').attr('parent_id');
@@ -174,16 +226,20 @@
 
 
         $(".arrow-container").click(function() {
-            var $video = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-video");
+//            var $video = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-video");
+            var $video = $(this).parent(".comment-content-container").find(".comment-video");
+            var $commentContainer = $(this).parent(".comment-content-container");
 
-            if ($(this).children(".feedback-expand").attr("src") == "images/feedback_icons/arrow_down.png") {
+            if ( $(this).children(".feedback-expand").attr("src") == "images/feedback_icons/arrow_down.png") {
 
-                $(this).parent(".comment-content-container").children(".comment-content").css({'height': 'auto'});
+//                $(this).parent(".comment-content-container").children(".comment-content").css({'height': 'auto'});
+                $commentContainer.find(".comment-content").css({'height': 'auto'});
 
                 //$(".comment-content").css({'height': 'auto'}); //make this specific by doing the parent child thing
-                $(this).children(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_up.png');
+                $(this).find(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_up.png');
 
-                var $text = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-text");
+//                var $text = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-text");
+                var $text = $commentContainer.find(".comment-text");
 
                 if ($video.length > 0) { //.children(".comment-video")   //.parent(".feedback-container").children(".comment-video").exists())
                     initializeCommentVideo($video);
@@ -195,8 +251,8 @@
 
             }
             else {
-                $(this).parent(".comment-content-container").children(".comment-content").css({'height': '100px'});
-                $(this).children(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_down.png');
+                $commentContainer.find(".comment-content").css({'height': '100px'});
+                $(this).find(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_down.png');
 
                 collapseCommentVideo($video);
             }
@@ -229,7 +285,7 @@
             //changeMovieSource("uploads/comment/" + signlinkArray[currentLink] + ".mp4", linkVideoName[currentLink] + ".mp4"); //this.alt
         });
 
-        //Change the video speed when the slowdown button is clicked
+        //Change the video speed whent the slowdown button is clicked
         $("#video-speed").click(function() {
             if(!speedSlow)
             {
@@ -309,7 +365,7 @@
         });
 
 
-        //toggles the
+        //toggles the display of the supplemental text of the source video
         $("#source-text-comment-button").click(function() {
             $(".source-text-container").toggle();
             if(textVisible)
@@ -356,12 +412,14 @@
 
         traversalCanvas.addEventListener('mousedown', function(e) {
             var offset = $(this).offset();
-            var position = $('#traversalCanvas').position();
+            // var position = $('#traversalCanvas').position();
+            var position = $(this).position();
 
             e.clientX = e.clientX - offset.left;
             //if they click on the plus sign
             var relX = e.clientX - offset.left;
             var relY = e.clientY - offset.top;
+            console.log("e.clientX: " + e.clientX + " e.clientY: " + e.clientY + " relX: " + relX + " relY: " + relY);
 
             //if user clicks arrow
             if (relX < plusCircle.x + plusCircle.width && relX > plusCircle.x - plusCircle.width && !creatingTimedComment
@@ -376,7 +434,7 @@
                 $(".comment-details").show();
                 startTimeInput.val(roundNumber(video_dom.currentTime,2));
                 endTimeInput.val(roundNumber(video_dom.currentTime + 2,2));
-                $("[name=previewButton]").css("display","inline");
+                $(":button[name=previewButton]").css("display","inline");
 
 
             }
@@ -397,7 +455,7 @@
                     }, true);
                 }
 
-                //right comment traingle
+                //right comment triangle
                 if (relX > selectorRectRight.x  && relX < selectorRectRight.x + selectorRightImg.width
                     && relY > selectorRectRight.y + selectorRectRight.height  && relY < selectorRectRight.y + selectorRightImg.height + selectorRectRight.height){
                     selectorRightDrag = true;
@@ -490,13 +548,13 @@
             // calculate the percentage of current time in relation to the canvas size
             //call move Playhead to advance the play head
             var currentTime = video_dom.currentTime;
-            var duration = video_dom.duration;
+            //var duration = video_dom.duration; //edited to use global
             var percentage = currentTime/duration;
             var xPosition = percentage*traversalCanvas.width;
 
             // draw times on the bar
             $("span#video-current-time").html(formatVideoTime(currentTime));
-            $("span#video-total-time").html(formatVideoTime(duration));
+            //$("span#video-total-time").html(formatVideoTime(duration));
 
             // clear
             traversalctx.clearRect(0, 0, traversalCanvas.width, traversalCanvas.height);
@@ -603,7 +661,8 @@
         //canvas code generated by database start and end times
         //Generate the colored region for the comments
 //        duration = 33;
-        duration = $("video#myPlayer").get(0).duration;
+        // duration = $("video#myPlayer").get(0).duration;
+        // duration
 
 <?php
 $sql = "Select * From video_comment WHERE source_id = $videoNumber Order By comment_start_time ASC";
@@ -786,4 +845,7 @@ mysqli_close($db);
 </script>
 <div id="loadingIndicator" style="display:hidden"></div>
 </body>
+<div id="dialog-confirm" title="Delete this comment?">
+    <p style="line-height:150%;"><span class="ui-icon ui-icon-alert" style="float:left;margin:0 30px 50px 0;"></span>This will delete this comment permanently. Are you sure?</p>
+</div>
 </html>
