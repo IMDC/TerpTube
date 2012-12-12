@@ -155,7 +155,7 @@ class qqFileUploader {
 }
 
 // list of valid extensions, ex. array("jpeg", "xml", "bmp")
-$allowedExtensions = array();
+$allowedExtensions = array("webm", "mp4", "wmv", "mov");
 // max file size in bytes
 $sizeLimit = 10 * 1024 * 1024;
 

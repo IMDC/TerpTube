@@ -245,7 +245,7 @@ html[xmlns] .clearfix {
 }
 
 .generic-reply-form-container {
-	border: 1px solid grey;
+	border: 1px solid gray;
 	width: 90%;
 	margin-bottom: 30px;
 }
@@ -320,7 +320,7 @@ form.commentReplyForm {
 }
 
 .reply-content {
-	width:auto%;
+	width: auto;
 	border: 1px solid black;
     margin-left: 25px;
     

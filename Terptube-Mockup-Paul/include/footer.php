@@ -9,20 +9,22 @@
 
         //set up variables
         var speedSlow = false;
-        var video_dom = $('video#myPlayer').get(0);
+        var video_dom = $("video#myPlayer").get(0);
 
         //form inputs
-        var startTimeInput = $('[name=start_time]');
-        var endTimeInput = $('[name=end_time]');
-        var $postCommentButton = $('[name=postCommentbutton]');
-        var $selectVideoDrop = $('[name=select-video-names]');
-        var $optionFieldset = $('[name=video-option-fiedset]');
-        var $videoNameFieldset= $('[name=video-name-fieldset]');
-        var $cancelButton = $('[name=cancel-button]');
+        var startTimeInput     = $("#start_time");
+        var endTimeInput       = $("#end_time");
+        
+        var $selectVideoDrop    = $("[name=select-video-names]");  // unused?
+        var $optionFieldset     = $("#video-option-fiedset");
+        var $videoNameFieldset  = $("#video-name-fieldset");
+        
+        var $postCommentButton  = $("#postCommentButton");
+        var $cancelButton       = $("#cancel-button");
         var selectedVideoName;
 
         var signlinkArray = new Array();
-        var commentArray = new Array();
+        var commentArray  = new Array();
 
         var tempStartTime;
         var tempEndtTime;
@@ -30,29 +32,30 @@
         var tempComment;
         var tempLink;
 
-        var plusSignVisible = false;
+        var plusSignVisible      = false;
         var creatingTimedComment = false;
 
         var regionPointer = 0; // used to keep track where the link index is for LinkTimes array
-        var playing = false;
-        var textVisible = false;
+        var playing       = false;
+        var textVisible   = false;
         
-        var linkCanvas=document.getElementById('linkCanvas');
-        var ctx=linkCanvas.getContext('2d');
+        var linkCanvas  = document.getElementById('linkCanvas');
+        var ctx         = linkCanvas.getContext('2d');
         ctx.globalAlpha = 0.4;
-        var traversalCanvas=document.getElementById('traversalCanvas');
-        var traversalctx=traversalCanvas.getContext('2d');
+        
+        var traversalCanvas     = document.getElementById('traversalCanvas');
+        var traversalctx        = traversalCanvas.getContext('2d');
         var traversalCanvasDrag = false;
 
-        var myRectangle = {x: -10,y: 17 - 1,width: 1,height: ctx.canvas.height,borderWidth: 1};
-        var plusCircle =  {x: 0,y: 8 ,width: 7, height: Math.PI*2};
+        var myRectangle =  {x: -10,y: 17 - 1, width: 1, height: ctx.canvas.height, borderWidth: 1};
+        var plusCircle  =  {x: 0,y: 8 , width: 7, height: Math.PI*2};
 
-        var selectorRectLeft = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
+        var selectorRectLeft  = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
         var selectorRectRight = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
         var selectorInBetween = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
 
         var selectorRightDrag = false;
-        var selectorLeftDrag = false;
+        var selectorLeftDrag  = false;
         //var selectorRectRight = {};
 
         var date = new Date();
@@ -103,7 +106,7 @@
             $("[name=file-name]").val(selectedVideoName);
         });
 
-        $cancelButton.click(function(){
+        $cancelButton.click( function() {
             $optionFieldset.show();
             $videoNameFieldset.hide();
             $(".comment-details").hide();
@@ -119,6 +122,49 @@
             $optionFieldset.show();
             $videoNameFieldset.hide();
         });
+        
+        function insertEditForm(id) {
+            var commentContainer = $("div#comment-"+id);
+            
+        }
+
+        // Editing a comment by clicking on it's 'edit' button
+        $("a.comment-edit-link").click(function() {
+            //$(".comment-details").show();
+            //$postCommentButton.hide();
+            // get comment id
+            var commentID = $(this).attr('id').replace("edit-", '');
+            
+            // comment div container
+            var commentContainer = $("div#comment-"+commentID);
+            
+            // get start time of comment
+            var commentStartTime = commentContainer.find(".temporalinfo").data('startval');
+            
+            // get end time of comment
+            var commentEndTime = commentContainer.find(".temporalinfo").data('endval');
+            
+            // get comment text
+            var commentText = commentContainer.find(".comment-text span").text();
+            
+            // TODO: activate canvas handles
+            
+            alert("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + "commenttext: " + commentText);
+            
+            commentContainer.find(".edit-comment-wrap").show();
+            var editForm = commentContainer.find("#form-edit-comment-"+commentID);
+            
+            editForm.find("#edit-start-time-text").val(commentStartTime);
+            editForm.find("#edit-end-time-text").val(commentEndTime);
+            editForm.find("#edit-textcontent").val(commentText);
+
+        });
+        
+        // hides the comment edit form that appears inside a comment when the user clicks the "edit" button
+        $(".edit-cancel-button").click( function() {
+            $(this).parent("form").parent("div.edit-comment-wrap").hide();
+        })
+
 
 		// show seek bar plus sign for new comment on mouse hover
         $("#traversalCanvas").hover(
@@ -210,7 +256,7 @@
                     data: "pID=" + parent_id + "&file-name=" + file + "&v=" + vidNumber + "&comment=" + reply,
                     dataType: "json",
                     success: function(data){
-                        //$("[name=postCommentbutton]").value =
+                        //$("[name=$postCommentButton]").value =
                         alert(data);
                         $form_input.val("");
                     }
@@ -265,6 +311,7 @@
             $(".comment-details").show();
             $(this).hide();
         });
+
 
         //comment video that exists in a comment
         $(".comment-video").click(function(){
@@ -432,8 +479,8 @@
                 clearCanvas(ctx);
                 clearCanvas(traversalctx);
                 $(".comment-details").show();
-                startTimeInput.val(roundNumber(video_dom.currentTime,2));
-                endTimeInput.val(roundNumber(video_dom.currentTime + 2,2));
+                startTimeInput.val( roundNumber(video_dom.currentTime, 2));
+                endTimeInput.val( roundNumber(video_dom.currentTime + 2, 2));
                 $(":button[name=previewButton]").css("display","inline");
 
 
@@ -450,7 +497,7 @@
                         if(selectorLeftDrag && (e.clientX - offset.left < selectorRectRight.x - 3 )){
                             selectorRectLeft.x = e.clientX - offset.left;
                             video_dom.currentTime = convertCanvasPointToTime(selectorRectLeft.x, duration);
-                            startTimeInput.val(roundNumber(video_dom.currentTime,2));
+                            startTimeInput.val(roundNumber(video_dom.currentTime, 2));
                         }
                     }, true);
                 }
@@ -464,7 +511,7 @@
                         if(selectorRightDrag && (e.clientX - offset.left > selectorRectLeft.x + 1 )){
                             selectorRectRight.x = e.clientX - offset.left;
                             video_dom.currentTime = convertCanvasPointToTime(selectorRectRight.x, duration);
-                            endTimeInput.val(roundNumber(video_dom.currentTime,2));
+                            endTimeInput.val(roundNumber(video_dom.currentTime, 2));
 
                         }
                     }, true);

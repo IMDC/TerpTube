@@ -42,16 +42,8 @@ if ( isset($_POST['user-existing-video']) ) {
 }
 
 // are we creating new, or editing existing?
+// currently unused
 $action = intval($_POST['action']);
-
-
-/** possibly deprecated  vars here **/
-//$videoNumber 		= intval($_POST['v']);
-//$comment 			= mysqli_real_escape_string($db, $_POST['comment']);
-//$fileName = UPLOAD_DIR . 'temp/' . $_POST['file-name'];
-//$fileName = $_FILES['uploadedfile']['name'];
-//$fileName = '../uploads/temp/' . $_POST['file-name'];
-//$parentID = $_POST['pID'];
 
 
 if ( isset($comment_start_time) && (isset($comment_end_time)) ) {

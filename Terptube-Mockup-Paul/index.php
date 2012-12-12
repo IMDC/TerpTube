@@ -17,7 +17,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 <div id="container">
     <div id="header">
-        <h3>Terptube Interpretation Review/Discussion <?php echo SITE_BASE; ?> </h3>
+        <h3>Terptube Interpretation Review/Discussion <?php echo implode(', ', array(SITE_BASE, $_SESSION['participantID'], $_SESSION['supervisorName'], $_SESSION['role'])); ?> </h3>
     </div>
     <div id="navigation"></div>
 	<?php echo checkError(); ?>
@@ -88,7 +88,7 @@ while ($row = mysqli_fetch_assoc($result)) {
             <!---------------------------- Used to add a comment form --------------------------------------- -->
             <!-- Everytime this is clicked it will toggle the input form submission -->
             <div id="commentButtonWrap">
-                <button name="postCommentbutton">Post a new comment</button>
+                <button id="postCommentButton" name="postCommentbutton">Post a new comment</button>
             </div>
 
             <!-- This div will contain the form to add a new comment -->
@@ -96,15 +96,15 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                 <form id="new-comment-form" action="include/submit_comment.php?pID=0" enctype="multipart/form-data" method="post">
                     <label>Start Time:</label>
-                    <input type="text" name="start_time" />
+                    <input type="text" id="start_time" name="start_time" />
 
                     <label>End Time</label>
-                    <input type="text" name="end_time" />
+                    <input type="text" id="end_time" name="end_time" />
 
                     <label>Make a comment</label><br />
-                    <textarea name="comment"></textarea>
+                    <textarea id="comment-textarea" name="comment"></textarea>
 
-                    <fieldset name="video-option-fiedset">
+                    <fieldset id="video-option-fieldset" name="video-option-fiedset">
                         <legend>Choose a Video Upload Option:</legend>
 
                         <label>Existing Video:</label>
@@ -136,7 +136,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                     </fieldset>
 
 
-                    <fieldset name="video-name-fieldset" style="margin-top:10px;display:none">
+                    <fieldset id="video-name-fieldset" name="video-name-fieldset" style="margin-top:10px;display:none">
                         Video:
                         <a href="#" class="edit-video-link">Modify</a>
                         <div>
@@ -150,10 +150,10 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                     <br/>
 
-                    <input type="button" name="previewButton" style="display:none" value="Preview"/>
+                    <input type="button" id="previewButton" name="previewButton" style="display:none" value="Preview"/>
 
                     <input type="submit" value="Post Comment" />
-                    <input type="button" name="cancel-button" value ="Cancel" />
+                    <input type="button" id="cancel-button" name="cancel-button" value ="Cancel" />
 
                 </form>
             </div>
@@ -180,7 +180,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 	
                     ?>
 
-                    <div id="comment-<?php echo $comment["id"]; ?>" class="feedback-container clearfix">
+                    <div id="comment-<?php echo $comment["id"]; ?>" data-cid="<?php echo $comment["id"];?>" class="feedback-container clearfix">
                         <div class="comment-left-side-wrap">
                             <div class="comment-avatar-div">
                             	<!-- put avatar specific lookups in here -->
@@ -188,13 +188,17 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 <p>Name: Joe</p>
                                 <p>Date Created: June</p>
                             </div>
+                            <?php // TODO: check if participant id from URL matches comment author id, only then display these tools ?>
+                            <?php echo printCommentTools($comment["id"]); ?>
+                            <!--
                             <div class="comment-tools-div">
                                 <ul>
                                     <li><a href="#" id="edit-<?php echo $comment["id"]; ?>" class="comment-edit-link">Edit</a></li>
                                     <li><a href="#" id="delete-<?php echo $comment["id"]; ?>" class="comment-delete-link">Delete</a></li>
                                 </ul>
     <!--                            <img class="delete-comment" src="images/feedback_icons/x_icon.png" alt=""/>-->
-                            </div>
+                            <!-- </div> -->
+                            
                         </div>
                         <div class="clearfix"></div>
 
@@ -245,10 +249,50 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                         <div class="feedback-properties">
                     		<?php if ($comment["istemporalcomment"] === 1) { ?>
-                            	<img class="clock-icon clickable" src="images/feedback_icons/clock.png" alt="Jump to comment start time" data-startval="<?php echo $comment["starttime"]; ?>"/><br/>
+                            	<img class="clock-icon clickable temporalinfo" src="images/feedback_icons/clock.png" alt="Jump to comment start time" data-startval="<?php echo $comment["starttime"];?>" data-endval="<?php echo $comment["endtime"];?>" /><br/>
                         	<?php } ?>
                         </div>
-
+                        <div id="edit-comment-<?php echo $comment["id"]; ?>" class="edit-comment-wrap" style="display:none;">
+                            <div class="cleardiv"></div>
+                            <form id="form-edit-comment-<?php echo $comment["id"];?>" class="comment-edit-form" action="edit_comment.php" enctype="multipart/form-data" method="post">
+                                <label>Start Time:</label><input type="text" id="edit-start-time-text" name="edit-start-time-text">
+                                <label>End Time:</label><input type="text" id="edit-end-time-text" name="edit-end-time-text">
+                                <label>Comment:</label><textarea id="edit-textcontent" name="edit-textcontent"></textarea>
+                                <fieldset id="edit-video-option-fieldset" name="edit-video-option-fiedset">
+                                    <legend>Choose a Video Upload Option:</legend>
+            
+                                    <label>Existing Video:</label>
+                                    <?php $existingvideos = getExistingVideosForSourceID($videoNumber); ?>
+                                    <select name="user-existing-video">
+                                        <option value=""> </option>
+                                        <?php 
+                                        foreach ($existingvideos as $existingVid) {
+                                            print '<option value="'.$existingVid.'">'.$existingVid. '</option>';
+                                        }
+                                        ?>
+                                    </select>
+            
+            
+                                    <div id="input-upload-div">
+                                        Upload Video: 
+                                        <input id="uploadedfileButton" type="button" value="Choose Video" >
+                                        </input>
+                                    </div>
+            
+                                    <div id="input-record-div">
+                                        Record Video:
+                                        <input id="popUpRecordingWindowButton" type="button" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview','record',null)" />
+                                        
+                                    </div>
+                                    <div id="videoRecordingOrPreview" style="display:hidden">
+                                            
+                                    </div>
+                                </fieldset>
+                                
+                                <input type="button" class="edit-cancel-button" name="edit-cancel-button" value="Cancel">
+                                <input type="submit" value="Submit">
+                            </form>
+                        </div>
 <!--                        <div class="cleardiv"></div>-->
                     </div>
 

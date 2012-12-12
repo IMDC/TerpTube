@@ -436,4 +436,17 @@ function addError($errorString) {
 }
 
 
+function printCommentTools($cID) {
+    $cid = intval($cID);
+    // TODO: check if author of comment matches the id of the participant id from the URL
+    $output = "<div class='comment-tools-div'>
+                    <ul>
+                        <li><a href='#' id='edit-$cid' class='comment-edit-link'>Edit</a></li>
+                        <li><a href='#' id='delete-$cid' class='comment-delete-link'>Delete</a></li>
+                    </ul>         
+                </div>";
+    return $output;
+}
+
+
 ?>
