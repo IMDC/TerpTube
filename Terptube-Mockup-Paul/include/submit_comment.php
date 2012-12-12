@@ -65,6 +65,9 @@ error_log("video_filename: $video_filename existingVidChoice: $existingVidChoice
 
 // database insertion code was here
 
+
+
+
 $commentID = insertCommentIntoDatabase($sourceID, $parentID, $authorID, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $video_filename);
 
 
