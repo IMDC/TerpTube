@@ -245,7 +245,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                         <div class="feedback-properties">
                     		<?php if ($comment["istemporalcomment"] === 1) { ?>
-                            	<img class="clock-icon clickable" src="images/feedback_icons/clock.png" alt="Jump to comment start time" start-val="<?php echo $comment["starttime"]; ?>"/><br/>
+                            	<img class="clock-icon clickable" src="images/feedback_icons/clock.png" alt="Jump to comment start time" data-startval="<?php echo $comment["starttime"]; ?>"/><br/>
                         	<?php } ?>
                         </div>
 
