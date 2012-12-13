@@ -84,7 +84,7 @@
             echo "<p><a href='index.php?v=1&pID=$particID'>Proceed as Mentor</a></p>";
         }
         else if ($userrole == "Mentee") {
-            echo "<p><a href='createSignlink.php?pID=$particID'>Proceed as Mentee</a></p>";
+            echo "<p><a href='create.php?pID=$particID'>Proceed as Mentee</a></p>";
         }
         
     }

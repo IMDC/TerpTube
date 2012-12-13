@@ -122,11 +122,6 @@
             $optionFieldset.show();
             $videoNameFieldset.hide();
         });
-        
-        function insertEditForm(id) {
-            var commentContainer = $("div#comment-"+id);
-            
-        }
 
         // Editing a comment by clicking on it's 'edit' button
         $("a.comment-edit-link").click(function() {
@@ -179,8 +174,9 @@
 
         //Clicking the clock icon will move the density bar to the comments time
         $(".clock-icon").click(function(){
-            video_dom.currentTime = $(this).attr("alt");
+            video_dom.currentTime = $(this).data('startval');
             movePlayHead();
+            moveSliders()
         });
 
         //This will delete the specific comment when the user clicks the x icon

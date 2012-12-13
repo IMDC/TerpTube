@@ -448,5 +448,58 @@ function printCommentTools($cID) {
     return $output;
 }
 
+/**Return a <track> element that points to a captions file
+ * in the uploads/caption/ directory corresponding to 
+ * the given video id in the video_source table
+ * 
+ * @global type $db database connection
+ * @param type $videonum id of a video from the video_source table
+ * @return type a string containing a complete html5 video <track> element
+ */
+function getCaptionFileForSourceVideo($videonum, $label='') {
+    // select filename from caption_file where video_source_id = $videonum
+    global $db;
+    $vidnumber = intval($videonum);
+    $label = mysqli_real_escape_string($db, $label);
+    
+    /* create a prepared statement */
+    $query = "select filename from caption_file where video_source_id = ?";
+    $stmt = mysqli_stmt_init($db);
+    if ( !mysqli_stmt_prepare($stmt, $query)) {
+        error_log("Failed to prepare statement in 'getCaptionFileForSourceVideo'");
+        print "Failed to prepare statement";
+        return;
+    }
+    else {
+        /* bind parameters */
+        mysqli_stmt_bind_param($stmt, "i", $vidnumber);
+
+        /* execute query */
+        if (!mysqli_stmt_execute($stmt)) {
+            $errnum = mysqli_stmt_errno($stmt);
+            $errmsg = mysqli_stmt_error($stmt);
+            mysqli_stmt_close($stmt);
+            error_log("ERROR: $errnum, $errmsg");
+            echo $errmsg;
+            
+            echo "<h1>An error has occured, please go back and try again</h1>";
+            echo "<a href='start.php'>Go back</a>";
+            return;
+        }
+        
+        /* bind results */
+        mysqli_stmt_bind_result($stmt, $captionFile);
+        
+        mysqli_stmt_close($stmt);
+        
+        if ( empty($captionFile) ) {
+            return;
+        }
+        $output = "<track id='enTrack' kind='captions' src='uploads/caption/$captionFile' type='text/vtt' srcLang='en' label='$label' default />";
+        return $output;
+    // <track id="enTrack" kind="captions" src="uploads/caption/upc.vtt" type="text/vtt" srclang="en" label="English Subtitles" default />
+    }
+}
+
 
 ?>

@@ -38,7 +38,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                         <video id="myPlayer" id="videoTest" width="640" preload="auto">
                             <source src="uploads/video/<?php echo $videoName; ?>" type="video/webm" />
-                            <track id="enTrack" kind="captions" src="uploads/caption/upc.vtt" type="text/vtt" srclang="en" label="English Subtitles" default />
+                            <?php echo getCaptionFileForSourceVideo($videoNumber); ?>
                             <!--  <source src="movie.ogg" type="video/ogg" /> -->
                             Your browser does not support the video tag.
                         </video>
@@ -173,7 +173,8 @@ while ($row = mysqli_fetch_assoc($result)) {
 // 
                 // while ($row = mysqli_fetch_assoc($result)) {
                     // $videoExists = file_exists('uploads/comment/' . $row['comment_id'] . '.mp4');
-                    // $comID = $row['comment_id'];
+                    // $comID = $row['comment_id'];
+
                     
 				$toplevelcomments = getTopLevelCommentsForSourceID($videoNumber);
 				foreach ($toplevelcomments as $comment) {
@@ -284,7 +285,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                                         <input id="popUpRecordingWindowButton" type="button" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview','record',null)" />
                                         
                                     </div>
-                                    <div id="videoRecordingOrPreview" style="display:hidden">
+                                    <div id="videoRecordingOrPreviewEdit" style="display:hidden">
                                             
                                     </div>
                                 </fieldset>
@@ -302,7 +303,8 @@ while ($row = mysqli_fetch_assoc($result)) {
                         // $res = mysqli_query($db, $sql_reply);
 // 
                         // //this is the container for the reply to a reply
-                        // while ($list = mysqli_fetch_assoc($res)) {
+                        // while ($list = mysqli_fetch_assoc($res)) {
+
                         	
 						$commentReplies = getCommentRepliesForSourceID($videoNumber, $comment["id"]);
 						foreach ($commentReplies as $reply) {

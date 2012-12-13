@@ -12,11 +12,11 @@
     }
     
     h1 {
-        font-family: Tahoma;
+        font-family: Tahoma, sans-serif;
         font-size: 24px;
     }
     h3 {
-        font-family: Tahoma;
+        font-family: Tahoma, sans-serif;
         font-size: 16px;
         line-height: 150%;
         padding-left: 20px;
