@@ -30,8 +30,8 @@ function getVideoType($video)
 	}
 }
 ?>
+<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/preview2.js"></script>
 
-<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/preview.js"></script>
 
 <?php
 $tempDirectory = UPLOAD_DIR . 'temp';$tempURL = SITE_BASE.'uploads' . DIRECTORY_SEPARATOR. "temp/";
@@ -131,11 +131,11 @@ else
 
 
 <div class="record-or-preview video" id="videoContainer">
-    <video class="record-or-preview" onloadedmetadata="setupVideo()" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" controls="controls" preload="auto">
+    <video class="record-or-preview" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" controls="controls" preload="auto">
         <source id="video-source" src="<?php echo $video ?>" type="<?php echo getVideoType($video)?>">
         Browser cannot play video. 
     </video> 
-    <div class="record-or-preview video" id="track">
+<!--    <div class="record-or-preview video" id="track">
         <canvas class="record-or-preview track" id="densitybar" >
         </canvas>
         <canvas class="record-or-preview track" id="selectedRegion" >
@@ -159,7 +159,6 @@ else
             
             <button class="record-or-preview preview" id="stepForwardButton" type="button" onclick="javascript:stepForward();"></button>
             <button class="record-or-preview preview" id="endButton" type="button" onclick="javascript:jumpTo(1);"></button>
-         <!--   <button type="button" onclick="javascript:previewClip();" >Preview</button> -->
         </div>
         <div class="record-or-preview" id="forwardButtons">
    	     	<button class="record-or-preview preview" id="submitButton" type="button" onclick="javascript:transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>);"></button>
@@ -169,5 +168,12 @@ else
             <label for="audioOn"><img src="images/recordOrPreview/audioOn.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="true" class="record-or-preview" id="audioOn" checked="checked" />
              
         </div>
-    </div>
+    </div> -->
 </div>
+<script type="text/javascript">
+
+	var controls = new densityBar("videoContainer","video");
+	controls.options.backFunction= function(){goBack('<?php echo $postType?>')};
+	controls.options.forwardFunction = function (){ transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>)};
+	controls.createControls();
+</script>

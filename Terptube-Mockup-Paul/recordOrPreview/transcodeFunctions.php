@@ -58,7 +58,7 @@ function trimVideo($inputVideoFile, $outputVideoFile, $startTime, $endTime, $kee
         $durationFFMPEG = parseSecondsToFFMPEGTime($duration);
         $ffmpeg = getFFMPEGPath();
 		//TODO look into getting the output to see if the transcoding succeeded
-        exec("$ffmpeg  -ss $startTimeFFMPEG -t $durationFFMPEG -i $inputVideoFile -codec:v copy -codec:a copy -y $outputVideoFile");
+        exec("$ffmpeg  -ss $startTimeFFMPEG -t $durationFFMPEG -i '".$inputVideoFile."' -codec:v copy -codec:a copy -y '".$outputVideoFile."'");
 		
 		//FIXME no permissions to delete file
 		if (!$keepInputFile)
@@ -72,7 +72,7 @@ function trimVideo($inputVideoFile, $outputVideoFile, $startTime, $endTime, $kee
 function getVideoDuration($inputVideoFile)
 {
 	$ffmpeg = getFFMPEGPath();
-	$command = "$ffmpeg -i $inputVideoFile 2>&1";
+	$command = "$ffmpeg -i '".$inputVideoFile."' 2>&1";
 	$output="";
 	$result = exec($command, $output);
 	$duration = "";	
@@ -95,11 +95,11 @@ function convertVideoToWEBM($inputVideoFile, $outputVideoFile, $keepAudio, $keep
 //	echo "converting video";
 	if ($keepAudio)
 	{
-			$command = "$ffmpeg -i $inputVideoFile -codec:a libvorbis -ar 22050 -b:a 64k -ac 1 -b:v 600k -qmin 10 -qmax 42 -quality good -s ". VIDEO_RESOLUTION_MINIMUM_STANDARD." -y $outputVideoFile 2>&1";
+			$command = "$ffmpeg -i '".$inputVideoFile."' -codec:a libvorbis -ar 22050 -b:a 64k -ac 1 -b:v 600k -qmin 10 -qmax 42 -quality good -s ". VIDEO_RESOLUTION_MINIMUM_STANDARD." -y '".$outputVideoFile."' 2>&1";
 	}
 	else
 	{
-			$command = "$ffmpeg -i $inputVideoFile -an -b:v 600k -s ".VIDEO_RESOLUTION_MINIMUM_STANDARD." -y $outputVideoFile 2>&1";	
+			$command = "$ffmpeg -i '".$inputVideoFile."' -an -b:v 600k -s ".VIDEO_RESOLUTION_MINIMUM_STANDARD." -y '".$outputVideoFile."' 2>&1";	
 	}
 	$duration = getVideoDuration($inputVideoFile);
 	error_log("Duration: ".$duration);
@@ -119,6 +119,7 @@ function convertVideoToWEBM($inputVideoFile, $outputVideoFile, $keepAudio, $keep
 			error_log("Progress: ".$progressOutput);
 		}
 	}
+	error_log("Progress: 100");
 	if (!$keepInputFile)
 		unlink($inputVideoFile);
 		return ($duration);
