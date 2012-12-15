@@ -1,0 +1,196 @@
+@charset "utf-8";
+/* CSS Document */
+
+.record-or-preview
+{
+	
+	font-size: 100%;
+}
+
+button.videoControlsContainer 
+{
+	width: 40px;
+	height: 40px;
+}
+
+.record-or-preview .video 
+{
+	text-align:center;	
+	width:640px;
+	margin:auto;
+	padding: 0px;
+}
+
+
+
+.videoControlsContainer.track
+{
+	position:relative;
+	outline: 1px solid black;	
+	height:40px;
+}
+
+.videoControlsContainer.track canvas
+{
+	position:absolute;
+	left:0px;
+    top:0px;
+    width: 480px;
+    height: 40px;
+}
+
+.videoControlsContainer.track.densityBar
+{
+	z-index: 1;
+	width: 480px;
+}
+.videoControlsContainer.track.selectedRegion
+{
+	z-index: 2;
+	width: 480px;
+}
+.videoControlsContainer.track.thumb
+{
+	z-index: 3;	
+	width: 480px;
+
+}
+.videoControlsContainer.controlsBar.videoControls
+{
+/*	float: left;*/
+	margin:auto;
+	text-align:center;
+	width: 80%;
+}
+
+
+.videoControlsContainer.controlsBar.videoControls button
+{
+	width: 40px;
+	height: 40px;
+}
+.videoControlsContainer.timeBox
+{
+	padding-left:2px;
+	padding-right:2px;
+	height: 40px;
+	font-size:0.6em;
+	line-height: 40px;
+	display: inline-block;
+	position: absolute;
+	left: 480px;
+	outline: none;
+}
+
+.videoControlsContainer.controlsBar
+{
+/*	clear:both; */	
+	margin-top:5px;	
+/*	margin-left: -40px;
+	margin-right: -40px;*/
+}
+
+
+div.videoControlsContainer.controlsBar.forwardButtons
+{
+	float: right;	
+/*	width: 10%; */
+	text-align:right;
+	margin-right: -40px;
+}
+
+
+/***********************/
+
+
+div.videoControlsContainer.controlsBar.backButtons
+{
+	float:left;
+/*	width: 10%; */
+	text-align:left;	
+	margin-left: -40px;
+}
+
+.videoControlsContainer.controlsBar.videoControls.beginButton
+{
+	background: url(../../images/recordOrPreview/beginning.png) no-repeat;
+}
+
+.videoControlsContainer.controlsBar.videoControls.stepBackwardButton
+{
+	background: url(../../images/recordOrPreview/jumpback_small.png) no-repeat;
+}
+
+.videoControlsContainer.controlsBar.videoControls.playButton
+{
+	background: url(../../images/recordOrPreview/play_small.png) no-repeat;
+}
+	
+.videoControlsContainer.controlsBar.videoControls.stepForwardButton
+{
+	background: url(../../images/recordOrPreview/jumpforward_small.png) no-repeat;	
+}
+.videoControlsContainer.controlsBar.videoControls.endButton
+{
+	background: url(../../images/recordOrPreview/end.png) no-repeat;	
+}
+
+
+.videoControlsContainer.controlsBar.backButtons.backButton
+{
+	background: url(../../images/recordOrPreview/previous_small.png) no-repeat;	
+}
+.videoControlsContainer.controlsBar.forwardButtons.forwardButton
+{
+	background: url(../../images/recordOrPreview/submit_small.png) no-repeat;	
+}
+
+
+.videoControlsContainer.track.volumeControl
+{
+
+	width: 40px;
+	height: 40px;
+	float:right; 
+	text-align: center;
+}
+.videoControlsContainer.track.volumeControl img
+{
+	width: 80%;
+	height: 80%;
+	vertical-align: -50%;
+	line-height:40px;
+}
+.videoControlsContainer.track.volumeControl.volumeSlider
+{
+	display:none;
+	position: relative;
+	
+	width: 80px;
+	height: 20px;
+	left:-85px;
+	top: -25px;
+	border: 1px solid black;
+	text-align: center;
+}
+.videoControlsContainer.track.volumeControl.volumeSlider.ui-slider
+{
+	text-align: center;
+	margin: 0px;
+}
+.videoControlsContainer.track.volumeControl.volumeSlider.ui-slider-range
+{
+	background: green;
+	margin: 0px;
+}
+.videoControlsContainer.track.volumeControl.volumeSlider.record-or-preview.ui-slider-handle
+{
+	left: 0px;
+	top: -2px;
+}
+
+.videoControlsContainer.controlsBar.audioButtonsBar
+{
+	clear:both;
+	padding-top:5px;	
+}

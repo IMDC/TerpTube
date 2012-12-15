@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/playr.css" type="text/css" media="screen" />
 
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/common.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/densityBar.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/record.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/preview.css" type="text/css" media="screen" />
 		
