@@ -92,11 +92,49 @@ function createControls()
 	this.drawTrack();
 }
 
+/*
+ * Comments is an object array that contains - 
+ * startTime:number, endTime:number, commentID:number, color:rgbHexString
+ */
+function setComments(commentsArray)
+{
+	this.comments = commentsArray;
+}
+
+function drawComments()
+{
+	this.clearComments();
+	
+	for (var i=0;i<this.comments; i++)
+	{
+		this.drawComment(this.comments[i]);
+	}
+}
+
+function clearComments()
+{
+	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
+	var context = $(this.elementID).find(".videoControlsContainer.track.selectedRegion").eq(0)[0].getContext("2d");
+	context.clearRect(0, 0, densityBarElement.width(), densityBarElement.height());
+}
+
+function drawComment(comment)
+{
+	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
+	var context = $(this.elementID).find(".videoControlsContainer.track.selectedRegion").eq(0)[0].getContext("2d");
+	
+		context.fillStyle = comment.color;
+		
+		var startX = this.getXForTime(comment.startTime);
+		var endX = this.getXForTIme(comment.endTime);
+		context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
+}
 
 function densityBar(elementID, videoID, options)
 {
 	this.elementID = "#"+elementID;
 	this.videoID = "#"+videoID;
+	this.comments = new Array();
 	
 	this.options = options;
 	
@@ -130,13 +168,18 @@ function densityBar(elementID, videoID, options)
 	if (typeof this.options=='undefined')
 	{
 		alert("Options is undefined");
+		/*
+		 * type can be recorder,player
+		 * areaSelectionEnabled: true/false
+		 */
 		this.options = {
 				volumeControl:true,
 				type:"player",
 				backFunction:function(){alert("Back")},
 				forwardFunction:function(){alert("Forward")},
 				audioBar:true,
-				densityBarHeight: 40
+				densityBarHeight: 40,
+				areaSelectionEnabled: false
 				}
 	}
 	if (typeof this.options.volumeControl=='undefined')
@@ -234,6 +277,12 @@ function drawRightTriangle(position, context)
 	context.lineTo(position, this.trackPadding+this.trackHeight);
 	context.closePath();
 	context.fill();
+}
+
+function setAreaSelectionEnabled(flag)
+{
+	this.options.areaSelectionEnabled = flag;
+	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
 }
 
 function getRelativeMouseCoordinates(event){
@@ -387,6 +436,10 @@ function setMouseDownThumb(event)
 	}
 	else
 	{
+		if (!instance.options.areaSelectionEnabled)
+		{
+			return;
+		}
 		if (coords.x <=instance.currentMinSelected && coords.x >= instance.currentMinSelected - instance.triangleWidth)
 		{
 			//Left triangle selected			
@@ -431,11 +484,15 @@ function setHighlightedRegion(startX, endX)
 	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
 	var context = $(this.elementID).find(".videoControlsContainer.track.selectedRegion").eq(0)[0].getContext("2d");
 	context.clearRect(0, 0, densityBarElement.width(), densityBarElement.height());
-	context.fillStyle = "#00ff00";
 	
-	context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
-	this.drawLeftTriangle(startX, context);
-	this.drawRightTriangle(endX, context);
+	if (this.options.areaSelectionEnabled)
+	{
+		context.fillStyle = "#00ff00";
+		
+		context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
+		this.drawLeftTriangle(startX, context);
+		this.drawRightTriangle(endX, context);
+	}
 }
 
 function setupVideo1()
