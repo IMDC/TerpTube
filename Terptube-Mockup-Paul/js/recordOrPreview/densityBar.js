@@ -1,3 +1,5 @@
+var DENSITY_BAR_TYPE_RECORDER = "recorder";
+var DENSITY_BAR_TYPE_PLAYER = "player";
 
 function createControls()
 {
@@ -72,7 +74,6 @@ function createControls()
 	selectedRegionElement[0].height=selectedRegionElement.height();
 	
 	
-	this.currentTime = 0;
 	this.currentMinTimeSelected = 0;
 	this.currentMaxTimeSelected = 0;
 	this.durationSelected = 0;
@@ -88,6 +89,16 @@ function createControls()
 	this.stepSize = 0.1;
 	this.maxSpeed = 2.0;
 	this.timer;
+	
+	//var recording_minTime = 3 * 1000; //seconds
+	this.recording_recordTimer;
+	this.recording_transcodeTimer;
+	this.minRecordingTime = 3;
+	this.maxRecordingTIme = 60;
+//	var recording_maxRecordingTime = 60*1000; //60 seconds
+//	var recording_minRecordingTime = 1000*3;
+	
+	this.isRecording = false;
 	
 	this.drawTrack();
 }
@@ -135,13 +146,30 @@ function densityBar(elementID, videoID, options)
 	this.elementID = "#"+elementID;
 	this.videoID = "#"+videoID;
 	this.comments = new Array();
-	
-	this.options = options;
+	//type can be player, recorder
+	this.options = {
+			volumeControl:true,
+			type:DENSITY_BAR_TYPE_PLAYER,
+			backButton: true,
+			backFunction:function(){alert("Back")},
+			forwardButton: true,
+			forwardFunction:function(){alert("Forward")},
+			audioBar:true,
+			densityBarHeight: 40,
+			areaSelectionEnabled: false
+			}
+	if (typeof options!='undefined')
+	{
+		for (key in options)
+		{
+			this.options[key] = options[key];
+		}
+	}
 	
 	this.createControls = createControls;
 	this.drawTrack = drawTrack;
 	this.updateTimeBox = updateTimeBox;
-	this.paintThumb =  paintThumb1;
+	this.paintThumb =  paintThumb;
 	this.getXForTime = getXForTime;
 	this.drawLeftTriangle = drawLeftTriangle;
 	this.drawRightTriangle = drawRightTriangle;
@@ -157,7 +185,14 @@ function densityBar(elementID, videoID, options)
 	this.setMouseOutThumb = setMouseOutThumb;
 	this.setMouseDownThumb = setMouseDownThumb;
 	this.setHighlightedRegion = setHighlightedRegion;
-	this.setupVideo = setupVideo1;
+	if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
+	{
+		this.setupVideo = setupVideoPlayback;
+	}
+	else if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+	{
+		this.setupVideo = setupVideoRecording;
+	}	
 	this.getTimeForX = getTimeForX;
 	this.setVideoTimeFromCoordinate = setVideoTimeFromCoordinate;
 	this.setVideoTime = setVideoTime;
@@ -165,27 +200,6 @@ function densityBar(elementID, videoID, options)
 	this.setVolumeBarVisible = setVolumeBarVisible;
 	this.toggleMute = toggleMute;
 	
-	if (typeof this.options=='undefined')
-	{
-		alert("Options is undefined");
-		/*
-		 * type can be recorder,player
-		 * areaSelectionEnabled: true/false
-		 */
-		this.options = {
-				volumeControl:true,
-				type:"player",
-				backFunction:function(){alert("Back")},
-				forwardFunction:function(){alert("Forward")},
-				audioBar:true,
-				densityBarHeight: 40,
-				areaSelectionEnabled: false
-				}
-	}
-	if (typeof this.options.volumeControl=='undefined')
-	{
-		this.options.volumeControl = true;
-	}
 }
 
 
@@ -213,22 +227,16 @@ function drawTrack()
 	context.strokeRect(0,0, densityBarElement.width(), densityBarElement.height());
 	context.fillRect(this.trackPadding, this.trackPadding, this.trackWidth, this.trackHeight);
 	context.strokeRect(this.trackPadding, this.trackPadding, this.trackWidth, this.trackHeight);
-	
 }
+
 
 function updateTimeBox(currentTime, duration)
 {
-//	alert ("current time:"+currentTime+" duration:" + duration);
-//	alert("In updateTimeBox: " + $(this.elementID).find(".videoControlsContainer.timeBox").eq(0));
 	$(this.elementID).find(".videoControlsContainer.timeBox").eq(0).html(getTimeCodeFromSeconds(currentTime) +"/"+getTimeCodeFromSeconds(duration));
 }
 
-
-function paintThumb1(time)
+function paintThumb(time)
 {
-//	alert("Track Height: "+this.trackHeight);
-//	alert(this.elementID+".videoControlsContainer.track.thumb");
-	
 	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
 	var context = $(this.elementID).find(".videoControlsContainer.track.thumb").eq(0)[0].getContext("2d");
 	var position = this.getXForTime(time);
@@ -249,12 +257,6 @@ function paintThumb1(time)
 	context.lineTo(position, densityBarElement.height()-this.trackPadding);
 	context.closePath();
 	context.stroke();
-}
-
-function getXForTime(time)
-{
-	var x = this.trackPadding + $(this.videoID)[0].currentTime/$(this.videoID)[0].duration * this.trackWidth;
-	return x;
 }
 
 function drawLeftTriangle(position, context)
@@ -368,16 +370,26 @@ function setPlayButtonIconSelected(isPlayIcon)
 
 function repaint()
 {
-		this.currentTime = $(this.videoID)[0].currentTime;
-		this.paintThumb(this.currentTime);
-		var timeBoxCurrentTime = this.currentTime-this.currentMinTimeSelected;
-		timeBoxCurrentTime = timeBoxCurrentTime <=0 ? 0: timeBoxCurrentTime;
-		this.updateTimeBox(timeBoxCurrentTime, this.currentMaxTimeSelected-this.currentMinTimeSelected);
-		if (this.preview && this.currentTime >= this.currentMaxTimeSelected)
+		this.paintThumb(this.getCurrentTime());
+		if (this.options.type==DENSITY_BAR_TYPE_PLAYER)
 		{
-			this.preview = false;
-			this.pause();
-			this.setVideoTime(this.currentMaxTimeSelected);
+			var timeBoxCurrentTime = this.getCurrentTime()-this.currentMinTimeSelected;
+			timeBoxCurrentTime = timeBoxCurrentTime <=0 ? 0: timeBoxCurrentTime;
+			this.updateTimeBox(timeBoxCurrentTime, this.currentMaxTimeSelected-this.currentMinTimeSelected);
+			if (this.preview && this.getCurrentTime() >= this.currentMaxTimeSelected)
+			{
+				this.preview = false;
+				this.pause();
+				this.setVideoTime(this.currentMaxTimeSelected);
+			}
+		}
+		if (this.options.type==DENSITY_BAR_TYPE_RECORDER)
+		{
+			this.currentMaxSelected = this.getXForTime(this.getCurrentTime());
+			this.currentMaxTimeSelected = this.getCurrentTime();
+			var timeBoxCurrentTime = recording_getCurrentTime();
+			this.updateTimeBox(timeBoxCurrentTime, this.getDuration());
+			this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
 		}
 	//	setHighlightedRegion(currentMinSelected, currentMaxSelected);
 }
@@ -489,13 +501,18 @@ function setHighlightedRegion(startX, endX)
 	{
 		context.fillStyle = "#00ff00";
 		
-		context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
+		
 		this.drawLeftTriangle(startX, context);
 		this.drawRightTriangle(endX, context);
 	}
+	else
+	{
+		context.fillStyle = "#0x666666";
+	}
+	context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
 }
 
-function setupVideo1()
+function setupVideoPlayback()
 {
 	var instance = this;
 	$(this.videoID)[0].addEventListener('timeupdate', function(){instance.checkStop()}, false);
@@ -519,10 +536,204 @@ function setupVideo1()
 
 }
 
+function setupVideoRecording()
+{
+	this.setInputEnabled("recordButton", false);
+	this.setInputEnabled("submitButton", false);
+	this.paintThumb(0);
+	this.minTimeCoordinate = this.getXForTime(this.minTime);
+	this.currentMinSelected = this.minSelected;
+	this.currentMinTimeSelected = this.getTimeForX(this.currentMinSelected);
+	this.currentMaxSelected = this.maxSelected;
+	this.currentMaxTimeSelected = this.getTimeForX(this.currentMaxSelected);
+	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
+	
+	this.recording_startTime = new Date().valueOf();
+	this.repaint();
+}
+
+function setInputEnabled(inputName, enabled)
+{
+	if (enabled)
+	{
+		$("#"+inputName).attr("disabled",false);
+		$("#"+inputName).css('opacity',1);
+	}
+	else
+	{
+		$("#"+inputName).attr("disabled",true);
+		$("#"+inputName).css('opacity',0.5);
+	}
+}
+
+function recording_checkStop()
+{
+	// if (video.paused)
+		// return;
+	var time = this.getCurrentTime();
+	if (time >=this.minRecordingTime)
+	{
+		this.setInputEnabled("recordButton", true);
+	}
+	if (time >= this.getDuration)
+	{
+		this.stopRecording();
+	}
+	this.repaint();
+}
+
+function recording_toggleRecording()
+{
+	//Change icon on button
+	if (this.isRecording)
+		this.stopRecording();
+	else
+		this.startRecording();	
+	
+}
+
+function recording_startRecording()
+{
+	$("#recordButton")[0].style.backgroundImage = "url(images/recordOrPreview/rec2_small.gif)";
+	this.setInputEnabled("recordButton", false);
+	this.setInputEnabled("submitButton", false);
+	this.currentMinSelected = this.minSelected;
+	this.currentMinTimeSelected = this.getTimeForX(this.currentMinSelected);
+	this.currentMaxSelected =this.maxSelected;
+	this.currentMaxTimeSelected = this.getTimeForX(this.currentMaxSelected);
+	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
+	this.isRecording = true;
+	
+	$("#flashContentObject")[0].startRecording();
+}
+
+//Called by Flash when recording actually started
+function recording_recordingStarted()
+{
+	this.recording_startTime = new Date().valueOf();
+	if (this.recordTimer)
+		clearInterval(this.recordTimer);
+	this.recordTimer = setInterval(function(){this.checkStop();}, 100);
+	
+}
+
+function recording_stopRecording()
+{
+	setBlur(true, "");
+	this.setInputEnabled("recordButton", false);
+	this.setInputEnabled("backButton", false);
+	this.setInputEnabled("submitButton", false);
+	this.recordTimer = clearInterval(this.recordTimer);
+	$("#recordButton")[0].style.backgroundImage = "url(images/recordOrPreview/rec1_small.gif)";
+	this.isRecording = false;
+	$("#flashContentObject")[0].stopRecording();
+}
+
+function recording_recordingStopped(success)
+{
+	setBlur(false, "");
+	this.setInputEnabled("recordButton", true);
+	this.setInputEnabled("backButton", true);
+	if (success)
+	{
+		this.setInputEnabled("submitButton", true);
+	}
+	else
+	{
+		alert("Recording failed!");
+	}
+}
+
+function recording_recordingUploadProgress(value)
+{
+//	$("#uploadProgress").html(value);
+	setBlurText("Uploading: " + value+"%")
+}
+
+function recording_cameraReady(flag)
+{
+	if (flag)
+		this.setInputEnabled("recordButton", true);
+	else
+		this.setInputEnabled("recordButton", false);
+}
+
+function microphoneReady(flag)
+{
+	if (flag)
+		this.setInputEnabled("recordButton", true);
+	else
+		this.setInputEnabled("recordButton", false);
+}
+
+
+function recording_goToPreviewing()
+{
+	this.setInputEnabled("submitButton", false);
+	this.setInputEnabled("recordButton", false);
+	this.setInputEnabled("backButton", false);
+	var blurText = "Converting video";
+	setBlur(true,blurText);
+	this.transcodeTimer = setInterval(function(){
+		if (blurText.length>20)
+		{
+			blurText = blurText.substring(0, 16);
+		}
+		else
+		{
+			blurText+=".";	
+		}
+		
+		setBlurText(blurText);
+		}, 500);
+	$("#flashContentObject")[0].startTranscoding();
+}
+
+function recording_recordingTranscodingFinished(fileName)
+{
+	clearInterval(this.transcodeTimer);
+	setBlur(false, "");
+	if (fileName==null)
+	{
+		alert("Converting video failed! Please record again.");
+		this.setInputEnabled("submitButton", false);
+		this.setInputEnabled("recordButton", true);
+		this.setInputEnabled("backButton", true);
+	}
+	else
+	{
+		alert("Transcoding finished successfully: "+fileName);
+		refreshPage("playerContent", "recordOrPreview/preview.php", 'vidfile='+fileName+'&type=record&keepvideofile=false')
+	}
+}
+
+
+function getCurrentTime()
+{
+	if (this.options.type==DENSITY_BAR_TYPE_RECORDER)
+		return (new Date().valueOf() - this.recording_startTime)/1000;
+	else if (this.options.type==DENSITY_BAR_TYPE_PLAYER)
+		return $(this.videoID)[0].currentTime;
+}
+
+function getDuration()
+{
+	if (this.options.type==DENSITY_BAR_TYPE_RECORDER)
+		return this.options.maxRecordingTime;
+	else if (this.options.type==DENSITY_BAR_TYPE_PLAYER)
+		return $(this.videoID)[0].duration;
+}
+
 function getTimeForX(x)
 {
-	var time = (x - this.trackPadding)*$(this.videoID)[0].duration/this.trackWidth;
+	var time = (x - this.trackPadding)*this.getDuration()/this.trackWidth;
 	return time;
+}
+
+function getXForTime(time)
+{
+	var x = this.trackPadding + time/this.getDuration() * this.trackWidth;
+	return x;
 }
 
 function setVideoTimeFromCoordinate(position)
