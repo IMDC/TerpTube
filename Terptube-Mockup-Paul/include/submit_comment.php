@@ -15,8 +15,20 @@ $sourceID 		    = intval($_POST['v']);
 // comment
 $parentID 			= intval($_GET['pID']);
 // $parentID = intval($_POST['pID']);
-$authorID 			= "0"; //hardcoded for now 
-$comment_text 		= mysqli_real_escape_string($db, $_POST['comment']);;
+$authorIDform       = intval($_POST['partID']);
+$authorIDsession    = intval($_SESSION['participantID']);
+$authorIDget        = intval($_GET['aID']);
+
+// action is the action to take on the comment, new, edit, reply
+$action             = mysqli_real_escape_string($db, $_POST['formAction']);
+
+if ( ($authorIDform != $authorIDsession) && ($authorIDsession != $authorIDget) ) {
+    error_log('comment creation failed, author ids are different');
+    addError("An error occured, please try again");
+    return;
+}
+
+$comment_text 		= htmlentities(mysqli_real_escape_string($db, $_POST['comment']));
 $comment_start_time = $_POST['start_time'];
 $comment_end_time 	= $_POST['end_time'];
 //$date;
@@ -26,7 +38,6 @@ $has_video			= 0; // initialize to 0, set later if true
 $video_filename     = ''; // init to empty, set later
 $existingVidChoice  = ''; // init to empty, set later
 
-addError("value of post file-name is: " . $_POST['file-name'] . "|END");
 
 // check if we have a filename for an uploaded video
 if ( isset($_POST['file-name']) ) {
@@ -40,10 +51,6 @@ if ( isset($_POST['file-name']) ) {
 if ( isset($_POST['user-existing-video']) ) {
 	$existingVidChoice = $_POST['user-existing-video'];
 }
-
-// are we creating new, or editing existing?
-// currently unused
-$action = intval($_POST['action']);
 
 
 if ( isset($comment_start_time) && (isset($comment_end_time)) ) {
@@ -60,7 +67,6 @@ if ( $video_filename || $existingVidChoice ) {
 	}
 }
 
-addError("video_filename: $video_filename existingVidChoice: $existingVidChoice");
 error_log("video_filename: $video_filename existingVidChoice: $existingVidChoice");
 
 // database insertion code was here
@@ -68,7 +74,8 @@ error_log("video_filename: $video_filename existingVidChoice: $existingVidChoice
 
 
 
-$commentID = insertCommentIntoDatabase($sourceID, $parentID, $authorID, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $video_filename);
+
+$commentID = insertCommentIntoDatabase($action, $sourceID, $parentID, $authorIDsession, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $video_filename);
 
 
 if ($commentID) { // successful comment insertion into database
@@ -112,7 +119,7 @@ header("Location: " . SITE_BASE . "index.php?v=$sourceID");
 
 
 
-function insertCommentIntoDatabase($sourceID, $parentID, $authID, $comment, $start, $end, $temporal, $hasvid, $vidfile) {
+function insertCommentIntoDatabase($action, $sourceID, $parentID, $authID, $comment, $start, $end, $temporal, $hasvid, $vidfile) {
 	global $db;
 	/* Insert into database and pull out the comment id it just created
  	*/
@@ -127,6 +134,22 @@ function insertCommentIntoDatabase($sourceID, $parentID, $authID, $comment, $sta
     // author,text_comments,comment_start_time,comment_end_time, date) VALUES
     // ('$videoNumber', '$parentID',  '$author', '$comment', '$start',  '$end',
     // '$now')";
+    
+    switch ($action) {
+    case 'new':
+        $commentID = insertCommentIntoDatabase($sourceID, $parentID, $authorIDsession, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $video_filename);
+        break;
+    case 'edit':
+        
+        break;
+    case 'reply':
+        break;
+    
+    default:
+        
+        break;
+}
+    
     
     //  WHY aren't we using a prepared statement????
     $sql = "INSERT INTO video_comment (source_id, parent_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename) VALUES ('$sourceID', '$parentID','$authID','$comment','$start','$end',DEFAULT,'$temporal','$hasvid','$vidfile')";
@@ -150,6 +173,12 @@ function insertCommentIntoDatabase($sourceID, $parentID, $authID, $comment, $sta
 		return NULL;
     }
 	
+}
+
+function editCommentInDatabase($sourceID, $parentID, $authID, $comment, $start, $end, $temporal, $hasvid, $vidfile) {
+    global $db;
+    
+    // TODO: write this
 }
 
 

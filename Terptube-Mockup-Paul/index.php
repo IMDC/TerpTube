@@ -7,6 +7,7 @@ require_once(INC_DIR . 'functions.inc.php');
 // grab the id from the url to match the video_source table in the database
 $videoNumber = intval($_GET['v']);
 
+// terribly unsafe
 $sql = "SELECT * From video_source WHERE source_id = '$videoNumber'";
 $result = mysqli_query($db, $sql);
 
@@ -39,7 +40,6 @@ while ($row = mysqli_fetch_assoc($result)) {
                         <video id="myPlayer" id="videoTest" width="640" preload="auto">
                             <source src="uploads/video/<?php echo $videoName; ?>" type="video/webm" />
                             <?php echo getCaptionFileForSourceVideo($videoNumber); ?>
-                            <!--  <source src="movie.ogg" type="video/ogg" /> -->
                             Your browser does not support the video tag.
                         </video>
 
@@ -59,20 +59,26 @@ while ($row = mysqli_fetch_assoc($result)) {
                     </div>
                     <div id="video-playback-buttons-container">
                         <img class="clickable" id="play-button" src="images/play_button.png" />
-                        <span id="video-current-time">00:00</span>/
-                        <span id="video-total-time">00:00</span>
+                        <div class="pushleft">
+                            <span id="video-current-time">00:00</span>&nbsp;&nbsp;
+                            <span id="video-total-time">00:00</span>
+                        </div>
                     </div>
 
                     <div class="cleardiv"></div>
                     
                     <?php
+                        /*
                         $commentsArray = getTopLevelCommentsForSourceID($videoNumber);
                         foreach ($commentsArray as $comment) {
                             echo '<div class="video-comment-id" dataval=' . $comment["id"] . '">';
                             echo '<span>' . $comment["author"] . '</span>' . $comment["text"];
                             echo '</div>';
                         }
+                         * 
+                         */
                     ?>
+                    
                     
                     <div class="cleardiv"></div>
                     <!------------ Source video description Box ------------------------>
@@ -83,8 +89,9 @@ while ($row = mysqli_fetch_assoc($result)) {
             </div> <!-- end source-media-container -->
 
 
-
-
+            <div class="cleardiv"></div>
+            <div id="fullcommarraydiv">There should be stuff in here</div>
+            
             <!---------------------------- Used to add a comment form --------------------------------------- -->
             <!-- Everytime this is clicked it will toggle the input form submission -->
             <div id="commentButtonWrap">
@@ -94,14 +101,17 @@ while ($row = mysqli_fetch_assoc($result)) {
             <!-- This div will contain the form to add a new comment -->
             <div class="comment-details" style="display:none">
 
-                <form id="new-comment-form" action="include/submit_comment.php?pID=0" enctype="multipart/form-data" method="post">
-                    <label>Start Time:</label>
-                    <input type="text" id="start_time" name="start_time" />
-
-                    <label>End Time</label>
-                    <input type="text" id="end_time" name="end_time" />
-
-                    <label>Make a comment</label><br />
+                <form id="new-comment-form" action="include/submit_comment.php?pID=0&?aID=<?php echo $_SESSION['participantID'];?>" enctype="multipart/form-data" method="post">
+                    <span id="toggle-time-span">Apply comment to portion of video</span>
+                    <div id="new-comment-time-div" style="display:none;">
+                        <label>Start Time:</label>
+                        <input type="text" id="start_time" name="start_time" />
+    
+                        <label>End Time</label>
+                        <input type="text" id="end_time" name="end_time" />
+    
+                        <label>Make a comment</label><br />
+                    </div>
                     <textarea id="comment-textarea" name="comment"></textarea>
 
                     <fieldset id="video-option-fieldset" name="video-option-fiedset">
@@ -109,7 +119,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                         <label>Existing Video:</label>
                         <?php $existingvideos = getExistingVideosForSourceID($videoNumber); ?>
-                        <select name="user-existing-video">
+                        <select id="userExistingVideo" name="user-existing-video">
                         	<option value=""> </option>
                         	<?php 
                         	foreach ($existingvideos as $existingVid) {
@@ -145,14 +155,16 @@ while ($row = mysqli_fetch_assoc($result)) {
                     </fieldset>
 
                     <input type="hidden" name="file-name" id="fileName" />
-
                     <input type="hidden" name="v" value="<?php echo $videoNumber; ?>" />
+                    <input type="hidden" name="partID" value="<?php echo $_SESSION['participantID'];?>" />
+                    <input type="hidden" name="formAction" value="new" id="formAction" />
+                    <input type="hidden" name="parentID" value="" id="parentCommentID" />
 
                     <br/>
 
                     <input type="button" id="previewButton" name="previewButton" style="display:none" value="Preview"/>
 
-                    <input type="submit" value="Post Comment" />
+                    <input type="submit" id="new-comment-submit-button" value="Post Comment" />
                     <input type="button" id="cancel-button" name="cancel-button" value ="Cancel" />
 
                 </form>
@@ -189,17 +201,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 <p>Name: Joe</p>
                                 <p>Date Created: June</p>
                             </div>
-                            <?php // TODO: check if participant id from URL matches comment author id, only then display these tools ?>
-                            <?php echo printCommentTools($comment["id"]); ?>
-                            <!--
-                            <div class="comment-tools-div">
-                                <ul>
-                                    <li><a href="#" id="edit-<?php echo $comment["id"]; ?>" class="comment-edit-link">Edit</a></li>
-                                    <li><a href="#" id="delete-<?php echo $comment["id"]; ?>" class="comment-delete-link">Delete</a></li>
-                                </ul>
-    <!--                            <img class="delete-comment" src="images/feedback_icons/x_icon.png" alt=""/>-->
-                            <!-- </div> -->
-                            
+                            <?php if(intval($comment['author'])==intval($_SESSION['participantID'])){echo printCommentTools($comment["id"]);} ?>                         
                         </div>
                         <div class="clearfix"></div>
 
@@ -220,7 +222,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                                 <?php if ($comment["text"] != "") { ?>
                                     <div class="comment-text">
-                                        <span><?php echo htmlentities($comment["text"]); ?></span>
+                                        <span><?php echo html_entity_decode($comment["text"]); ?></span>
                                     </div>
                                 <?php } ?>
                             
@@ -229,23 +231,6 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <div class="arrow-container">
                                 <img class="feedback-expand clickable" src="images/feedback_icons/arrow_down.png" />
                             </div>
-                            <div class="reply-wrap">
-                            <p>Reply:
-
-                                <form id="submitReply" class="commentReplyForm" enctype="multipart/form-data" method="post">
-
-                                    <img alt="Record Video" src="images/feedback_icons/clock.png" style="position:relative;left:0px;height:25px;width:25px;float:left" />
-                                    <p class="reply-upload-span"><img alt="Upload Video" src="images/feedback_icons/upload.png" style="position:relative;left:0px;height:25px;width:25px;float:left" /></p>
-
-                                    <label class="reply-file-label">Comment:</label>
-                                    <input class="text_reply" name="text_reply" type="text" parent_id="<?php echo $comment["id"]; ?>" />
-
-                                    <input type="submit" style="float:right" src="images/feedback_icons/reply-arrow.png" value="Submit">
-
-                                    <input type="hidden" name="reply-file-name" />
-                                </form>
-                            </p>
-                            </div>
                         </div>
 
                         <div class="feedback-properties">
@@ -253,7 +238,10 @@ while ($row = mysqli_fetch_assoc($result)) {
                             	<img class="clock-icon clickable temporalinfo" src="images/feedback_icons/clock.png" alt="Jump to comment start time" data-startval="<?php echo $comment["starttime"];?>" data-endval="<?php echo $comment["endtime"];?>" /><br/>
                         	<?php } ?>
                         </div>
-                        <div id="edit-comment-<?php echo $comment["id"]; ?>" class="edit-comment-wrap" style="display:none;">
+                        <div class="reply-wrap">
+                            <p></p><a href="#" class="commentReplyLink" data-cid="<?php echo $comment['id'];?>">Reply</a></p>
+                        </div>
+                        <!-- <div id="edit-comment-<?php echo $comment["id"]; ?>" class="edit-comment-wrap" style="display:none;">
                             <div class="cleardiv"></div>
                             <form id="form-edit-comment-<?php echo $comment["id"];?>" class="comment-edit-form" action="edit_comment.php" enctype="multipart/form-data" method="post">
                                 <label>Start Time:</label><input type="text" id="edit-start-time-text" name="edit-start-time-text">
@@ -293,7 +281,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 <input type="button" class="edit-cancel-button" name="edit-cancel-button" value="Cancel">
                                 <input type="submit" value="Submit">
                             </form>
-                        </div>
+                        </div> -->
 <!--                        <div class="cleardiv"></div>-->
                     </div>
 

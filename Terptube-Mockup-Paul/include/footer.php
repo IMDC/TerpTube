@@ -25,6 +25,7 @@
 
         var signlinkArray = new Array();
         var commentArray  = new Array();
+        var fullCommentArray = new Array();
 
         var tempStartTime;
         var tempEndtTime;
@@ -87,6 +88,8 @@
         video_dom.addEventListener('loadedmetadata', function() {
             console.log(video_dom.duration);
             setSourceDuration(video_dom.duration);
+            drawAreaOnBar(signlinkArray);
+            drawAreaOnBar(commentArray);
         });
         
         // sets the global 'duration' variable to the argument passed in
@@ -109,15 +112,35 @@
         $cancelButton.click( function() {
             $optionFieldset.show();
             $videoNameFieldset.hide();
-            $(".comment-details").hide();
+            
+            $(".comment-details").appendTo("#content-left").hide(); // move form to left side underneath 'post new comment' button
+            $(".commentReplyLink").show(); // show all comment reply links if previously hidden
             drawAreaOnBar(signlinkArray);
             drawAreaOnBar(commentArray);
+            
             creatingTimedComment = false;
+            resetNewCommentFormValues();
             $postCommentButton.show();
 
         });
+        
+        function resetNewCommentFormValues() {
+            var $commdet = $(".comment-details");
+            // reset start and end time inputs
+            $("#new-comment-time-div input").val('');
+            $("#new-comment-time-div").hide();
+            // clear text area
+            $("#comment-textarea").attr("value", "");
+            // reset existing video to blank choice
+            $commdet.find("#userExistingVideo").val(0);
+            // clear file input, reset form action to 'new' value
+            $commdet.find("#fileName").val('').find("formAction").val('new');
+            $commdet.find("input#new-comment-submit-button").attr("value", "Post Comment");
+            $commdet.find("#parentCommentID").attr("value", "");
+            $("#toggle-time-span").show();
+        }
 
-
+        // is this used for anything?!
         $(".edit-video-link").click(function(){
             $optionFieldset.show();
             $videoNameFieldset.hide();
@@ -125,8 +148,9 @@
 
         // Editing a comment by clicking on it's 'edit' button
         $("a.comment-edit-link").click(function() {
-            //$(".comment-details").show();
-            //$postCommentButton.hide();
+            // $(".comment-details").show();
+            $postCommentButton.hide();
+            
             // get comment id
             var commentID = $(this).attr('id').replace("edit-", '');
             
@@ -144,23 +168,26 @@
             
             // TODO: activate canvas handles
             
-            alert("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + "commenttext: " + commentText);
+            console.log("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + "commenttext: " + commentText);
             
-            commentContainer.find(".edit-comment-wrap").show();
-            var editForm = commentContainer.find("#form-edit-comment-"+commentID);
+            var $commdet = $("div.comment-details");
             
-            editForm.find("#edit-start-time-text").val(commentStartTime);
-            editForm.find("#edit-end-time-text").val(commentEndTime);
-            editForm.find("#edit-textcontent").val(commentText);
+            // move new comment form 
+            $commdet.appendTo("#comment-"+commentID).show(); // should move the element in the DOM
+            $commdet.find("input#new-comment-submit-button").attr("value", "Finished Editing");
+            
+            // commentContainer.find(".edit-comment-wrap").show();
+            // var editForm = commentContainer.find("#form-edit-comment-"+commentID);
+            
+            // set form action to be "edit"
+            $commdet.find("#formAction").val('edit');
+            $commdet.find("#start_time").val(commentStartTime);
+            $commdet.find("#end_time").val(commentEndTime);
+            $commdet.find("#comment-textarea").val(commentText);
+            $commdet.find("#parentCommentID").attr("value", commentID);
 
         });
         
-        // hides the comment edit form that appears inside a comment when the user clicks the "edit" button
-        $(".edit-cancel-button").click( function() {
-            $(this).parent("form").parent("div.edit-comment-wrap").hide();
-        })
-
-
 		// show seek bar plus sign for new comment on mouse hover
         $("#traversalCanvas").hover(
             function(){
@@ -175,8 +202,6 @@
         //Clicking the clock icon will move the density bar to the comments time
         $(".clock-icon").click(function(){
             video_dom.currentTime = $(this).data('startval');
-            movePlayHead();
-            moveSliders()
         });
 
         //This will delete the specific comment when the user clicks the x icon
@@ -224,15 +249,6 @@
             });
                        
         });
-
-        $(".feedback-container").hover(
-        //            function(){
-        //                $(this).children(".delete-comment").show();
-        //            },
-        //            function(){
-        //                $(this).children(".delete-comment").hide();
-        //            }
-        );
 
 
         $("form#submitReply").submit(function() {
@@ -300,6 +316,44 @@
             }
 
         });
+        
+        $(".commentReplyLink").click( function() {
+           
+           var commentID = $(this).data('cid');
+           console.log(commentID);
+           $(this).hide();
+           var $commdetwrap = $("div.comment-details");
+           $commdetwrap.appendTo("#comment-"+commentID).show(); // should move the element in the DOM
+           $commdetwrap.find("form#new-comment-form").attr("action", "include/submit_comment.php?pID="+commentID+"aID=<?php echo $_SESSION['participantID'];?>");
+           $commdetwrap.find("#parentCommentID").attr("value", commentID);
+           $commdetwrap.find("#formAction").attr("value", "reply");
+           $commdetwrap.find("#new-comment-submit-button").attr("value", "Post Reply");
+           
+        });
+
+        $("span#toggle-time-span").click(function() {
+            $(this).parent('#new-comment-form').find("#new-comment-time-div").show();
+            $(this).hide();
+            
+            video_dom.pause();
+            video_dom.currentTime = Math.round((duration/2));
+            playing = false;
+            creatingTimedComment = true;
+            clearCanvas(ctx);
+            clearCanvas(traversalctx);
+            //$(".comment-details").show();
+            
+            if ( (".comment-details").find("formAction").attr("value") == 'edit' ) {
+                // TODO: finish this
+                // get comment start and end time
+                var $commID = $(".comment-details").parent(".feedback-container").data('cid');
+                
+            }
+            else {
+                startTimeInput.val( roundNumber(video_dom.currentTime, 2));
+                endTimeInput.val( roundNumber(video_dom.currentTime + 2, 2));
+            }
+        })
 
 
         // hide the new comment create form when user clicks 'cancel' on it
@@ -328,7 +382,7 @@
             //changeMovieSource("uploads/comment/" + signlinkArray[currentLink] + ".mp4", linkVideoName[currentLink] + ".mp4"); //this.alt
         });
 
-        //Change the video speed whent the slowdown button is clicked
+        //Change the video speed when the slowdown button is clicked
         $("#video-speed").click(function() {
             if(!speedSlow)
             {
@@ -464,7 +518,7 @@
             var relY = e.clientY - offset.top;
             console.log("e.clientX: " + e.clientX + " e.clientY: " + e.clientY + " relX: " + relX + " relY: " + relY);
 
-            //if user clicks arrow
+            //if user clicks the "plus" icon above the playhead
             if (relX < plusCircle.x + plusCircle.width && relX > plusCircle.x - plusCircle.width && !creatingTimedComment
                 && relY < plusImage.height && relY > 0 ){ //plusCircle.y - plusImage.height
                 // startTimeInput.val(roundNumber(convertCanvasPointToTime(plusCircle.x,duration),2));
@@ -481,7 +535,7 @@
 
 
             }
-            else if(creatingTimedComment){
+            else if(creatingTimedComment) {
 
                 //left comment triangle
                 if (relX < selectorRectLeft.x  && relX > selectorRectLeft.x - selectorLeftImg.width
@@ -714,7 +768,7 @@ $result = mysqli_query($db, $sql);
 while ($row = mysqli_fetch_assoc($result)) {
 
     //if there is no video associated to the comment it means it is purely a text comment
-    if (file_exists('uploads/comment/' . $row['comment_id'] . '.mp4')) {
+    if (file_exists('uploads/comment/' . $row['comment_id'] . '.webm')) {
         ?>
                 tempStartTime =  <?php echo $row['comment_start_time']; ?>;
                 tempEndTime = <?php echo $row['comment_end_time']; ?>;
@@ -725,24 +779,69 @@ while ($row = mysqli_fetch_assoc($result)) {
     <?php } ?>
 
                 tempName = "<?php echo $row['comment_id']; ?>";
-                tempComment = "<?php echo $row['text_comments']; ?>";
+                tempComment = "<?php echo htmlentities($row['text_comments']); ?>";
 
 
                 var postObject = new comment(tempStartTime, tempEndTime, tempName, tempComment);
                 commentArray.push(postObject);
 
+        
     <?php
 }
 
+?>
+    function fullcomment(commID, source_id, authID, parentID, textcont, start, 
+                            end, commdate, deleted, tempcommentbool, 
+                            hasvideobool, videofilename) {
+            this.id = commID; 
+            this.sourceid = source_id;
+            this.author = authID;
+            this.parentid = parentID;
+            this.text = textcont;
+            this.starttime = start;
+            this.endtime = end;
+            this.date = commdate;
+            this.isdeleted = deleted;
+            this.istemporalcomment = tempcommentbool;
+            this.hasvideo = hasvideobool;
+            this.videofilename = videofilename;
+		
+    }
+    
+<?php
+    $allcomms = json_decode(getAllCommentsForSourceID($videoNumber, 1),true);
+    foreach($allcomms as $each_array) {
+        $output = array();
+        foreach ($each_array as $key=>$val) {
+            //echo "$key:$val";
+            //echo "$key: $val";
+            array_push($output, '"'.$val.'"');
+        }
+        $fullcommentargs = implode($output, ',');
+        echo "var tempFullCommentObject = new fullcomment($fullcommentargs);\n";
+        echo "fullCommentArray.push(tempFullCommentObject);\n";
+    }
+?>
+    //var tempFullCommentObject = new fullcomment(cid,sid,aid,pid,text,start,end,date,del,tempbool,hasvid,vidfilename);
+    //fullCommentArray.push(tempFullCommentObject);
+        
+        <?php
+
+
+$commentsAsText = convertJSONCommentArrayToHTML($allcomms);
+
+echo '$("div#fullcommarraydiv").empty().html(' . $commentsAsText . ');';
+
 //-----------ADD SIGNLINKS TO DENSITY BAR ------------------------------------------//
 
+// TODO: fix this sql statement to use a prepared statement, extremely unsafe as is
 $sql = "Select * From video_signlink WHERE source_id = '$videoNumber' Order By start_time ASC";
 $result = mysqli_query($db, $sql);
 
-while ($row = mysqli_fetch_assoc($result)) {
+while ( $row = mysqli_fetch_assoc($result) ) {
     ?>
 
-    var postObject = new signlink(<?php echo $row['start_time']; ?>, <?php echo $row['end_time']; ?>, <?php echo $row['signlink_id']; ?>);
+    var postObject = new signlink( <?php echo $row['start_time']; ?>, <?php echo $row['end_time']; ?>, <?php echo $row['signlink_id']; ?>);
     signlinkArray.push(postObject);
 
     <?php
@@ -855,7 +954,8 @@ mysqli_close($db);
                                    // $optionFieldset.hide();
                                    // $videoNameFieldset.show();
                                    // selectedVideoName = responseJSON.fileName;
-                                   // $('.video-title').text(selectedVideoName);									setBlur(false, "");
+                                   // $('.video-title').text(selectedVideoName);
+									setBlur(false, "");
                                    
                                    
                                    //martin here!!!!!!!!!!!!!!!

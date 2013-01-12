@@ -237,6 +237,76 @@ function removeCommentFromDatabaseByID($commid) {
     
 }
 
+function convertJSONCommentArrayToHTML($commarr) {
+    $fullCommentArray = json_decode($commarr, true);
+    $outputText = '';
+    foreach ($fullCommentArray as $each_array) {
+        foreach ($each_array as $key=>$val) {
+            $outputText += "$key : $val";
+        }
+    }
+    return $outputText;
+}
+
+
+/**
+ * Returns an array of all comment details stored in an array, given a source video id
+ * Uses the video_comment table to return this info, will return 'deleted' comments
+ * @param $sourceid the id of the source video
+ * @param $json set to 1 if you want json encoded result returned
+ * @return an array object filled with comments that are associative arrays
+ */
+function getAllCommentsForSourceID($sourceID, $json=0) {
+    global $db;
+    $sID = intval($sourceID);
+    
+    /* create a prepared statement */
+    $query = "Select * from video_comment where source_id=? order by date asc";
+    $stmt = mysqli_stmt_init($db);
+    if ( !mysqli_stmt_prepare($stmt, $query)) {
+        error_log("Failed to prepare statement in " . __FUNCTION__);
+        print "Failed to prepare statement"; 
+    }
+    else {
+
+        /* bind parameters */
+        mysqli_stmt_bind_param($stmt, "i", $sID);
+
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        /* bind results */
+        mysqli_stmt_bind_result($stmt, $commID, $source_id, $authID, $parentID, $textcont, $start, $end, $commdate, $deleted, $tempcommentbool, $hasvideobool, $videofilename);
+        
+        $commentArray = array();
+        while (mysqli_stmt_fetch($stmt)) {
+            $singleCommentArray = array("id" => $commID, 
+                                        "sourceid" => $source_id,
+                                        "author" => $authID, 
+                                        "parentid" => $parentID,
+                                        "text" => htmlentities($textcont), 
+                                        "starttime" => $start, 
+                                        "endtime" => $end, 
+                                        "date" => $commdate,
+                                        "isdeleted" => $deleted,
+                                        "istemporalcomment" => $tempcommentbool,
+                                        "hasvideo" => $hasvideobool,
+                                        "videofilename" => $videofilename
+                                     );
+                                        
+            array_push($commentArray, $singleCommentArray);
+        }  
+        
+        /* close statement */
+        mysqli_stmt_close($stmt);
+        
+        if ( intval($json) == 1) {
+            $commentArray= json_encode($commentArray);
+        }
+        return $commentArray;
+    }
+}
+
 
 /**
  * Returns an array of top level comment details stored in an array, given a source video id
@@ -436,9 +506,12 @@ function addError($errorString) {
 }
 
 
-function printCommentTools($cID) {
+/**
+ * Prints the 'Edit' and 'Delete' links for a comment
+ */
+function printCommentTools($cID) {  
     $cid = intval($cID);
-    // TODO: check if author of comment matches the id of the participant id from the URL
+
     $output = "<div class='comment-tools-div'>
                     <ul>
                         <li><a href='#' id='edit-$cid' class='comment-edit-link'>Edit</a></li>
@@ -447,6 +520,7 @@ function printCommentTools($cID) {
                 </div>";
     return $output;
 }
+
 
 /**Return a <track> element that points to a captions file
  * in the uploads/caption/ directory corresponding to 
