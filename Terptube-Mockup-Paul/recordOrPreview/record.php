@@ -11,7 +11,7 @@ require_once("../setup.php");
 }
 ?>
 
-<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/record.js"></script>
+<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/densityBar.js"></script>
 	<script type="text/javascript">
 		$(document).ready()
 		{
@@ -24,7 +24,7 @@ require_once("../setup.php");
 				wMode: "transparent",
 				allowScriptAccess: "sameDomain",
 				version: [11, 0],
-				flashVars: "<?php echo $flashVarsParsed?>"
+				flashVars: "<?php echo $flashVarsParsed?>&jsObj=controls"
 			});
 		}
 	</script>
@@ -39,6 +39,7 @@ require_once("../setup.php");
             <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash Player" />
         </a>
     </div>
+    <!-- 
 	<div class="record-or-preview video" id="track" height="40px">
         <canvas class="record-or-preview track" id="densitybar" width="480px">
         </canvas>
@@ -59,4 +60,14 @@ require_once("../setup.php");
    	     	<button class="record-or-preview record" id="submitButton" type="button" onclick="javascript:recording_goToPreviewing();"></button>
         </div>
     </div>
+    -->
 </div>
+<script type="text/javascript">
+var controls = new densityBar("videoContainer","flashContentObject");
+	controls.options.backFunction= function(){closeRecorderPopUp('videoRecordingOrPreview')};
+	controls.options.forwardFunction = function (){ recording_goToPreviewing()};
+	controls.options.volumeControl = false;
+	controls.options.audioBar = false;
+	controls.options.type = DENSITY_BAR_TYPE_RECORDER;
+	controls.createControls();
+</script>

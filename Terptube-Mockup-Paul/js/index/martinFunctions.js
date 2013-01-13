@@ -42,7 +42,7 @@ function popUpRecorder(element, feature, fileName, type)
 //			$("#"+element).load("recordOrPreview/index.php?feature=record");
 		},
 		create: function(event, ui) {
-			$(event.target).parent().css('position', 'fixed');
+			$(event.target).parent().css('position', 'relative');
 		},
 		position: { my: "center top", at: "center top", of: $("body") },
 		show: "blind",

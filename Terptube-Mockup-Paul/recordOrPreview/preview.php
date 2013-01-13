@@ -1,8 +1,7 @@
 <?php
 //TODO Add Rewind FF. - Rewind not working (works only on safari)
-//TODO Add volume control on the right of the density bar
-//TODO add current time/duration of selected video time on the right of the density bar
-//TODO if video is coming from an upload, Convert it first and then display it.
+
+//FIXME add option to preview an existing video online to edit it. (record and replace the existing video)
 require_once("transcodeFunctions.php");
 require_once("../setup.php");
 function getExtension($filename)

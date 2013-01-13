@@ -145,6 +145,31 @@ div.videoControlsContainer.controlsBar.backButtons
 	background: url(../../images/recordOrPreview/submit_small.png) no-repeat;	
 }
 
+/*
+ * Recording buttons
+ */
+.videoControlsContainer.controlsBar.backButtons.backButton.record
+{
+	background: url(../../images/recordOrPreview/cancel_small.png) no-repeat;	
+}
+.videoControlsContainer.controlsBar.forwardButtons.forwardButton.record
+{
+	background: url(../../images/recordOrPreview/next_small.png) no-repeat;	
+}
+
+.videoControlsContainer.controlsBar.backButtons.backButton.record
+{
+	background: url(../../images/recordOrPreview/cancel_small.png) no-repeat;	
+}
+
+.videoControlsContainer.controlsBar.videoControls.recordButton
+{
+	background: url(../../images/recordOrPreview/rec1_small.gif) no-repeat;	
+}
+/*
+ * Recording buttons end
+ */
+
 
 .videoControlsContainer.track.volumeControl
 {
