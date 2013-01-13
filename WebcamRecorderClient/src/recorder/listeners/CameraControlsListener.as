@@ -364,7 +364,8 @@ package recorder.listeners
 				WebcamRecorderClient.appendMessage("Recording started");
 				trace("StartRecording Success:"+obj);
 				//call the javascript function that recording has started
-				ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingStartedCallback"]);
+				ExternalInterface.call("alert",WebcamRecorderClient.configurationVariables["jsObj"]);
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingStartedCallback"]);
 			}
 			
 		}
@@ -387,7 +388,7 @@ package recorder.listeners
 					startDeleteTimer(RECORDING_CAMERA);
 					startDeleteTimer(RECORDING_AUDIO);
 					
-					ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingStoppedCallback"],true);
+					ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingStoppedCallback"],true);
 				}
 
 		}
@@ -411,7 +412,7 @@ package recorder.listeners
 					startDeleteTimer(RECORDING_CAMERA);
 					startDeleteTimer(RECORDING_AUDIO);
 					
-					ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingStoppedCallback"],true);
+					ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingStoppedCallback"],true);
 				}
 
 		}
@@ -438,7 +439,7 @@ package recorder.listeners
 				WebcamRecorderClient.appendMessage("Status: " + i + " : "+obj[i]);
 				trace("Status: " + i + " : "+obj[i]);
 			}
-			ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingStoppedCallback"], false);
+			ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingStoppedCallback"], false);
 //			setBlur(false);
 		}
 		
@@ -455,7 +456,7 @@ package recorder.listeners
 //			uploadProgressText("");
 			netConnection.close();
 //			postData(resultingVideoFile, WebcamRecorderClient.configurationVariables["postURL"], WebcamRecorderClient.configurationVariables["isAjax"]);
-			ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingTranscodingFinishedCallback"], resultingVideoFile, true);
+			ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingTranscodingFinishedCallback"], resultingVideoFile, true);
 			//postData(fileName);
 		}
 		
@@ -470,7 +471,7 @@ package recorder.listeners
 			}
 //			uploadProgressText("");
 //			setBlur(false);
-			ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingTranscodingFinishedCallback"], null, false);
+			ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingTranscodingFinishedCallback"], null, false);
 		}
 		
 		public function cameraReady(event:CameraReadyEvent):void
@@ -478,12 +479,12 @@ package recorder.listeners
 			camera = event.camera;
 			if (camera.muted)
 			{
-				ExternalInterface.call(WebcamRecorderClient.configurationVariables["cameraReadyCallback"], false);	
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["cameraReadyCallback"], false);	
 				trace("Camera Not Ready");
 			}
 			else
 			{
-				ExternalInterface.call(WebcamRecorderClient.configurationVariables["cameraReadyCallback"], true);	
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["cameraReadyCallback"], true);	
 				trace("Camera ready");
 			}
 		}
@@ -493,12 +494,12 @@ package recorder.listeners
 			microphone = event.microphone;
 			if (microphone.muted)
 			{
-				ExternalInterface.call(WebcamRecorderClient.configurationVariables["microphoneReadyCallback"], false);
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["microphoneReadyCallback"], false);
 				trace("Microphone Not Ready");
 			}
 			else
 			{
-				ExternalInterface.call(WebcamRecorderClient.configurationVariables["microphoneReadyCallback"], true);
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["microphoneReadyCallback"], true);
 				trace("Microphone ready");
 			}
 		}
@@ -571,7 +572,7 @@ package recorder.listeners
 		
 		private function uploadProgressText(text:String):void
 		{
-			ExternalInterface.call(WebcamRecorderClient.configurationVariables["recordingUploadProgressCallback"], text);			
+			ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingUploadProgressCallback"], text);			
 		}
 
 		private function metaDataHandler(infoObject:Object):void

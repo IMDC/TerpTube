@@ -51,6 +51,7 @@ package
 			configurationVariables["cancelURL"] = "javascript:history.go(-1)";
 			configurationVariables["isAjax"] = false;
 			configurationVariables["elementID"] = "playerContent";
+			configurationVariables["jsObj"] = "controls";
 //			configurationVariables["blurFunction"] = "setBlur";
 //			configurationVariables["blurFunctionText"] = "setBlurText";
 			
