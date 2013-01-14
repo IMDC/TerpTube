@@ -130,7 +130,7 @@ else
 
 
 <div class="record-or-preview video" id="videoContainer">
-    <video class="record-or-preview" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" controls="controls" preload="auto">
+    <video class="record-or-preview" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" preload="auto">
         <source id="video-source" src="<?php echo $video ?>" type="<?php echo getVideoType($video)?>">
         Browser cannot play video. 
     </video> 

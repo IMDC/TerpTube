@@ -63,9 +63,9 @@ require_once("../setup.php");
     -->
 </div>
 <script type="text/javascript">
-var controls = new densityBar("videoContainer","flashContentObject");
+	var controls = new densityBar("videoContainer","flashContentObject");
 	controls.options.backFunction= function(){closeRecorderPopUp('videoRecordingOrPreview')};
-	controls.options.forwardFunction = function (){ recording_goToPreviewing()};
+	controls.options.forwardFunction = function (){ controls.recording_goToPreviewing()};
 	controls.options.volumeControl = false;
 	controls.options.audioBar = false;
 	controls.options.type = DENSITY_BAR_TYPE_RECORDER;
