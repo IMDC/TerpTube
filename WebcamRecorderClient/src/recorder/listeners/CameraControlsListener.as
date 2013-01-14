@@ -364,7 +364,6 @@ package recorder.listeners
 				WebcamRecorderClient.appendMessage("Recording started");
 				trace("StartRecording Success:"+obj);
 				//call the javascript function that recording has started
-				ExternalInterface.call("alert",WebcamRecorderClient.configurationVariables["jsObj"]);
 				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingStartedCallback"]);
 			}
 			
