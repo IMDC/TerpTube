@@ -131,6 +131,7 @@ function createControls()
 	{
 		this.playHeadImage = new Image();
 		this.playHeadImage.src = this.options.playHeadImage;
+		this.playHeadImageHighlighted = false;
 	}
 //	var recording_maxRecordingTime = 60*1000; //60 seconds
 //	var recording_minRecordingTime = 1000*3;
@@ -189,7 +190,7 @@ function drawComment(comment)
 		context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
 }
 
-function densityBar(elementID, videoID, options)
+function DensityBar(elementID, videoID, options)
 {
 	this.elementID = "#"+elementID;
 	this.videoID = "#"+videoID;
@@ -257,6 +258,8 @@ function densityBar(elementID, videoID, options)
 	this.setInputEnabled = setInputEnabled;
 	this.getDuration = getDuration;
 	this.getCurrentTime = getCurrentTime;
+	this.setMouseOverThumb = setMouseOverThumb;
+	this.setPlayHeadHighlighted = setPlayHeadHighlighted;
 }
 
 
@@ -292,6 +295,17 @@ function updateTimeBox(currentTime, duration)
 	$(this.elementID).find(".videoControlsContainer.timeBox").eq(0).html(getTimeCodeFromSeconds(currentTime) +"/"+getTimeCodeFromSeconds(duration));
 }
 
+function setPlayHeadHighlighted(flag)
+{
+	if (!this.playHeadImage)
+	    return;
+	this.playHeadImageHighlighted = flag;
+	alert("playheadHighlighted")
+	this.repaint();
+}
+
+
+
 function paintThumb(time)
 {
 	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
@@ -313,11 +327,18 @@ function paintThumb(time)
 	}
 	else
 	{
-		context.drawImage(this.playHeadImage,position-this.trackPadding, 0, this.trackPadding*2, this.trackPadding*2);
+	    if (this.playHeadImageHighlighted)
+	    {
+		context.fillStyle = "#ff0000";
+		context.fillRect(position-trackPadding*0.75-2, 0, this.trackPadding*1.5+4, this.trackPadding*1.5+4);
+		context.fillStyle = "#000000";
+	    }
+	    context.drawImage(this.playHeadImage,position-this.trackPadding*0.75, 0, this.trackPadding*1.5, this.trackPadding*1.5);
+		
 	}
 	context.lineWidth = 2;
 	context.beginPath();
-	context.moveTo(position, 0);
+	context.moveTo(position, this.trackPadding);
 	context.lineTo(position, densityBarElement.height()-this.trackPadding);
 	context.closePath();
 	context.stroke();
@@ -482,9 +503,29 @@ function stepBackward()
 
 function setMouseOutThumb(event)
 {
-	$(this.elementID).find(".videoControlsContainer.track.thumb").eq(0).off('mousemove');
+    	var instance = this;
+	var densityBarThumbElement = $(this.elementID).find(".videoControlsContainer.track.thumb").eq(0);
+	densityBarThumbElement.off('mousemove');
+	densityBarThumbElement.on("mousemove", function(e){instance.setMouseOverThumb(e);});
 }
 
+function setMouseOverThumb(event)
+{
+    	//need to set the mousemove event to figure out if I am over the thumb to highlight the playHeadImage
+    	var instance = this;
+    	var thumbCanvas = $(this.elementID).find(".videoControlsContainer.track.thumb").eq(0);
+    	var coords = getRelativeMouseCoordinates(event);
+    	if (coords.y<this.trackPadding*1.5+2 && coords.x >this.getXForTime(this.getCurrentTime())-this.trackPadding*0.75-2 && coords.x < this.getXForTime(this.getCurrentTime())+this.trackPadding*0.75+2)
+	{
+    	    if (!instance.playHeadImageHighlighted)
+    		instance.setPlayHeadHighlighted(true);
+    	}
+    	else
+	{
+    	    if (instance.playHeadImageHighlighted)
+    		instance.setPlayHeadHighlighted(false);
+    	}
+}
 function setMouseDownThumb(event)
 {
 	var instance = this;
@@ -492,7 +533,7 @@ function setMouseDownThumb(event)
 	var selectedRegionCanvas = $(this.elementID).find(".videoControlsContainer.track.selectedRegion").eq(0)[0];
 	var coords = getRelativeMouseCoordinates(event);
 	this.preview = false;
-
+	
 	if (coords.y < instance.trackPadding + instance.trackHeight)
 	{	//Restrict the playhead to only within the selected region
 		thumbCanvas.on('mousemove', function(event){ 
@@ -592,9 +633,11 @@ function setupVideoPlayback()
 	$(this.elementID).find(".videoControlsContainer.track").eq(0).on('mouseleave',function(){ instance.setVolumeBarVisible(false);});
 	
 	var densityBarThumbElement = $(this.elementID).find(".videoControlsContainer.track.thumb").eq(0);
-	densityBarThumbElement.on('mousedown',function(e){instance.setMouseDownThumb(e);});
+	densityBarThumbElement.on('mousedown',function(e){densityBarThumbElement.off("mousemove");
+							 instance.setMouseDownThumb(e);});
 	densityBarThumbElement.on('mouseout', function(e){instance.setMouseOutThumb(e);});
-	densityBarThumbElement.on('mouseup', function(e){densityBarThumbElement.off("mousemove");});
+	densityBarThumbElement.on('mouseup', function(e){densityBarThumbElement.off("mousemove"); densityBarThumbElement.on("mousemove", function(e1){instance.setMouseOverThumb(e1);})});
+	densityBarThumbElement.on('mousemove', function(e){instance.setMouseOverThumb(e);});
 
 }
 
