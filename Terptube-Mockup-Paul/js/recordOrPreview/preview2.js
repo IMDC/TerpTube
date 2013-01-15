@@ -2,12 +2,12 @@ function goBack(where)
 {
  //Check if person came from recording video, or from uploading video
 	if (where=="record")
-		refreshPage('playerContent', "record.php","", "right");
+		refreshPage('playerContent', "recordOrPreview/record.php","", "right");
 	else if (where == "upload")
 	{
 		//Delete current video.
 		closeRecorderPopUp('videoRecordingOrPreview');
-		refreshPage('playerContent', "upload.php","", "right");
+	//	refreshPage('playerContent', "upload.php","", "right");
 	}
 		
 }
@@ -27,8 +27,8 @@ function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile,controls)
 			trim:"yes", 
 			inputVidFile: inputVideoFile, 
 			outputVidFile: outputVideoFile,
-			startTime: currentMinTimeSelected, 
-			endTime: currentMaxTimeSelected, 
+			startTime: controls.currentMinTimeSelected, 
+			endTime: controls.currentMaxTimeSelected, 
 			keepInputFile: inputVideoFile},
 		success: function (data){transcodeSuccess(data);},
 		error: function (data) {transcodeError(data);}
@@ -40,7 +40,7 @@ function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile,controls)
  */
 function transcodeAjax2(inputVideoFile, outputVideoFile, arguments, onSuccess, onError)
 {
-	setControlsEnabled(false);
+//	setControlsEnabled(false);
 /*	if (controls.currentMinSelected == controls.minSelected && controls.currentMaxSelected == controls.maxSelected)
 	{
 		//No need to trim as the user has not moved the start/end points
@@ -67,7 +67,7 @@ function transcodeSuccess(data)
 {	
 	setBlurText("");
 	setBlur(false);
-	setControlsEnabled(true);
+//	setControlsEnabled(true);
 	alert("VideoFile created: "+data);
 	//window.location.href = "recordOrPreview/streams.php";
 	updateFileNameField("fileName", data);

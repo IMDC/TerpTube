@@ -4,8 +4,7 @@
 
 function getTimeCodeFromSeconds(time)
 {
-	var timecode;
-	var time = Math.floor(time*1000);
+	time = Math.floor(time*1000);
 //	var mil = "" + Math.round(time % 1000);
 	var sec = "" + Math.floor((time / 1000) % 60);
 	var min = "" + Math.floor(((time / 1000) / 60) % 60);

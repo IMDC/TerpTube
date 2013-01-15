@@ -99,7 +99,7 @@ if ($postType == 'upload')
 		$("#video-source").attr("src","<?php echo $video ?>");
 		setBlurText("");
 		setBlur(false);
-		setControlsEnabled(true);
+		//setControlsEnabled(true);
 		$("#video").load();
 	}, function(data) {
 		alert("Converting of video failed!");
@@ -172,7 +172,8 @@ else
 <script type="text/javascript">
 
 	var controls = new densityBar("videoContainer","video");
-	controls.options.backFunction= function(){goBack('<?php echo $postType?>')};
-	controls.options.forwardFunction = function (){ transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>)};
+	controls.options.backFunction= function(){goBack('<?php echo $postType?>');};
+	controls.options.forwardFunction = function (){ transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>, controls);};
+	controls.options.areaSelectionEnabled = true;
 	controls.createControls();
 </script>

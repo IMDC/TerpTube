@@ -127,6 +127,11 @@ function createControls()
 	this.recording_recordTimer;
 	this.recording_transcodeTimer;
 	
+	if (this.options.playHeadImage)
+	{
+		this.playHeadImage = new Image();
+		this.playHeadImage.src = this.options.playHeadImage;
+	}
 //	var recording_maxRecordingTime = 60*1000; //60 seconds
 //	var recording_minRecordingTime = 1000*3;
 	
@@ -147,6 +152,12 @@ function createControls()
 function setComments(commentsArray)
 {
 	this.comments = commentsArray;
+}
+
+function addComment(comment)
+{
+	this.comments.push(comment);
+	this.drawComments();
 }
 
 function drawComments()
@@ -184,6 +195,8 @@ function densityBar(elementID, videoID, options)
 	this.videoID = "#"+videoID;
 	this.comments = new Array();
 	//type can be player, recorder
+	//playHeadImage - url of image to use as top of playhead
+	//playHeadImageOnClick - function to call on playheadImageClick
 	this.options = {
 			volumeControl:true,
 			type:DENSITY_BAR_TYPE_PLAYER,
@@ -289,12 +302,19 @@ function paintThumb(time)
 	context.clearRect(0, 0, densityBarElement.width(), densityBarElement.height());
 	context.fillStyle = "#000000";
 	context.strokeStyle = "#000000";
-	context.beginPath();
-	context.moveTo(position - this.trackPadding , 0);
-	context.lineTo(position + this.trackPadding , 0);
-	context.lineTo(position, this.trackPadding);
-	context.closePath();
-	context.fill();
+	if (!this.playHeadImage)
+	{
+		context.beginPath();
+		context.moveTo(position - this.trackPadding , 0);
+		context.lineTo(position + this.trackPadding , 0);
+		context.lineTo(position, this.trackPadding);
+		context.closePath();
+		context.fill();
+	}
+	else
+	{
+		context.drawImage(this.playHeadImage,position-this.trackPadding, 0, this.trackPadding*2, this.trackPadding*2);
+	}
 	context.lineWidth = 2;
 	context.beginPath();
 	context.moveTo(position, 0);
@@ -543,11 +563,9 @@ function setHighlightedRegion(startX, endX)
 	
 	if (this.options.areaSelectionEnabled)
 	{
-		context.fillStyle = "#00ff00";
-		
-		
 		this.drawLeftTriangle(startX, context);
 		this.drawRightTriangle(endX, context);
+		context.fillStyle = "#00ff00";
 	}
 	else
 	{
@@ -589,9 +607,9 @@ function setupVideoRecording()
 	this.minTimeCoordinate = this.getXForTime(this.minTime);
 	this.currentMinSelected = this.minSelected;
 	this.currentMinTimeSelected = this.getTimeForX(this.currentMinSelected);
-	this.currentMaxSelected = this.maxSelected;
-	this.currentMaxTimeSelected = this.getTimeForX(this.currentMaxSelected);
-	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
+//	this.currentMaxSelected = this.maxSelected;
+//	this.currentMaxTimeSelected = this.getTimeForX(this.currentMaxSelected);
+//	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
 	
 	this.recording_startTime = new Date().valueOf();
 	this.paintThumb(0);
@@ -650,9 +668,9 @@ function recording_startRecording()
 	this.setInputEnabled(forwardButton, false);
 	this.currentMinSelected = this.minSelected;
 	this.currentMinTimeSelected = this.getTimeForX(this.currentMinSelected);
-	this.currentMaxSelected =this.maxSelected;
-	this.currentMaxTimeSelected = this.getTimeForX(this.currentMaxSelected);
-	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
+//	this.currentMaxSelected =this.maxSelected;
+//	this.currentMaxTimeSelected = this.getTimeForX(this.currentMaxSelected);
+//	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
 	this.isRecording = true;
 	$(this.videoID)[0].startRecording();
 }
@@ -818,10 +836,10 @@ function setVideoTime(time)
 	this.repaint();
 }
 
-function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile)
+/*function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile)
 {
 	setControlsEnabled(false);
-	if (currentMinSelected == minSelected && currentMaxSelected == maxSelected)
+	if (this.currentMinSelected == this.minSelected && this.currentMaxSelected == this.maxSelected)
 	{
 		//No need to trim as the user has not moved the start/end points
 	}
@@ -842,7 +860,7 @@ function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile)
 	});	
 }
 
-
+*/
 function setControlsEnabled(flag)
 {
 	var instance = this;
