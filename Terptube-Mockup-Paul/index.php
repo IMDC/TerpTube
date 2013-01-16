@@ -177,29 +177,19 @@ while ($row = mysqli_fetch_assoc($result)) {
             <div class="comment-container" id="3" >
 
                 <?php
-                //This will pull non generic comments
-                
-//                $sql = "Select * From video_comment WHERE source_id = $videoNumber AND comment_start_time != 0 AND comment_end_time != 0 AND parent_id = 0 ORDER BY date DESC";
-                // $sql = "Select * From video_comment WHERE source_id = $videoNumber AND parent_id = 0 ORDER BY date DESC";
-                // $result = mysqli_query($db, $sql);
-// 
-                // while ($row = mysqli_fetch_assoc($result)) {
-                    // $videoExists = file_exists('uploads/comment/' . $row['comment_id'] . '.mp4');
-                    // $comID = $row['comment_id'];
-
-                    
+                //This will pull top level comments
+                             
 				$toplevelcomments = getTopLevelCommentsForSourceID($videoNumber);
 				foreach ($toplevelcomments as $comment) {
 	
                     ?>
 
-                    <div id="comment-<?php echo $comment["id"]; ?>" data-cid="<?php echo $comment["id"];?>" class="feedback-container clearfix">
+                    <div class="feedback-container clearfix" id="comment-<?php echo $comment["id"]; ?>" data-cid="<?php echo $comment["id"];?>" data-ctype="comment">
                         <div class="comment-left-side-wrap">
                             <div class="comment-avatar-div">
-                            	<!-- put avatar specific lookups in here -->
-                                <img src="images/avatar/avatar1.png" />
-                                <p>Name: Joe</p>
-                                <p>Date Created: June</p>
+                                <img src="images/avatar/<?php echo $comment["authoravatarfilename"]; ?>" />
+                                <p>Name: <?php echo $comment["authorname"]; ?></p>
+                                <p>Joined: <?php echo date_format(new DateTime($comment["authorjoindate"]), 'M d,Y'); ?></p>
                             </div>
                             <?php if(intval($comment['author'])==intval($_SESSION['participantID'])){echo printCommentTools($comment["id"]);} ?>                         
                         </div>
@@ -239,97 +229,71 @@ while ($row = mysqli_fetch_assoc($result)) {
                         	<?php } ?>
                         </div>
                         <div class="reply-wrap">
-                            <p></p><a href="#" class="commentReplyLink" data-cid="<?php echo $comment['id'];?>">Reply</a></p>
+                            <p></p><a href="#" class="commentReplyLink" data-cid="<?php echo $comment['id'];?>" data-ctype="comment">Reply</a></p>
                         </div>
-                        <!-- <div id="edit-comment-<?php echo $comment["id"]; ?>" class="edit-comment-wrap" style="display:none;">
-                            <div class="cleardiv"></div>
-                            <form id="form-edit-comment-<?php echo $comment["id"];?>" class="comment-edit-form" action="edit_comment.php" enctype="multipart/form-data" method="post">
-                                <label>Start Time:</label><input type="text" id="edit-start-time-text" name="edit-start-time-text">
-                                <label>End Time:</label><input type="text" id="edit-end-time-text" name="edit-end-time-text">
-                                <label>Comment:</label><textarea id="edit-textcontent" name="edit-textcontent"></textarea>
-                                <fieldset id="edit-video-option-fieldset" name="edit-video-option-fiedset">
-                                    <legend>Choose a Video Upload Option:</legend>
-            
-                                    <label>Existing Video:</label>
-                                    <?php $existingvideos = getExistingVideosForSourceID($videoNumber); ?>
-                                    <select name="user-existing-video">
-                                        <option value=""> </option>
-                                        <?php 
-                                        foreach ($existingvideos as $existingVid) {
-                                            print '<option value="'.$existingVid.'">'.$existingVid. '</option>';
-                                        }
-                                        ?>
-                                    </select>
-            
-            
-                                    <div id="input-upload-div">
-                                        Upload Video: 
-                                        <input id="uploadedfileButton" type="button" value="Choose Video" >
-                                        </input>
-                                    </div>
-            
-                                    <div id="input-record-div">
-                                        Record Video:
-                                        <input id="popUpRecordingWindowButton" type="button" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview','record',null)" />
-                                        
-                                    </div>
-                                    <div id="videoRecordingOrPreviewEdit" style="display:hidden">
-                                            
-                                    </div>
-                                </fieldset>
-                                
-                                <input type="button" class="edit-cancel-button" name="edit-cancel-button" value="Cancel">
-                                <input type="submit" value="Submit">
-                            </form>
-                        </div> -->
-<!--                        <div class="cleardiv"></div>-->
                     </div>
 
                     <?php
-                        //This will pull replies to comments
-                        // $sql_reply = "Select * From video_comment WHERE parent_id = '$row[comment_id]' AND source_id = '$videoNumber' ORDER BY date ASC";
-                        // $res = mysqli_query($db, $sql_reply);
-// 
-                        // //this is the container for the reply to a reply
-                        // while ($list = mysqli_fetch_assoc($res)) {
+                    //This will pull any replies to a top level comment
+					$commentReplies = getCommentRepliesForSourceID($videoNumber, $comment["id"]);
+					foreach ($commentReplies as $reply) {	
+                    ?>
+                        
+                    <div class="feedback-container reply-container clearfix" id="reply-<?php echo $reply["id"]; ?>" data-cid="<?php echo $reply["id"];?>" data-ctype="reply" >
+                        <div class="comment-left-side-wrap">
+                            <div class="comment-avatar-div">
+                                <img src="images/avatar/<?php echo $reply["authoravatarfilename"]; ?>" />
+                                <p>Name: <?php echo $reply["authorname"]; ?></p>
+                                <p>Joined: <?php echo date_format(new DateTime($reply["authorjoindate"]), 'M d,Y'); ?></p>
+                            </div>
+                            <?php if(intval($reply['author'])==intval($_SESSION['participantID'])){echo printCommentTools($reply["id"]);} ?>                         
+                        </div>
+                        <div class="clearfix"></div>
 
-                        	
-						$commentReplies = getCommentRepliesForSourceID($videoNumber, $comment["id"]);
-						foreach ($commentReplies as $reply) {
-								
+                        <div id="comment-content-container-<?php echo $reply["id"]; ?>" class="comment-content-container reply-content-container">
+                            <div class="comment-content reply-content">
+                            <?php 
+                            if ($reply["hasvideo"] === 1) { ?>
+                                <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($reply["id"], 0); ?>" style="left:35%">
+                                    <?php echo printCommentVideoSource($reply); ?>
+                                    <?php //TODO: check after a comment is uploaded that it is converted to webm or mp4 ?? ?>
+                                </video>
+                            <?php 
+                            } 
                             ?>
-                        <div class="feedback-container reply-container clearfix">
-                            <div class="reply-content" id="<?php echo $reply['id'] ?>" >
-
-                                <img src="images/avatar/avatar2.png" style="width:25px;height:25px;"  />
-
-                                <?php 
-                                    if (file_exists('uploads/comment/' . $reply['id'] . '.mp4')) {
-                                ?>
-                                    <video class="comment-video" width="240" height="180"  preload="auto" controls="controls" poster="uploads/comment/thumb/<?php echo $reply['id'] ?>.jpg">
-                                        <source src="uploads/comment/<?php echo $reply['id'] . '.webm'; ?>" type="video/webm" />
-                                    </video>
-
-                                <?php
-                                    } // end if
-                                ?>
-
-                                <div class="comment-text" >
-                                    <span><?php echo $reply['text']; ?></span>
+                            <?php 
+                            if (!empty($comment["text"])) { ?>
+                                <div class="comment-text">
+                                    <span><?php echo html_entity_decode($reply["text"]); ?></span>
                                 </div>
+                            <?php 
+                            } 
+                            ?>
+                            
+                            </div>
+
+                            <div class="arrow-container">
+                                <img class="feedback-expand clickable" src="images/feedback_icons/arrow_down.png" />
                             </div>
                         </div>
 
-                        <?php 
+                        <div class="feedback-properties">
+                            <?php if ($reply["istemporalcomment"] === 1) { ?>
+                                <img class="clock-icon clickable temporalinfo" src="images/feedback_icons/clock.png" alt="Jump to comment start time" data-startval="<?php echo $reply["starttime"];?>" data-endval="<?php echo $reply["endtime"]; ?>" />
+                                <br/>
+                            <?php } ?>
+                        </div>
+                        <div class="reply-wrap">
+                            <p></p><a href="#" class="commentReplyLink" data-cid="<?php echo $reply['id'];?>" data-ctype="reply">Reply</a></p>
+                        </div>
+                    </div>
+                    
+                    <?php 
                         
-                        } // end foreach loop to process replies to the top level comments
+                    } // end foreach loop to process replies to the top level comments
                         
-                        ?>
-                
-                <?php 
-                
-                    } // end foreach loop to process top level comments 
-                ?>
+                } // end foreach loop to process top level comments 
+            ?>
 
             </div>
             
@@ -339,5 +303,4 @@ while ($row = mysqli_fetch_assoc($result)) {
             <?php include('include/footer.php'); ?>
         </div>
     </div>
-
 </div>

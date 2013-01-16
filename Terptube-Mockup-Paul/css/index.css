@@ -158,6 +158,10 @@ html[xmlns] .clearfix {
     float: right;
 }
 
+.writing-reply {
+    border: 1px solid gray;
+}
+
 .comment-details {
     width: 95%;
     max-width: 650px;
@@ -189,7 +193,7 @@ html[xmlns] .clearfix {
 #comment-textarea {
     width: 90%;
     height: auto;
-    min-height: 60px;
+    min-height: 90px;
 }
 
 #new-comment-form span#toggle-time-span {
@@ -344,9 +348,9 @@ form.commentReplyForm {
 }
 
 .reply-content {
-	width: auto;
-	border: 1px solid black;
-    margin-left: 25px;
+	/*width: auto;*/
+	/*border: 1px solid black;*/
+    /*margin-left: 25px;*/
     
 }
 

@@ -317,13 +317,33 @@
 
         });
         
-        $(".commentReplyLink").click( function() {
+        // action to take when a user clicks on a 'Reply' link underneath a user comment
+        $(".commentReplyLink").click( function(event) {
+            // stop the click from scrolling us around the page
+           event.preventDefault();
            
            var commentID = $(this).data('cid');
-           console.log(commentID);
+           var commentType = $(this).data('ctype');
+           
+           // establish the container comment structure that the reply link is associated to
+           // can be a top level 'comment' or a nested 'reply'
+           //$theCommentContainer = $("div#"+commentType+"-"+commentID);
+           $theCommentContainer = $("div").find("[data-cid='" + commentID + "']");
+           
+           console.log(commentID + ', type: ' + commentType + ", container element is: " + $theCommentContainer[0].id);
+           
+           // hide the reply link 
            $(this).hide();
+           
+           // add a border to the container element to encompass the reply form
+           $theCommentContainer.addClass("writing-reply");
+           
+           // make a reference to the reply form div wrapper
            var $commdetwrap = $("div.comment-details");
-           $commdetwrap.appendTo("#comment-"+commentID).show(); // should move the element in the DOM
+           
+           //$commdetwrap.appendTo("#"+commentType+"-"+commentID).show(); 
+           $commdetwrap.appendTo($theCommentContainer).show();  // should move the element in the DOM
+           
            $commdetwrap.find("form#new-comment-form").attr("action", "include/submit_comment.php?pID="+commentID+"aID=<?php echo $_SESSION['participantID'];?>");
            $commdetwrap.find("#parentCommentID").attr("value", commentID);
            $commdetwrap.find("#formAction").attr("value", "reply");

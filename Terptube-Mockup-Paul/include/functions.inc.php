@@ -240,8 +240,8 @@ function removeCommentFromDatabaseByID($commid) {
 function convertJSONCommentArrayToHTML($commarr) {
     $fullCommentArray = json_decode($commarr, true);
     $outputText = '';
-    foreach ($fullCommentArray as $each_array) {
-        foreach ($each_array as $key=>$val) {
+    foreach ($fullCommentArray as $eacharr) {
+        foreach ($eacharr as $key=>$val) {
             $outputText += "$key : $val";
         }
     }
@@ -261,7 +261,18 @@ function getAllCommentsForSourceID($sourceID, $json=0) {
     $sID = intval($sourceID);
     
     /* create a prepared statement */
-    $query = "Select * from video_comment where source_id=? order by date asc";
+    //$query = "Select * from video_comment where source_id=? order by date asc";
+    $query = "SELECT vc.comment_id, vc.source_id, vc.parent_id, vc.author_id, 
+                vc.text_comments, vc.comment_start_time, vc.comment_end_time, 
+                vc.date, vc.deleted, vc.temporal_comment, vc.has_video, 
+                vc.video_filename, p.name, p.created, p.role, p.avatar 
+              FROM video_comment vc, 
+                   participants p 
+              WHERE source_id=? 
+                    AND p.id=vc.author_id 
+              ORDER BY date, 
+                       vc.parent_id 
+                   ASC";
     $stmt = mysqli_stmt_init($db);
     if ( !mysqli_stmt_prepare($stmt, $query)) {
         error_log("Failed to prepare statement in " . __FUNCTION__);
@@ -276,7 +287,10 @@ function getAllCommentsForSourceID($sourceID, $json=0) {
         mysqli_stmt_execute($stmt);
         
         /* bind results */
-        mysqli_stmt_bind_result($stmt, $commID, $source_id, $authID, $parentID, $textcont, $start, $end, $commdate, $deleted, $tempcommentbool, $hasvideobool, $videofilename);
+        mysqli_stmt_bind_result($stmt, $commID, $source_id, $authID, $parentID, $textcont, 
+                                    $start, $end, $commdate, $deleted, $tempcommentbool, 
+                                    $hasvideobool, $videofilename, $partname, $partdatecreated, 
+                                    $partrole, $partavatarfilename);
         
         $commentArray = array();
         while (mysqli_stmt_fetch($stmt)) {
@@ -291,7 +305,11 @@ function getAllCommentsForSourceID($sourceID, $json=0) {
                                         "isdeleted" => $deleted,
                                         "istemporalcomment" => $tempcommentbool,
                                         "hasvideo" => $hasvideobool,
-                                        "videofilename" => $videofilename
+                                        "videofilename" => $videofilename,
+                                        "authorname" => $partname,
+                                        "authorjoindate" => $partdatecreated,
+                                        "authorrole" => $partrole,
+                                        "authoravatarfilename" => $partavatarfilename
                                      );
                                         
             array_push($commentArray, $singleCommentArray);
@@ -319,7 +337,17 @@ function getTopLevelCommentsForSourceID($sourceID) {
     $sID = intval($sourceID);
     
     /* create a prepared statement */
-    $query = "Select comment_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename from video_comment where source_id=? AND deleted=0 AND parent_id=0";
+    //$query = "Select comment_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename from video_comment where source_id=? AND deleted=0 AND parent_id=0";
+    $query = "SELECT vc.comment_id, vc.source_id, vc.parent_id, vc.author_id, 
+                vc.text_comments, vc.comment_start_time, vc.comment_end_time, 
+                vc.date, vc.deleted, vc.temporal_comment, vc.has_video, 
+                vc.video_filename, p.name, p.created, p.role, p.avatar 
+              FROM video_comment vc, 
+                   participants p 
+              WHERE source_id=? 
+                    AND p.id=vc.author_id
+                    AND vc.parent_id=0
+                    AND vc.deleted=0";
     $stmt = mysqli_stmt_init($db);
     if ( !mysqli_stmt_prepare($stmt, $query)) {
         error_log("Failed to prepare statement in " . __FUNCTION__);
@@ -334,19 +362,30 @@ function getTopLevelCommentsForSourceID($sourceID) {
         mysqli_stmt_execute($stmt);
         
         /* bind results */
-        mysqli_stmt_bind_result($stmt, $commID, $authID, $textcont, $start, $end, $commdate, $tempcommentbool, $hasvideobool, $videofilename);
+        mysqli_stmt_bind_result($stmt, $commID, $source_id, $authID, $parentID, $textcont, 
+                                    $start, $end, $commdate, $deleted, $tempcommentbool, 
+                                    $hasvideobool, $videofilename, $partname, $partdatecreated, 
+                                    $partrole, $partavatarfilename);
         
         $commentArray = array();
         while (mysqli_stmt_fetch($stmt)) {
             $singleCommentArray = array("id" => $commID, 
+                                        "sourceid" => $source_id,
                                         "author" => $authID, 
+                                        "parentid" => $parentID,
                                         "text" => htmlentities($textcont), 
                                         "starttime" => $start, 
                                         "endtime" => $end, 
                                         "date" => $commdate,
-										"istemporalcomment" => $tempcommentbool,
-										"hasvideo" => $hasvideobool,
-										"videofilename" => $videofilename);
+                                        "isdeleted" => $deleted,
+                                        "istemporalcomment" => $tempcommentbool,
+                                        "hasvideo" => $hasvideobool,
+                                        "videofilename" => $videofilename,
+                                        "authorname" => $partname,
+                                        "authorjoindate" => $partdatecreated,
+                                        "authorrole" => $partrole,
+                                        "authoravatarfilename" => $partavatarfilename
+                                        );
                                         
             array_push($commentArray, $singleCommentArray);
         }
@@ -371,7 +410,51 @@ function printCommentVideoSource($commentArray) {
         return "<source src='$thesource.webm' type='video/webm' />";
     }
         
-  
+}
+
+
+/**
+ * Returns the avatar filename stored in the participants table for a given participant id.
+ * If no avatar filename is found, it returns a default value that is set in setup.php
+ * @param $partID the participant id
+ * @return the value for the avatar field as a string
+ */
+function getAvatarFilenameForParticipantID($partID) {
+    global $db;
+    $partid  = intval($partID);
+    
+    /* create a prepared statement */
+    $query = "Select avatar from participants where id=? LIMIT 1";
+    $stmt = mysqli_stmt_init($db);
+    if ( !mysqli_stmt_prepare($stmt, $query)) {
+        error_log("Failed to prepare statement in " . __FUNCTION__);
+        print "Failed to prepare statement";
+    }
+    else {
+
+        /* bind parameters */
+        mysqli_stmt_bind_param($stmt, "i", $partid);
+
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        if (mysqli_stmt_affected_rows($stmt)<=0) {
+            mysqli_stmt_close($stmt);
+            // return DEFAULT_AVATAR_FILENAME;
+            return DEFAULT_AVATAR_FILENAME;
+            error_log("no avatar found for participant id: " . $partid);
+        }
+        
+        /* bind results */
+        mysqli_stmt_bind_result($stmt, $avatarfilename);
+        
+        //$resultsArray = array("id" => $partID, "avatarfilename" => $avatarfilename); 
+        
+        /* close statement */
+        mysqli_stmt_close($stmt);
+        
+        return $avatarfilename;
+    }
 }
 
 
@@ -386,7 +469,16 @@ function getCommentRepliesForSourceID($thesourceID, $thecommentID) {
 	$commentID = intval($thecommentID);
     
     /* create a prepared statement */
-    $query = "Select comment_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename from video_comment where source_id=? AND parent_id =? AND deleted=0";
+    //$query = "Select comment_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename from video_comment where source_id=? AND parent_id =? AND deleted=0";
+    $query = "Select vc.comment_id, vc.author_id, vc.text_comments, vc.comment_start_time, 
+                     vc.comment_end_time, vc.date, vc.temporal_comment, vc.has_video, 
+                     vc.video_filename, p.name, p.created, p.role, p.avatar
+              from video_comment vc, 
+                   participants p
+              where p.id=vc.author_id
+                AND source_id=? 
+                AND parent_id=? 
+                AND deleted=0";
     $stmt = mysqli_stmt_init($db);
     if ( !mysqli_stmt_prepare($stmt, $query)) {
         error_log("Failed to prepare statement in " . __FUNCTION__);
@@ -401,7 +493,9 @@ function getCommentRepliesForSourceID($thesourceID, $thecommentID) {
         mysqli_stmt_execute($stmt);
         
         /* bind results */
-        mysqli_stmt_bind_result($stmt, $commID, $authID, $textcont, $start, $end, $commdate, $tempcommentbool, $hasvideobool, $videofilename);
+        mysqli_stmt_bind_result($stmt, $commID, $authID, $textcont, $start, $end, $commdate, 
+                                   $tempcommentbool, $hasvideobool, $videofilename, $partname,
+                                   $partdatecreated, $partrole, $partavatarfilename);
         
         $commentArray = array();
         while (mysqli_stmt_fetch($stmt)) {
@@ -413,7 +507,12 @@ function getCommentRepliesForSourceID($thesourceID, $thecommentID) {
                                         "date" => $commdate,
 										"istemporalcomment" => $tempcommentbool,
 										"hasvideo" => $hasvideobool,
-										"videofilename" => $videofilename);
+										"videofilename" => $videofilename,
+                                        "authorname" => $partname,
+                                        "authorjoindate" => $partdatecreated,
+                                        "authorrole" => $partrole,
+                                        "authoravatarfilename" => $partavatarfilename
+                                        );
                                         
             array_push($commentArray, $singleCommentArray);
         }
@@ -450,8 +549,7 @@ function getExistingVideosForSourceID($theid) {
         mysqli_stmt_bind_result($stmt, $existingVideoTitle);
         
         $existingVideoTitles = array();
-        while (mysqli_stmt_fetch($stmt)) {
-                                        
+        while (mysqli_stmt_fetch($stmt)) {                
             array_push($existingVideoTitles, $existingVideoTitle);
         }
         
