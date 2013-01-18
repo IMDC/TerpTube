@@ -127,11 +127,16 @@ function createControls()
 	this.recording_recordTimer;
 	this.recording_transcodeTimer;
 	
+	//Set dimensions for the playHead Top
 	if (this.options.playHeadImage)
 	{
 		this.playHeadImage = new Image();
 		this.playHeadImage.src = this.options.playHeadImage;
 		this.playHeadImageHighlighted = false;
+		this.playHeadImage.heightNormal = this.trackPadding*1.5;
+		this.playHeadImage.widthNormal = this.trackPadding*1.5;
+		this.playHeadImage.heightHighlighted = this.trackPadding*1.8;
+		this.playHeadImage.widthHighlighted = this.trackPadding*1.8;
 	}
 //	var recording_maxRecordingTime = 60*1000; //60 seconds
 //	var recording_minRecordingTime = 1000*3;
@@ -260,6 +265,7 @@ function DensityBar(elementID, videoID, options)
 	this.getCurrentTime = getCurrentTime;
 	this.setMouseOverThumb = setMouseOverThumb;
 	this.setPlayHeadHighlighted = setPlayHeadHighlighted;
+	this.checkForPlayHeadClick = checkForPlayHeadClick;
 }
 
 
@@ -300,7 +306,6 @@ function setPlayHeadHighlighted(flag)
 	if (!this.playHeadImage)
 	    return;
 	this.playHeadImageHighlighted = flag;
-	alert("playheadHighlighted")
 	this.repaint();
 }
 
@@ -316,6 +321,15 @@ function paintThumb(time)
 	context.clearRect(0, 0, densityBarElement.width(), densityBarElement.height());
 	context.fillStyle = "#000000";
 	context.strokeStyle = "#000000";
+	//Draw the vertical line of the playhead
+	context.lineWidth = 2;
+	context.beginPath();
+	context.moveTo(position, this.trackPadding);
+	context.lineTo(position, densityBarElement.height()-this.trackPadding);
+	context.closePath();
+	context.stroke();
+	
+	//Draw the top part of the playHead
 	if (!this.playHeadImage)
 	{
 		context.beginPath();
@@ -329,19 +343,15 @@ function paintThumb(time)
 	{
 	    if (this.playHeadImageHighlighted)
 	    {
-		context.fillStyle = "#ff0000";
-		context.fillRect(position-trackPadding*0.75-2, 0, this.trackPadding*1.5+4, this.trackPadding*1.5+4);
-		context.fillStyle = "#000000";
+//		context.drawImage(this.playHeadImage,position-this.trackPadding*0.9, 0, this.trackPadding*1.8, this.trackPadding*1.8);
+		context.drawImage(this.playHeadImage,position-this.playHeadImage.heightHighlighted/2, 0, this.playHeadImage.widthHighlighted, this.playHeadImage.heightHighlighted);
 	    }
-	    context.drawImage(this.playHeadImage,position-this.trackPadding*0.75, 0, this.trackPadding*1.5, this.trackPadding*1.5);
+	    else
+	    {
+		context.drawImage(this.playHeadImage,position-this.playHeadImage.heightNormal/2, 0, this.playHeadImage.widthNormal, this.playHeadImage.heightNormal);
+	    }
 		
 	}
-	context.lineWidth = 2;
-	context.beginPath();
-	context.moveTo(position, this.trackPadding);
-	context.lineTo(position, densityBarElement.height()-this.trackPadding);
-	context.closePath();
-	context.stroke();
 }
 
 function drawLeftTriangle(position, context)
@@ -461,12 +471,12 @@ function repaint()
 			var timeBoxCurrentTime = this.getCurrentTime()-this.currentMinTimeSelected;
 			timeBoxCurrentTime = timeBoxCurrentTime <=0 ? 0: timeBoxCurrentTime;
 			this.updateTimeBox(timeBoxCurrentTime, this.currentMaxTimeSelected-this.currentMinTimeSelected);
-			if (this.preview && this.getCurrentTime() >= this.currentMaxTimeSelected)
+		/*	if (this.preview && this.getCurrentTime() >= this.currentMaxTimeSelected)
 			{
 				this.preview = false;
 				this.pause();
 				this.setVideoTime(this.currentMaxTimeSelected);
-			}
+			}*/
 		}
 		if (this.options.type==DENSITY_BAR_TYPE_RECORDER)
 		{
@@ -501,6 +511,17 @@ function stepBackward()
 	this.repaint();
 }
 
+function checkForPlayHeadClick(event)
+{
+    	var coords = getRelativeMouseCoordinates(event);
+    	var currentTimeCoordinate = this.getXForTime(this.getCurrentTime());
+    	if (coords.y < this.playHeadImage.heightHighlighted && coords.x> currentTimeCoordinate-this.playHeadImage.widthHeighlighted/2 && coords.x<currentTimeCoordinate+this.playHeadImage.widthHeighlighted/2)
+    	{
+    	    this.playHeadImageOnClick();
+    	}
+    	    
+}
+
 function setMouseOutThumb(event)
 {
     	var instance = this;
@@ -515,7 +536,7 @@ function setMouseOverThumb(event)
     	var instance = this;
     	var thumbCanvas = $(this.elementID).find(".videoControlsContainer.track.thumb").eq(0);
     	var coords = getRelativeMouseCoordinates(event);
-    	if (coords.y<this.trackPadding*1.5+2 && coords.x >this.getXForTime(this.getCurrentTime())-this.trackPadding*0.75-2 && coords.x < this.getXForTime(this.getCurrentTime())+this.trackPadding*0.75+2)
+    	if (coords.y<this.playHeadImage.heightHighlighted && coords.x >this.getXForTime(this.getCurrentTime())-this.playHeadImage.widthHighlighted/2 && coords.x < this.getXForTime(this.getCurrentTime())+this.playHeadImage.widthHighlighted/2)
 	{
     	    if (!instance.playHeadImageHighlighted)
     		instance.setPlayHeadHighlighted(true);
@@ -565,9 +586,13 @@ function setMouseDownThumb(event)
 				var coords = getRelativeMouseCoordinates(event);
 				instance.currentMinSelected = coords.x + offset;
 				if (instance.currentMinSelected < instance.minSelected )
-					instance.currentMinSelected = instance.minSelected;
+				{
+				    instance.currentMinSelected = instance.minSelected;
+				}
 				if (instance.currentMinSelected > instance.currentMaxSelected - instance.minTimeCoordinate)
-					instance.currentMinSelected = instance.currentMaxSelected - instance.minTimeCoordinate;
+				{
+				    instance.currentMinSelected = instance.currentMaxSelected - instance.minTimeCoordinate;
+				}
 				instance.currentMinTimeSelected = instance.getTimeForX(instance.currentMinSelected);
 				instance.setHighlightedRegion(instance.currentMinSelected, instance.currentMaxSelected);
 				instance.setVideoTime(instance.currentMinTimeSelected);
@@ -582,9 +607,13 @@ function setMouseDownThumb(event)
 				var coords = getRelativeMouseCoordinates(event);
 				instance.currentMaxSelected = coords.x - offset;
 				if (instance.currentMaxSelected > instance.maxSelected)
-					instance.currentMaxSelected = instance.maxSelected;
+				{
+				    instance.currentMaxSelected = instance.maxSelected;
+				}
 				if (instance.currentMaxSelected < instance.currentMinSelected + instance.minTimeCoordinate)
-					instance.currentMaxSelected = instance.currentMinSelected + instance.minTimeCoordinate;
+				{
+				    instance.currentMaxSelected = instance.currentMinSelected + instance.minTimeCoordinate;
+				}
 				instance.currentMaxTimeSelected = instance.getTimeForX(instance.currentMaxSelected);
 				instance.setHighlightedRegion(instance.currentMinSelected, instance.currentMaxSelected);
 				instance.setVideoTime(instance.currentMaxTimeSelected);
@@ -638,6 +667,7 @@ function setupVideoPlayback()
 	densityBarThumbElement.on('mouseout', function(e){instance.setMouseOutThumb(e);});
 	densityBarThumbElement.on('mouseup', function(e){densityBarThumbElement.off("mousemove"); densityBarThumbElement.on("mousemove", function(e1){instance.setMouseOverThumb(e1);})});
 	densityBarThumbElement.on('mousemove', function(e){instance.setMouseOverThumb(e);});
+	densityBarThumbElement.on('click', function(e){instance.checkForPlayHeadClick(e);});
 
 }
 
