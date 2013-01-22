@@ -105,6 +105,19 @@ html[xmlns] .clearfix {
 	float: left;
 }
 
+/*Video controls area */
+#main-video-container .videoControlsContainer.timeBox
+{
+	padding-left:2px;
+	padding-right:2px;
+	height: 40px;
+	font-size:1em;
+	line-height: 40px;
+	display: inline-block;
+	position: absolute;
+	left: 480px;
+	outline: none;
+}
 
 /*media controls of main video*/
 .source-video-controls{

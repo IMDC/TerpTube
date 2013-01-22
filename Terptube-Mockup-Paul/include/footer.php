@@ -30,6 +30,7 @@
 				startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
                 endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
 		};
+		controls.options.signLinkColor = "#0000FF";
 		controls.createControls();
 		
         //CONSTANTS
@@ -57,8 +58,8 @@
         var commentArray  = new Array();
         var fullCommentArray = new Array();
 
-		controls.setComments(tempFullCommentObject);
-		controls.drawComments();
+	//	controls.setComments(tempFullCommentObject);
+	//	controls.drawComments();
         var tempStartTime;
         var tempEndtTime;
         var tempName;
@@ -159,8 +160,10 @@
 			controls.currentMinTimeSelected = controls.getTimeForX(controls.currentMinSelected);
 			controls.currentMaxSelected = controls.maxSelected;
 			controls.currentMaxTimeSelected = controls.getTimeForX(controls.currentMaxSelected);
+			controls.clearDensityBar();
 			controls.drawComments();
-
+			controls.drawSignLinks();
+			
         });
         
         function resetNewCommentFormValues() {
@@ -395,11 +398,18 @@
             $(this).hide();
             
             video_dom.pause();
-            video_dom.currentTime = Math.round((duration/2));
+            controls.currentMinTimeSelected = controls.getCurrentTime();
+            controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+            controls.currentMaxTimeSelected = controls.currentMinTimeSelected+controls.options.minLinkTime;
+            controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+          	controls.setAreaSelectionEnabled(true);
+            startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+            endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+       //     video_dom.currentTime = Math.round((duration/2));
             playing = false;
             creatingTimedComment = true;
-            clearCanvas(ctx);
-            clearCanvas(traversalctx);
+ //           clearCanvas(ctx);
+ //           clearCanvas(traversalctx);
             //$(".comment-details").show();
             
             if ( (".comment-details").find("formAction").attr("value") == 'edit' ) {
@@ -409,8 +419,8 @@
                 
             }
             else {
-                startTimeInput.val( roundNumber(video_dom.currentTime, 2));
-                endTimeInput.val( roundNumber(video_dom.currentTime + 2, 2));
+          //      startTimeInput.val( roundNumber(video_dom.currentTime, 2));
+           //     endTimeInput.val( roundNumber(video_dom.currentTime + 2, 2));
             }
         })
 
@@ -928,8 +938,11 @@ while ( $row = mysqli_fetch_assoc($result) ) {
 mysqli_close($db);
 ?>
 
+						controls.clearDensityBar();
 						controls.setComments(fullCommentArray);
-						controls.drawComments();
+					//	controls.drawComments();
+						controls.setSignLinks(signlinkArray);
+				//		controls.drawSignLinks("#0000FF");
                 //       drawAreaOnBar(commentArray);
                 //       drawAreaOnBar(signlinkArray);
 

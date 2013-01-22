@@ -163,7 +163,6 @@ function createControls()
 function setComments(commentsArray)
 {
 	this.comments = commentsArray;
-	console.log(commentsArray);
 }
 
 function addComment(comment)
@@ -174,20 +173,12 @@ function addComment(comment)
 
 function drawComments()
 {
-	this.clearComments();
 	if (!this.comments)
 	    return;
 	for (var i=0;i<this.comments.length; i++)
 	{
 		this.drawComment(this.comments[i]);
 	}
-}
-
-function clearComments()
-{
-	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
-	var context = $(this.elementID).find(".videoControlsContainer.track.selectedRegion").eq(0)[0].getContext("2d");
-	context.clearRect(0, 0, densityBarElement.width(), densityBarElement.height());
 }
 
 function drawComment(comment)
@@ -200,9 +191,52 @@ function drawComment(comment)
 	
 	context.fillStyle = comment.color;
 	var startX = this.getXForTime(comment.startTime);
+	if (startX<this.trackPadding)
+	    startX = this.trackPadding;
 	var endX = this.getXForTime(comment.endTime);
+	if (endX> this.trackPadding+this.trackWidth)
+	    endX = this.trackPadding+this.trackWidth;
 	context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
 	context.globalAlpha = 1;
+}
+
+function drawSignLinks()
+{
+        if (!this.signLinks)
+    		return;
+        for (var i=0;i<this.signLinks.length; i++)
+        {
+    		this.drawSignLink(this.signLinks[i], this.options.signLinkColor);
+        }
+}
+
+function drawSignLink(signlink, color)
+{
+    	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
+	var context = $(this.elementID).find(".videoControlsContainer.track.selectedRegion").eq(0)[0].getContext("2d");
+	context.globalAlpha = 0.4;
+	
+	context.fillStyle = color;
+	var startX = this.getXForTime(signlink.startTime);
+	if (startX<this.trackPadding)
+	    startX = this.trackPadding;
+	var endX = this.getXForTime(signlink.endTime);
+	if (endX> this.trackPadding+this.trackWidth)
+	    endX = this.trackPadding+this.trackWidth;
+	context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
+	context.globalAlpha = 1;
+}
+
+function setSignLinks(signLinksArray)
+{
+    this.signLinks = signLinksArray;
+    
+}
+function clearDensityBar()
+{
+	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
+	var context = $(this.elementID).find(".videoControlsContainer.track.selectedRegion").eq(0)[0].getContext("2d");
+	context.clearRect(0, 0, densityBarElement.width(), densityBarElement.height());
 }
 
 function DensityBar(elementID, videoID, options)
@@ -214,6 +248,7 @@ function DensityBar(elementID, videoID, options)
 	//playHeadImage - url of image to use as top of playhead
 	//playHeadImageOnClick - function to call on playheadImageClick
 	//onAreaSelectionChanged - triggered when adjusting the selectionArea
+	//signLinkColor - color for the signlinks
 	this.options = {
 			volumeControl:true,
 			type:DENSITY_BAR_TYPE_PLAYER,
@@ -226,7 +261,8 @@ function DensityBar(elementID, videoID, options)
 			areaSelectionEnabled: false,
 			minRecordingTime : 3,
 			maxRecordingTime : 60,
-			minLinkTime : 1
+			minLinkTime : 1,
+			signLinkColor: "#0000FF"
 			};
 	if (typeof options!='undefined')
 	{
@@ -281,8 +317,11 @@ function DensityBar(elementID, videoID, options)
 	this.setAreaSelectionEnabled = setAreaSelectionEnabled;
 	this.drawComments = drawComments;
 	this.setComments = setComments;
-	this.clearComments = clearComments;
+	this.clearDensityBar = clearDensityBar;
 	this.drawComment = drawComment;
+	this.setSignLinks = setSignLinks;
+	this.drawSignLinks = drawSignLinks;
+	this.drawSignLink = drawSignLink;
 }
 
 
@@ -634,7 +673,7 @@ function setMouseDownThumb(event)
 				
 				instance.setHighlightedRegion(instance.currentMinSelected, instance.currentMaxSelected);
 				instance.setVideoTime(instance.currentMinTimeSelected);
-				instance.onAreaSelectionChanged(instance.currentMinTimeSelected, instance.currentMaxTimeSelected);
+				instance.options.onAreaSelectionChanged();
 			});
 
 		}
@@ -707,6 +746,7 @@ function setupVideoPlayback()
 	this.currentMaxTimeSelected = this.getTimeForX(this.currentMaxSelected);
 	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
 	this.drawComments();
+	this.drawSignLinks()
 	this.repaint();
 	$(this.elementID).find(".videoControlsContainer.track").eq(0).on('mouseleave',function(){ instance.setVolumeBarVisible(false);});
 	

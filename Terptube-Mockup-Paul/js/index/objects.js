@@ -11,7 +11,7 @@ function comment(start,end,videoName,comment) {
 	this.comment   = comment;
 }
 
-function fullComment(ident, authorid, parentid, start, end, createddate, deleted, textcontent, temporal, hasvid, videofilename) {
+function fullComment(ident, authorid, parentid, start, end, createddate, deleted, textcontent, temporal, hasvid, videofilename, color) {
     this.id             = ident;
     this.authorID       = authorid;
     this.parentID       = parentid;
@@ -23,4 +23,5 @@ function fullComment(ident, authorid, parentid, start, end, createddate, deleted
     this.isTemporal     = temporal;
     this.hasVideo       = hasvid;
     this.videoFileName  = videofileName;
+    this.color		= color;
 }
