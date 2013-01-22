@@ -28,7 +28,7 @@ while ($row = mysqli_fetch_assoc($result)) {
             <!-- Houses the main player with the canvas and sample videos -->
             <div class="source-media-container clearfix">
                 <div style="float:left">
-                    <div class="video-info-container">
+                    <div id="main-video-container" class="video-info-container">
                         <div class="source-video-controls">
                             <img class="clickable" id="video-speed" src="images/slowdown-normal.png" /><br/>
                             <img class="clickable" id="video-link-forward-button" src="images/link-forward.png" /><br/>
@@ -45,40 +45,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                     </div> <!-- video-info-container -->
 
-
-                    <div class="play-canvas" style="position: relative; height:60px;"> <!--  top:-21px" -->
-                        <!--  link canvas is the comments -->
-                        <canvas id="linkCanvas" width="640px" height="25px"
-                                style="margin:0;padding:0;position: absolute; left: 0; bottom: 30%; z-index: 0;" >
-                        </canvas>
-
-                        <!-- traversal canvas is the playhead -->
-                        <canvas id="traversalCanvas" width="640px" height="60px"
-                                style="margin:0;padding:0;position: absolute; left: 0; top: 0; z-index: 1;">
-                        </canvas>
-                    </div>
-                    <div id="video-playback-buttons-container">
-                        <img class="clickable" id="play-button" src="images/play_button.png" />
-                        <div class="pushleft">
-                            <span id="video-current-time">00:00</span>&nbsp;&nbsp;
-                            <span id="video-total-time">00:00</span>
-                        </div>
-                    </div>
-
-                    <div class="cleardiv"></div>
-                    
-                    <?php
-                        /*
-                        $commentsArray = getTopLevelCommentsForSourceID($videoNumber);
-                        foreach ($commentsArray as $comment) {
-                            echo '<div class="video-comment-id" dataval=' . $comment["id"] . '">';
-                            echo '<span>' . $comment["author"] . '</span>' . $comment["text"];
-                            echo '</div>';
-                        }
-                         * 
-                         */
-                    ?>
-                    
+  
                     
                     <div class="cleardiv"></div>
                     <!------------ Source video description Box ------------------------>
@@ -298,7 +265,7 @@ while ($row = mysqli_fetch_assoc($result)) {
             </div>
             
         </div>
-
+	<!--	<script type="text/javascript" src="js/index/video-comment-martin.js"></script> -->
         <div id="footer">
             <?php include('include/footer.php'); ?>
         </div>

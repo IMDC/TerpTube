@@ -2,6 +2,36 @@
     $(document).ready(function() {
         //TODO: make db table for source video
 
+		var controls = new DensityBar("main-video-container","myPlayer");
+		controls.options.minLinkTime = 1;
+		controls.options.backFunction= undefined;
+		controls.options.backButton = false;
+		controls.options.forwardButton = false;
+		controls.options.forwardFunction = undefined;
+		controls.options.volumeControl = true;
+		controls.options.audioBar = false;
+		controls.options.type = DENSITY_BAR_TYPE_PLAYER;
+		controls.options.playHeadImage = "images/feedback_icons/round_plus.png";
+		controls.options.playHeadImageOnClick = function(){ 
+			
+                playing = false;
+                creatingTimedComment = true;
+                $(".comment-details").show();
+                controls.currentMinTimeSelected = controls.getCurrentTime();
+                controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+                controls.currentMaxTimeSelected = controls.currentMinTimeSelected+controls.options.minLinkTime;
+                controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+              	controls.setAreaSelectionEnabled(true);
+                startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+                endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+                $(":button[name=previewButton]").css("display","inline");
+			};
+		controls.options.onAreaSelectionChanged = function(){
+				startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+                endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+		};
+		controls.createControls();
+		
         //CONSTANTS
         var CAPTION_HIDDEN = 1;
         var CAPTION_SHOW = 2;
@@ -27,20 +57,22 @@
         var commentArray  = new Array();
         var fullCommentArray = new Array();
 
+		controls.setComments(tempFullCommentObject);
+		controls.drawComments();
         var tempStartTime;
         var tempEndtTime;
         var tempName;
         var tempComment;
         var tempLink;
 
-        var plusSignVisible      = false;
+  //      var plusSignVisible      = false;
         var creatingTimedComment = false;
 
         var regionPointer = 0; // used to keep track where the link index is for LinkTimes array
         var playing       = false;
         var textVisible   = false;
         
-        var linkCanvas  = document.getElementById('linkCanvas');
+/*        var linkCanvas  = document.getElementById('linkCanvas');
         var ctx         = linkCanvas.getContext('2d');
         ctx.globalAlpha = 0.4;
         
@@ -71,7 +103,7 @@
 
         var selectorRightImg = new Image();
         selectorRightImg.src = "images/feedback_icons/selector_right.png";
-
+*/
         //current link is the video the user has selected or the play head is in contact with
         var currentLink = -1;
         var currentClickableIndex = -1;
@@ -85,7 +117,7 @@
         var duration = 0;
         
         // event listener to set the correct duration when the video metadata has been loaded
-        video_dom.addEventListener('loadedmetadata', function() {
+ /*       video_dom.addEventListener('loadedmetadata', function() {
             console.log(video_dom.duration);
             setSourceDuration(video_dom.duration);
             drawAreaOnBar(signlinkArray);
@@ -100,7 +132,7 @@
             $("span#video-total-time").html(formatVideoTime(duration))
         }
         //var duration = video_dom.duration;
-
+*/
         $selectVideoDrop.change(function() {
             $optionFieldset.hide();
             $videoNameFieldset.show();
@@ -115,12 +147,19 @@
             
             $(".comment-details").appendTo("#content-left").hide(); // move form to left side underneath 'post new comment' button
             $(".commentReplyLink").show(); // show all comment reply links if previously hidden
-            drawAreaOnBar(signlinkArray);
-            drawAreaOnBar(commentArray);
+     //       drawAreaOnBar(signlinkArray);
+     //       drawAreaOnBar(commentArray);
             
             creatingTimedComment = false;
             resetNewCommentFormValues();
             $postCommentButton.show();
+            
+			controls.setAreaSelectionEnabled(false);
+			controls.currentMinSelected = controls.minSelected;
+			controls.currentMinTimeSelected = controls.getTimeForX(controls.currentMinSelected);
+			controls.currentMaxSelected = controls.maxSelected;
+			controls.currentMaxTimeSelected = controls.getTimeForX(controls.currentMaxSelected);
+			controls.drawComments();
 
         });
         
@@ -168,7 +207,7 @@
             
             // TODO: activate canvas handles
             
-            console.log("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + "commenttext: " + commentText);
+     //       console.log("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + "commenttext: " + commentText);
             
             var $commdet = $("div.comment-details");
             
@@ -188,7 +227,7 @@
 
         });
         
-		// show seek bar plus sign for new comment on mouse hover
+/*		// show seek bar plus sign for new comment on mouse hover
         $("#traversalCanvas").hover(
             function(){
                 plusSignVisible = true;
@@ -197,7 +236,7 @@
                 plusSignVisible = false;
             }
         );
-
+*/
 
         //Clicking the clock icon will move the density bar to the comments time
         $(".clock-icon").click(function(){
@@ -416,7 +455,7 @@
                 $("#video-speed").attr("src", 'images/slowdown-normal.png');
             }
         });
-
+/*
         //PlayButton Clicked
         $("#play-button").click(function() {
             if (playing){
@@ -431,7 +470,7 @@
                 animate(time, myRectangle);
             }
         });
-
+*/
         $("#closed-caption-button").click(function() {
             // alert(video_dom.tracks[0].mode);
             if(video_dom.tracks[0].mode == 2){
@@ -464,7 +503,7 @@
                 }
 
             }
-            movePlayHead();
+       //     movePlayHead();
             animate();
         });
 
@@ -478,7 +517,7 @@
                 video_dom.currentTime = signlinkArray[signlinkArray.length - 1].startTime;
             }
             animate();
-            movePlayHead();
+     //       movePlayHead();
         });
 
 
@@ -496,7 +535,7 @@
                 textVisible = true;
             }
         });
-
+/*
         //code to run every second and run through the canvas
         video_dom.addEventListener('play', function() {
             
@@ -526,8 +565,8 @@
             //animProp.animate = false;
 
         }, false);
-
-        traversalCanvas.addEventListener('mousedown', function(e) {
+*/
+/*        traversalCanvas.addEventListener('mousedown', function(e) {
             var offset = $(this).offset();
             // var position = $('#traversalCanvas').position();
             var position = $(this).position();
@@ -618,7 +657,7 @@
             }
         }, true);
 
-
+*/
         //to make the bar move
         function animate() {
             //This will light up the box red if there is a comment at that second
@@ -643,7 +682,7 @@
                 moveSliders();
             }
             else{
-                movePlayHead();
+        //        movePlayHead();
             }
 
 
@@ -652,15 +691,15 @@
                 animate();
             });
         }
-
+/*
         function formatVideoTime(seconds) {
             var m=Math.floor(seconds/60)<10?"0"+Math.floor(seconds/60):Math.floor(seconds/60);
             var s=Math.floor(seconds-(m*60))<10?"0"+Math.floor(seconds-(m*60)):Math.floor(seconds-(m*60));
             return m+":"+s;
         }
+*/
 
-
-        function movePlayHead(){
+  /*      function movePlayHead(){
 
             // calculate the percentage of current time in relation to the canvas size
             //call move Playhead to advance the play head
@@ -698,8 +737,8 @@
             selectorRectLeft.x = xPosition;
             selectorRectRight.x = xPosition + 4;
         }
-
-        function moveSliders(){
+*/
+    /*    function moveSliders(){
             // calculate the percentage of current time in relation to the canvas size
             //call move Playhead to advance the play head
             // clear
@@ -720,7 +759,7 @@
             traversalctx.strokeStyle = "black";
             traversalctx.stroke();
         }
-
+*/
 
         //this will analyze where the currentTime is and see what the back and forward
         //should point to
@@ -802,7 +841,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                 tempComment = "<?php echo htmlentities($row['text_comments']); ?>";
 
 
-                var postObject = new comment(tempStartTime, tempEndTime, tempName, tempComment);
+                var postObject = new comment(tempStartTime, tempEndTime, tempName, tempComment,get_random_color());
                 commentArray.push(postObject);
 
         
@@ -812,20 +851,23 @@ while ($row = mysqli_fetch_assoc($result)) {
 ?>
     function fullcomment(commID, source_id, authID, parentID, textcont, start, 
                             end, commdate, deleted, tempcommentbool, 
-                            hasvideobool, videofilename) {
+                            hasvideobool, videofilename, authorname, authorjoindate, authorrole, color) {
             this.id = commID; 
-            this.sourceid = source_id;
+            this.sourceId = source_id;
             this.author = authID;
-            this.parentid = parentID;
+            this.parentId = parentID;
             this.text = textcont;
-            this.starttime = start;
-            this.endtime = end;
+            this.startTime = start;
+            this.endTime = end;
             this.date = commdate;
-            this.isdeleted = deleted;
-            this.istemporalcomment = tempcommentbool;
-            this.hasvideo = hasvideobool;
-            this.videofilename = videofilename;
-		
+            this.isDeleted = deleted;
+            this.isTemporalComment = tempcommentbool;
+            this.hasVideo = hasvideobool;
+            this.videoFileName = videofilename;
+            this.authorName = authorname;
+            this.authorJoinDate = authorjoindate;
+            this.authorRole = authorrole;
+            this.color = color;
     }
     
 <?php
@@ -836,9 +878,25 @@ while ($row = mysqli_fetch_assoc($result)) {
             //echo "$key:$val";
             //echo "$key: $val";
             array_push($output, '"'.$val.'"');
+//			echo("Key:".$key." value: ".$val);
         }
         $fullcommentargs = implode($output, ',');
-        echo "var tempFullCommentObject = new fullcomment($fullcommentargs);\n";
+ //       echo "var tempFullCommentObject = new fullcomment($fullcommentargs, get_random_color());\n";
+		echo "var tempFullCommentObject = new fullcomment('".$each_array['id']."','"
+			.$each_array['sourceid']."','"
+			.$each_array['author']."','"
+			.$each_array['parentid']."','"
+			.$each_array['text']."',"
+			.$each_array['starttime'].","
+			.$each_array['endtime'].",'"
+			.$each_array['date']."',"
+			.$each_array['isdeleted'].","
+			.$each_array['istemporalcomment'].","
+			.$each_array['hasvideo'].",'"
+			.$each_array['videofilename']."','"
+			.$each_array['authorname']."','"
+			.$each_array['authorjoindate']."','"
+			.$each_array['authorrole']."', get_random_color());\n";
         echo "fullCommentArray.push(tempFullCommentObject);\n";
     }
 ?>
@@ -870,8 +928,10 @@ while ( $row = mysqli_fetch_assoc($result) ) {
 mysqli_close($db);
 ?>
 
-                       drawAreaOnBar(commentArray);
-                       drawAreaOnBar(signlinkArray);
+						controls.setComments(fullCommentArray);
+						controls.drawComments();
+                //       drawAreaOnBar(commentArray);
+                //       drawAreaOnBar(signlinkArray);
 
 
                        function initializeCommentVideo($video) {
@@ -918,11 +978,12 @@ mysqli_close($db);
                            this.link = link;
                        }
 
-                       function comment(start,end,videoName,comment) {
+                       function comment(start,end,videoName,comment, color) {
                            this.startTime=start;
                            this.endTime=end;
                            this.name = videoName;
                            this.comment = comment;
+                           this.color = color;
                        }
 
                        function drawAreaOnBar(object) {

@@ -23,11 +23,11 @@ function createControls()
 	$(this.elementID).find(".videoControlsContainer.track").eq(0).append('<div class="videoControlsContainer track timeBox">0:00:00/0:00:00</div>');
 	if (this.options.volumeControl)
 	{
-		$(".videoControlsContainer.track.thumb").mouseover(function (){instance.setVolumeBarVisible(false);});
+	    $(this.elementID).find(".videoControlsContainer.track.thumb").eq(0).mouseover(function (){instance.setVolumeBarVisible(false);});
 		$(this.elementID).find(".videoControlsContainer.track").eq(0).append('<div class="videoControlsContainer track volumeControl"></div>');
-		$(".videoControlsContainer.track.volumeControl").mouseover(function (){instance.setVolumeBarVisible(true);});
-		$(".videoControlsContainer.track.volumeControl").append('<img alt="volume control" src="images/recordOrPreview/audioOn.png" />').append('<div class="videoControlsContainer track volumeControl volumeSlider"></div>');
-		$(".videoControlsContainer.track.volumeControl image").click(function(){instance.toggleMute();});
+		$(this.elementID).find(".videoControlsContainer.track.volumeControl").eq(0).mouseover(function (){instance.setVolumeBarVisible(true);});
+		$(this.elementID).find(".videoControlsContainer.track.volumeControl").eq(0).append('<img alt="volume control" src="images/recordOrPreview/audioOn.png" />').append('<div class="videoControlsContainer track volumeControl volumeSlider"></div>');
+		$(this.elementID).find(".videoControlsContainer.track.volumeControl image").eq(0).click(function(){instance.toggleMute();});
 		
 		$(function() {
 			$(instance.elementID).find(".videoControlsContainer.track.volumeControl.volumeSlider").eq(0).slider({
@@ -43,43 +43,49 @@ function createControls()
 		});
 	}
 	$(this.elementID).append('<div class="videoControlsContainer controlsBar"></div>');
-	$(".videoControlsContainer.controlsBar").append('<div class="videoControlsContainer controlsBar backButtons"></div>').append('<div class="videoControlsContainer controlsBar forwardButtons"></div>').append('<div class="videoControlsContainer controlsBar videoControls"></div>');
-	if (this.options.type==DENSITY_BAR_TYPE_PLAYER)
+	$(this.elementID).find(".videoControlsContainer.controlsBar").eq(0).append('<div class="videoControlsContainer controlsBar backButtons"></div>').append('<div class="videoControlsContainer controlsBar forwardButtons"></div>').append('<div class="videoControlsContainer controlsBar videoControls"></div>');
+	if (this.options.backButton)
 	{
-		$(".videoControlsContainer.controlsBar.backButtons").append('<button type="button" class="videoControlsContainer controlsBar backButtons backButton"></button>');
-	}
-	else
-	{
-		$(".videoControlsContainer.controlsBar.backButtons").append('<button type="button" class="videoControlsContainer controlsBar backButtons backButton record"></button>');
-	}
-	$(".videoControlsContainer.controlsBar.backButtons.backButton").click(instance.options.backFunction);
-	if (this.options.type==DENSITY_BAR_TYPE_PLAYER)
-	{
-		$(".videoControlsContainer.controlsBar.videoControls").append('<button type="button" class="videoControlsContainer controlsBar videoControls beginButton"></button>').append('<button type="button" class="videoControlsContainer controlsBar videoControls stepBackwardButton"></button>').append('<button type="button" class="videoControlsContainer controlsBar videoControls playButton"></button>').append('<button type="button" class="videoControlsContainer controlsBar videoControls stepForwardButton"></button>').append('<button type="button" class="videoControlsContainer controlsBar videoControls endButton"></button>');
-		$(".videoControlsContainer.controlsBar.videoControls.beginButton").click(function(){instance.jumpTo(0);});
-		$(".videoControlsContainer.controlsBar.videoControls.stepBackwardButton").click(function(){instance.stepBackward();});
-		$(".videoControlsContainer.controlsBar.videoControls.playButton").click(function(){instance.playPause();});
-		$(".videoControlsContainer.controlsBar.videoControls.stepForwardButton").click(function(){instance.stepForward();});
-		$(".videoControlsContainer.controlsBar.videoControls.endButton").click(function(){instance.jumpTo(1);});
-	}
-	else
-	{
-		$(".videoControlsContainer.controlsBar.videoControls").append('<button type="button" class="videoControlsContainer controlsBar videoControls recordButton"></button>');
-		$(".videoControlsContainer.controlsBar.videoControls.recordButton").click(function(){instance.recording_toggleRecording();});
+            	if (this.options.type==DENSITY_BAR_TYPE_PLAYER)
+            	{
+            	    $(this.elementID).find(".videoControlsContainer.controlsBar.backButtons").eq(0).append('<button type="button" class="videoControlsContainer controlsBar backButtons backButton"></button>');
+            	}
+            	else
+            	{
+            	    $(this.elementID).find(".videoControlsContainer.controlsBar.backButtons").eq(0).append('<button type="button" class="videoControlsContainer controlsBar backButtons backButton record"></button>');
+            	}
+            	$(this.elementID).find(".videoControlsContainer.controlsBar.backButtons.backButton").eq(0).click(instance.options.backFunction);
 	}
 	if (this.options.type==DENSITY_BAR_TYPE_PLAYER)
 	{
-		$(".videoControlsContainer.controlsBar.forwardButtons").append('<button type="button" class="videoControlsContainer controlsBar forwardButtons forwardButton"></button>');
+	    $(this.elementID).find(".videoControlsContainer.controlsBar.videoControls").eq(0).append('<button type="button" class="videoControlsContainer controlsBar videoControls beginButton"></button>').append('<button type="button" class="videoControlsContainer controlsBar videoControls stepBackwardButton"></button>').append('<button type="button" class="videoControlsContainer controlsBar videoControls playButton"></button>').append('<button type="button" class="videoControlsContainer controlsBar videoControls stepForwardButton"></button>').append('<button type="button" class="videoControlsContainer controlsBar videoControls endButton"></button>');
+	    $(this.elementID).find(".videoControlsContainer.controlsBar.videoControls.beginButton").eq(0).click(function(){instance.jumpTo(0);});
+	    $(this.elementID).find(".videoControlsContainer.controlsBar.videoControls.stepBackwardButton").eq(0).click(function(){instance.stepBackward();});
+	    $(this.elementID).find(".videoControlsContainer.controlsBar.videoControls.playButton").eq(0).click(function(){instance.playPause();});
+	    $(this.elementID).find(".videoControlsContainer.controlsBar.videoControls.stepForwardButton").eq(0).click(function(){instance.stepForward();});
+	    $(this.elementID).find(".videoControlsContainer.controlsBar.videoControls.endButton").eq(0).click(function(){instance.jumpTo(1);});
 	}
 	else
 	{
-		$(".videoControlsContainer.controlsBar.forwardButtons").append('<button type="button" class="videoControlsContainer controlsBar forwardButtons forwardButton record"></button>');
+	    $(this.elementID).find(".videoControlsContainer.controlsBar.videoControls").eq(0).append('<button type="button" class="videoControlsContainer controlsBar videoControls recordButton"></button>');
+	    $(this.elementID).find(".videoControlsContainer.controlsBar.videoControls.recordButton").eq(0).click(function(){instance.recording_toggleRecording();});
 	}
-	$(".videoControlsContainer.controlsBar.forwardButtons.forwardButton").click(instance.options.forwardFunction);
+	if (this.options.forwardButton)
+	{
+        	if (this.options.type==DENSITY_BAR_TYPE_PLAYER)
+        	{
+        	    $(this.elementID).find(".videoControlsContainer.controlsBar.forwardButtons").eq(0).append('<button type="button" class="videoControlsContainer controlsBar forwardButtons forwardButton"></button>');
+        	}
+        	else
+        	{
+        	    $(this.elementID).find(".videoControlsContainer.controlsBar.forwardButtons").eq(0).append('<button type="button" class="videoControlsContainer controlsBar forwardButtons forwardButton record"></button>');
+        	}
+        	 $(this.elementID).find(".videoControlsContainer.controlsBar.forwardButtons.forwardButton").eq(0).click(instance.options.forwardFunction);
+	}
 	if (this.options.audioBar)
 	{
-		$(".videoControlsContainer").find(".videoControlsContainer.controlsBar").eq(0).append('<div class="videoControlsContainer controlsBar audioButtonsBar"></div>');
-		$(".videoControlsContainer.controlsBar.audioButtonsBar").append('Remove audio from the video?<br />'+
+	    $(this.elementID).find(".videoControlsContainer.controlsBar").eq(0).append('<div class="videoControlsContainer controlsBar audioButtonsBar"></div>');
+	    $(this.elementID).find(".videoControlsContainer.controlsBar.audioButtonsBar").eq(0).append('Remove audio from the video?<br />'+
 			'<label for="audioOff"><img src="images/recordOrPreview/audioOff.png" width="30px" height="30px" alt="audio enabled" /> </label>'+
 			'<input type="radio" name="audioEnabled" value="false" id="audioOff" />'+
 			'<label for="audioOn"><img src="images/recordOrPreview/audioOn.png" width="30px" height="30px" alt="audio enabled" /> </label>'+
@@ -92,7 +98,6 @@ function createControls()
 	this.trackPadding = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0).width() / 40;
 	this.trackWidth = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0).width() - 2*this.trackPadding;
 	this.trackHeight = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0).height() - 2*this.trackPadding;
-	
 	
 	
 	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
@@ -116,8 +121,8 @@ function createControls()
 	this.currentMaxSelected = this.maxSelected;
 	this.video;
 	this.triangleWidth = this.trackPadding;
+	this.minTime = this.options.minLinkTime; //seconds
 	this.minTimeCoordinate = 0;
-	this.minTime = 3; //seconds
 	this.preview = false;
 	this.stepSize = 0.1;
 	this.maxSpeed = 2.0;
@@ -158,6 +163,7 @@ function createControls()
 function setComments(commentsArray)
 {
 	this.comments = commentsArray;
+	console.log(commentsArray);
 }
 
 function addComment(comment)
@@ -169,8 +175,9 @@ function addComment(comment)
 function drawComments()
 {
 	this.clearComments();
-	
-	for (var i=0;i<this.comments; i++)
+	if (!this.comments)
+	    return;
+	for (var i=0;i<this.comments.length; i++)
 	{
 		this.drawComment(this.comments[i]);
 	}
@@ -185,14 +192,17 @@ function clearComments()
 
 function drawComment(comment)
 {
+    	if (comment.isDeleted)
+    	    return;
 	var densityBarElement = $(this.elementID).find(".videoControlsContainer.track.densitybar").eq(0);
 	var context = $(this.elementID).find(".videoControlsContainer.track.selectedRegion").eq(0)[0].getContext("2d");
+	context.globalAlpha = 0.4;
 	
-		context.fillStyle = comment.color;
-		
-		var startX = this.getXForTime(comment.startTime);
-		var endX = this.getXForTIme(comment.endTime);
-		context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
+	context.fillStyle = comment.color;
+	var startX = this.getXForTime(comment.startTime);
+	var endX = this.getXForTime(comment.endTime);
+	context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
+	context.globalAlpha = 1;
 }
 
 function DensityBar(elementID, videoID, options)
@@ -203,6 +213,7 @@ function DensityBar(elementID, videoID, options)
 	//type can be player, recorder
 	//playHeadImage - url of image to use as top of playhead
 	//playHeadImageOnClick - function to call on playheadImageClick
+	//onAreaSelectionChanged - triggered when adjusting the selectionArea
 	this.options = {
 			volumeControl:true,
 			type:DENSITY_BAR_TYPE_PLAYER,
@@ -214,7 +225,8 @@ function DensityBar(elementID, videoID, options)
 			densityBarHeight: 40,
 			areaSelectionEnabled: false,
 			minRecordingTime : 3,
-			maxRecordingTime : 60
+			maxRecordingTime : 60,
+			minLinkTime : 1
 			};
 	if (typeof options!='undefined')
 	{
@@ -266,6 +278,11 @@ function DensityBar(elementID, videoID, options)
 	this.setMouseOverThumb = setMouseOverThumb;
 	this.setPlayHeadHighlighted = setPlayHeadHighlighted;
 	this.checkForPlayHeadClick = checkForPlayHeadClick;
+	this.setAreaSelectionEnabled = setAreaSelectionEnabled;
+	this.drawComments = drawComments;
+	this.setComments = setComments;
+	this.clearComments = clearComments;
+	this.drawComment = drawComment;
 }
 
 
@@ -515,9 +532,10 @@ function checkForPlayHeadClick(event)
 {
     	var coords = getRelativeMouseCoordinates(event);
     	var currentTimeCoordinate = this.getXForTime(this.getCurrentTime());
-    	if (coords.y < this.playHeadImage.heightHighlighted && coords.x> currentTimeCoordinate-this.playHeadImage.widthHeighlighted/2 && coords.x<currentTimeCoordinate+this.playHeadImage.widthHeighlighted/2)
+    	var oldTimeCoordinate = this.getXForTime(this.previousTime);
+    	if (oldTimeCoordinate == currentTimeCoordinate && coords.y < this.playHeadImage.heightHighlighted && coords.x> currentTimeCoordinate-this.playHeadImage.widthHighlighted/2 && coords.x<currentTimeCoordinate+this.playHeadImage.widthHighlighted/2)
     	{
-    	    this.playHeadImageOnClick();
+    	    this.options.playHeadImageOnClick();
     	}
     	    
 }
@@ -534,6 +552,8 @@ function setMouseOverThumb(event)
 {
     	//need to set the mousemove event to figure out if I am over the thumb to highlight the playHeadImage
     	var instance = this;
+    	if (!this.playHeadImage)
+    	    return;
     	var thumbCanvas = $(this.elementID).find(".videoControlsContainer.track.thumb").eq(0);
     	var coords = getRelativeMouseCoordinates(event);
     	if (coords.y<this.playHeadImage.heightHighlighted && coords.x >this.getXForTime(this.getCurrentTime())-this.playHeadImage.widthHighlighted/2 && coords.x < this.getXForTime(this.getCurrentTime())+this.playHeadImage.widthHighlighted/2)
@@ -554,9 +574,25 @@ function setMouseDownThumb(event)
 	var selectedRegionCanvas = $(this.elementID).find(".videoControlsContainer.track.selectedRegion").eq(0)[0];
 	var coords = getRelativeMouseCoordinates(event);
 	this.preview = false;
+	var currentTimeCoordinate = this.getXForTime(this.getCurrentTime());
+//	this.mouseDownCoords = coords;
 	
+	if (this.playHeadImage && coords.y < this.playHeadImage.heightHighlighted && coords.x> currentTimeCoordinate-this.playHeadImage.widthHighlighted/2 && coords.x<currentTimeCoordinate+this.playHeadImage.widthHighlighted/2)
+	{
+//	    alert("down");
+	    this.previousTime = this.getCurrentTime();
+	    return;
+	}
+	else
+	{
+	    this.previousTime = undefined; 
+	}
 	if (coords.y < instance.trackPadding + instance.trackHeight)
 	{	//Restrict the playhead to only within the selected region
+//	    	if (instance.playHeadImage && coords.y < instance.playHeadImage.heightHighlighted)
+//	    	{
+//	    	    return;
+//		}
 		thumbCanvas.on('mousemove', function(event){ 
 			var coords = getRelativeMouseCoordinates(event);
 		//	if (coords.y < trackPadding + trackHeight)
@@ -589,13 +625,16 @@ function setMouseDownThumb(event)
 				{
 				    instance.currentMinSelected = instance.minSelected;
 				}
-				if (instance.currentMinSelected > instance.currentMaxSelected - instance.minTimeCoordinate)
+				else if (instance.currentMinSelected > instance.currentMaxSelected - instance.minTimeCoordinate)
 				{
 				    instance.currentMinSelected = instance.currentMaxSelected - instance.minTimeCoordinate;
 				}
+//				else
 				instance.currentMinTimeSelected = instance.getTimeForX(instance.currentMinSelected);
+				
 				instance.setHighlightedRegion(instance.currentMinSelected, instance.currentMaxSelected);
 				instance.setVideoTime(instance.currentMinTimeSelected);
+				instance.onAreaSelectionChanged(instance.currentMinTimeSelected, instance.currentMaxTimeSelected);
 			});
 
 		}
@@ -610,13 +649,15 @@ function setMouseDownThumb(event)
 				{
 				    instance.currentMaxSelected = instance.maxSelected;
 				}
-				if (instance.currentMaxSelected < instance.currentMinSelected + instance.minTimeCoordinate)
+				else if (instance.currentMaxSelected < instance.currentMinSelected + instance.minTimeCoordinate)
 				{
 				    instance.currentMaxSelected = instance.currentMinSelected + instance.minTimeCoordinate;
 				}
-				instance.currentMaxTimeSelected = instance.getTimeForX(instance.currentMaxSelected);
+//				else
+				    instance.currentMaxTimeSelected = instance.getTimeForX(instance.currentMaxSelected);
 				instance.setHighlightedRegion(instance.currentMinSelected, instance.currentMaxSelected);
 				instance.setVideoTime(instance.currentMaxTimeSelected);
+				instance.options.onAreaSelectionChanged();
 			});
 		}
 	}
@@ -636,12 +677,19 @@ function setHighlightedRegion(startX, endX)
 		this.drawLeftTriangle(startX, context);
 		this.drawRightTriangle(endX, context);
 		context.fillStyle = "#00ff00";
+		context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
 	}
 	else
 	{
-		context.fillStyle = "#0x666666";
+	    if (this.options.type==DENSITY_BAR_TYPE_RECORDER)
+	    {
+		context.fillStyle = "#666666";
+		context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
+	    }
+//	    else
+//		context.fillStyle = "#cccccc";
 	}
-	context.fillRect(startX, this.trackPadding, endX-startX, densityBarElement.height()-2*this.trackPadding);
+	
 }
 
 function setupVideoPlayback()
@@ -651,13 +699,14 @@ function setupVideoPlayback()
 	$(this.videoID)[0].addEventListener('play', function(){instance.setPlayButtonIconSelected(false);}, false);
 	$(this.videoID)[0].addEventListener('pause', function(){instance.setPlayButtonIconSelected(true);}, false);
 	this.paintThumb(0);
-	this.minTimeCoordinate = this.getXForTime(this.minTime);
+	//this.minTimeCoordinate = this.getXForTime(this.minTime);
+	this.minTimeCoordinate = this.getXForTime(this.minTime) - this.trackPadding;
 	this.currentMinSelected = this.minSelected;
 	this.currentMinTimeSelected = this.getTimeForX(this.currentMinSelected);
 	this.currentMaxSelected = this.maxSelected;
 	this.currentMaxTimeSelected = this.getTimeForX(this.currentMaxSelected);
 	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
-
+	this.drawComments();
 	this.repaint();
 	$(this.elementID).find(".videoControlsContainer.track").eq(0).on('mouseleave',function(){ instance.setVolumeBarVisible(false);});
 	
@@ -677,7 +726,8 @@ function setupVideoRecording()
 	var forwardButton = $(this.elementID).find(".videoControlsContainer.controlsBar.forwardButtons.forwardButton").eq(0);
 	this.setInputEnabled(recordButton, false);
 	this.setInputEnabled(forwardButton, false);
-	this.minTimeCoordinate = this.getXForTime(this.minTime);
+	this.minTimeCoordinate = this.getXForTime(this.minTime) - this.trackPadding;
+	//this.minTimeCoordinate = this.getXForTime(this.minTime);
 	this.currentMinSelected = this.minSelected;
 	this.currentMinTimeSelected = this.getTimeForX(this.currentMinSelected);
 //	this.currentMaxSelected = this.maxSelected;

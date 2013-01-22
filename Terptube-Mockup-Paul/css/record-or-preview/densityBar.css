@@ -11,6 +11,7 @@ button.videoControlsContainer
 {
 	width: 40px;
 	height: 40px;
+	background-color: white;
 }
 
 .record-or-preview .video 
@@ -28,6 +29,7 @@ button.videoControlsContainer
 	position:relative;
 	outline: 1px solid black;	
 	height:40px;
+	background-color: white;
 }
 
 .videoControlsContainer.track canvas
@@ -37,6 +39,7 @@ button.videoControlsContainer
     top:0px;
     width: 480px;
     height: 40px;
+    background-color: transparent;
 }
 
 .videoControlsContainer.track.densityBar
@@ -113,36 +116,43 @@ div.videoControlsContainer.controlsBar.backButtons
 
 .videoControlsContainer.controlsBar.videoControls.beginButton
 {
-	background: url(../../images/recordOrPreview/beginning.png) no-repeat;
+	background-image: url(../../images/recordOrPreview/beginning.png);
+	background-repeat: no-repeat;
 }
 
 .videoControlsContainer.controlsBar.videoControls.stepBackwardButton
 {
-	background: url(../../images/recordOrPreview/jumpback_small.png) no-repeat;
+	background-image: url(../../images/recordOrPreview/jumpback_small.png);
+	background-repeat: no-repeat;
 }
 
 .videoControlsContainer.controlsBar.videoControls.playButton
 {
-	background: url(../../images/recordOrPreview/play_small.png) no-repeat;
+	background-image: url(../../images/recordOrPreview/play_small.png);
+	background-repeat: no-repeat;
 }
 	
 .videoControlsContainer.controlsBar.videoControls.stepForwardButton
 {
-	background: url(../../images/recordOrPreview/jumpforward_small.png) no-repeat;	
+	background-image: url(../../images/recordOrPreview/jumpforward_small.png);
+	background-repeat: no-repeat;	
 }
 .videoControlsContainer.controlsBar.videoControls.endButton
 {
-	background: url(../../images/recordOrPreview/end.png) no-repeat;	
+	background-image: url(../../images/recordOrPreview/end.png); 
+	background-repeat: no-repeat;	
 }
 
 
 .videoControlsContainer.controlsBar.backButtons.backButton
 {
-	background: url(../../images/recordOrPreview/previous_small.png) no-repeat;	
+	background-image: url(../../images/recordOrPreview/previous_small.png); 
+	background-repeat: no-repeat;	
 }
 .videoControlsContainer.controlsBar.forwardButtons.forwardButton
 {
-	background: url(../../images/recordOrPreview/submit_small.png) no-repeat;	
+	background-image: url(../../images/recordOrPreview/submit_small.png); 
+	background-repeat: no-repeat;	
 }
 
 /*
@@ -150,21 +160,25 @@ div.videoControlsContainer.controlsBar.backButtons
  */
 .videoControlsContainer.controlsBar.backButtons.backButton.record
 {
-	background: url(../../images/recordOrPreview/cancel_small.png) no-repeat;	
+	background-image: url(../../images/recordOrPreview/cancel_small.png); 
+	background-repeat: no-repeat;	
 }
 .videoControlsContainer.controlsBar.forwardButtons.forwardButton.record
 {
-	background: url(../../images/recordOrPreview/next_small.png) no-repeat;	
+	background-image: url(../../images/recordOrPreview/next_small.png); 
+	background-repeat: no-repeat;	
 }
 
 .videoControlsContainer.controlsBar.backButtons.backButton.record
 {
-	background: url(../../images/recordOrPreview/cancel_small.png) no-repeat;	
+	background-image: url(../../images/recordOrPreview/cancel_small.png); 
+	background-repeat: no-repeat;	
 }
 
 .videoControlsContainer.controlsBar.videoControls.recordButton
 {
-	background: url(../../images/recordOrPreview/rec1_small.gif) no-repeat;	
+	background-image: url(../../images/recordOrPreview/rec1_small.gif); 
+	background-repeat: no-repeat;	
 }
 /*
  * Recording buttons end
@@ -178,6 +192,7 @@ div.videoControlsContainer.controlsBar.backButtons
 	height: 40px;
 	float:right; 
 	text-align: center;
+	background-color: white;
 }
 .videoControlsContainer.track.volumeControl img
 {
