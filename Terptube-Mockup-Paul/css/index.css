@@ -175,7 +175,7 @@ html[xmlns] .clearfix {
     border: 1px solid gray;
 }
 
-.comment-details {
+#comment-details {
     width: 95%;
     max-width: 650px;
     height: auto;
@@ -253,6 +253,11 @@ html[xmlns] .clearfix {
 
 .comment-tools-div ul li,a {
     display: inline;
+}
+
+.comment-date {
+	font-size: 10px;
+	float: right;
 }
 
 .comment-edit-link {
@@ -337,6 +342,11 @@ form.commentReplyForm {
 .comment-avatar-div img {
 	width: 75px;
 	height: 75px;
+}
+
+.comment-avatar-div p {
+	font-size: 0.8em;
+	line-height: 150%;
 }
 
 .feedback-properties{

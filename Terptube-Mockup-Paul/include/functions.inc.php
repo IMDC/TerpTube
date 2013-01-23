@@ -9,8 +9,11 @@ $path = "/media/storage/projects/sls/public_html";
  */
 function strip_ext($filename) {
     // strip extension and get only video name
-    $fnameonly = substr($filename, 0, strrpos($filename, '.'));
-    return $fnameonly;
+    //$fnameonly = substr($filename, 0, strrpos($filename, '.'));
+    
+    $parts = pathinfo($filename);
+    $thefnameonly = $parts['filename'];
+    return $thefnameonly;
 }
 
 /**
@@ -32,9 +35,9 @@ function createThumbnail($videoPath, $thumbName, $freezeTime, $size = "144x112")
 
     $default_thumbnail = IMAGES_DIR . "default_videothumb.png";
 
-    $videoPath = escapeshellcmd($videoPath);
-    $size = escapeshellcmd($size);
-    $fnameonly = strip_ext($videoPath);
+    $videoPath  = escapeshellcmd($videoPath);
+    $size       = escapeshellcmd($size);
+    $fnameonly  = strip_ext($videoPath);
 
     // $newthumbjpg = "../uploads/comment/thumb/" . $thumbName . ".jpg";
 	$newthumbjpg = UPLOAD_DIR . "comment/thumb/" . $thumbName . ".jpg";
@@ -43,13 +46,15 @@ function createThumbnail($videoPath, $thumbName, $freezeTime, $size = "144x112")
 	$tempthumbjpg = UPLOAD_DIR . "comment/thumb/" . $fnameonly . 'temp.jpg';
 
     // $stringToExecuteRegular = "ffmpeg/ffmpeg -i " . $videoPath . " -ss " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $tempthumbjpg;
-	$stringToExecuteRegular = FFMPEG_PATH . " -i " . $videoPath . " -ss " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $tempthumbjpg;
+	$stringToExecuteRegular = FFMPEG_PATH . "ffmpeg -i " . $videoPath . " -ss " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $tempthumbjpg;
 
     $escaped_command = escapeshellcmd($stringToExecuteRegular);
+    error_log($escaped_command);
 
     //echo $escaped_command;
     //$output = shell_exec($escaped_command); 
     $output = shell_exec($escaped_command);
+    error_log($output);
 
     // make sure new JPG file exists
     if (!file_exists($tempthumbjpg)) {
@@ -250,6 +255,82 @@ function convertJSONCommentArrayToHTML($commarr) {
 
 
 /**
+ * Returns an array of all comment details stored in an array, given a comment id
+ * Uses the video_comment table to return this info, will return 'deleted' comments
+ * @param $commentid the id of the comment
+ * @param $json set to 1 if you want json encoded result returned
+ * @return an array object filled with comments that are associative arrays
+ */
+function getCommentByID($commentid, $json=0) {
+    global $db;
+    $commentID = intval($commentid);
+    
+    /* create a prepared statement */
+    //$query = "Select * from video_comment where source_id=? order by date asc";
+    $query = "SELECT vc.comment_id, vc.source_id, vc.parent_id, vc.author_id, 
+                vc.text_comments, vc.comment_start_time, vc.comment_end_time, 
+                vc.date, vc.deleted, vc.temporal_comment, vc.has_video, 
+                vc.video_filename, p.name, p.created, p.role, p.avatar 
+              FROM video_comment vc, 
+                   participants p 
+              WHERE vc.comment_id=? 
+                    AND p.id=vc.author_id";
+    $stmt = mysqli_stmt_init($db);
+    if ( !mysqli_stmt_prepare($stmt, $query)) {
+        error_log("Failed to prepare statement in " . __FUNCTION__);
+        print "Failed to prepare statement"; 
+    }
+    else {
+
+        /* bind parameters */
+        mysqli_stmt_bind_param($stmt, "i", $commentID);
+
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        /* bind results */
+        mysqli_stmt_bind_result($stmt, $commID, $source_id, $authID, $parentID, $textcont, 
+                                    $start, $end, $commdate, $deleted, $tempcommentbool, 
+                                    $hasvideobool, $videofilename, $partname, $partdatecreated, 
+                                    $partrole, $partavatarfilename);
+        
+        $commentArray = array();
+        while (mysqli_stmt_fetch($stmt)) {
+            $singleCommentArray = array("id" => $commID, 
+                                        "sourceid" => $source_id,
+                                        "author" => $authID, 
+                                        "parentid" => $parentID,
+                                        "text" => htmlentities($textcont), 
+                                        "starttime" => $start, 
+                                        "endtime" => $end, 
+                                        "date" => $commdate,
+                                        "isdeleted" => $deleted,
+                                        "istemporalcomment" => $tempcommentbool,
+                                        "hasvideo" => $hasvideobool,
+                                        "videofilename" => $videofilename,
+                                        "authorname" => $partname,
+                                        "authorjoindate" => $partdatecreated,
+                                        "authorrole" => $partrole,
+                                        "authoravatarfilename" => $partavatarfilename
+                                     );
+                                        
+            array_push($commentArray, $singleCommentArray);
+        }  
+        
+        /* close statement */
+        mysqli_stmt_close($stmt);
+        
+        if ( intval($json) == 1) {
+            $commentArray= json_encode($commentArray);
+        }
+        return $commentArray;
+    }
+}
+
+
+
+
+/**
  * Returns an array of all comment details stored in an array, given a source video id
  * Uses the video_comment table to return this info, will return 'deleted' comments
  * @param $sourceid the id of the source video
@@ -399,7 +480,8 @@ function getTopLevelCommentsForSourceID($sourceID) {
 }
 
 function printCommentVideoSource($commentArray) {
-    // if the comment has a video filename, it means it came from a prepopulated existing source    
+    // if the comment has a video filename, it means it came from a prepopulated existing source   
+    /* 
     if ($commentArray["videofilename"]) {
         $thesource = REL_UPLOAD_DIR . "video" . DIRECTORY_SEPARATOR . $commentArray["videofilename"];
         return "<source src='$thesource' type='video/webm' />";
@@ -409,6 +491,9 @@ function printCommentVideoSource($commentArray) {
         // have to add the webm extension here   
         return "<source src='$thesource.webm' type='video/webm' />";
     }
+    */
+    $thesource = REL_UPLOAD_DIR . $commentArray["videofilename"];
+    return "<source src='$thesource' type='video/webm' />";
         
 }
 

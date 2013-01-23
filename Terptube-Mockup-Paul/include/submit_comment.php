@@ -6,103 +6,256 @@ require_once (INC_DIR . 'functions.inc.php');
 global $db;
 
 define('CREATE_NEW_COMMENT', 0);
-define('EDIT_COMMENT', 1);
+define('EDIT_COMMENT',       1);
 
 /** params needed for db **/
 
 $sourceID 		    = intval($_POST['v']);
-// get parent id of post, will be 0 if a top-level comment, other id for a nested
-// comment
+// get parent id of post, will be 0 if a top-level comment, other id for a nested comment
 $parentID 			= intval($_GET['pID']);
-// $parentID = intval($_POST['pID']);
+
 $authorIDform       = intval($_POST['partID']);
 $authorIDsession    = intval($_SESSION['participantID']);
 $authorIDget        = intval($_GET['aID']);
 
-// action is the action to take on the comment, new, edit, reply
+$authorIDchecked;
+
+// action is the action to take on the comment: new, edit, reply
 $action             = mysqli_real_escape_string($db, $_POST['formAction']);
+
+$comment_text 		= htmlentities(mysqli_real_escape_string($db, $_POST['comment']));
+$comment_start_time = $_POST['start_time'];
+$comment_end_time 	= $_POST['end_time'];
+
+$temporal_comment	= 0; // initialize to 0, set later if true
+$has_video			= 0; // initialize to 0, set later if true
+
+$video_filename     = ''; // init to empty, set later
+$rec_vid_fn_only    = '';
+$existingVidChoice  = ''; // init to empty, set later
+
+$existingVidChosen  = FALSE;
+
+$videofilepathfordb = ''; // init to empty, set later
+
+error_log("form action received in submit_comment.php is $action");
 
 if ( ($authorIDform != $authorIDsession) && ($authorIDsession != $authorIDget) ) {
     error_log('comment creation failed, author ids are different');
     addError("An error occured, please try again");
     return;
 }
-
-$comment_text 		= htmlentities(mysqli_real_escape_string($db, $_POST['comment']));
-$comment_start_time = $_POST['start_time'];
-$comment_end_time 	= $_POST['end_time'];
-//$date;
-$temporal_comment	= 0; // initialize to 0, set later if true
-$has_video			= 0; // initialize to 0, set later if true
-
-$video_filename     = ''; // init to empty, set later
-$existingVidChoice  = ''; // init to empty, set later
-
+else {
+    $authorIDchecked = $authorIDsession;
+}
 
 // check if we have a filename for an uploaded video
 if ( isset($_POST['file-name']) ) {
     $filenametrim = trim($_POST['file-name']);
     if ( !empty($filenametrim) ) {
         $video_filename = UPLOAD_DIR . 'temp/' . $filenametrim;;
+        $parts = pathinfo($video_filename);
+        $rec_vid_fn_only = $parts['basename'];
     }
 }
 
 // check if user selected to use an existing video in the comment
 if ( isset($_POST['user-existing-video']) ) {
 	$existingVidChoice = $_POST['user-existing-video'];
+    $existingVidChosen = TRUE;
 }
 
 
 if ( isset($comment_start_time) && (isset($comment_end_time)) ) {
 	$temporal_comment = 1;
-}
-
-// if there is a video filename or a value selected in the dropdown box
-if ( $video_filename || $existingVidChoice ) {
-	$has_video = 1;
-	
     
-	if (existingVidChoice && $video_filename ) {
-		$video_filename = $existingVidChoice;
-	}
+    if ( ($comment_end_time == 0) && ($comment_end_time == 0) ) {
+        $temporal_comment = 0;
+    }
 }
 
-error_log("video_filename: $video_filename existingVidChoice: $existingVidChoice");
+// if there is a video filename or an existing video selected in the dropdown box
+if ( $rec_vid_fn_only || $existingVidChoice ) {
+	$has_video = 1;
+    
+    // if user selected both an existing vid and an upload, use the upload
+	if ($existingVidChoice && $rec_vid_fn_only ) {
+		$videofilepathfordb = 'comment' . DIRECTORY_SEPARATOR . $rec_vid_fn_only;
+	}
+    // if no upload selected but user chose an existing vid
+    else if (empty($rec_vid_fn_only) && !empty($existingVidChoice)) {
+        $videofilepathfordb = 'video' . DIRECTORY_SEPARATOR . $existingVidChoice;
+        $existingVidChosen = TRUE;
+    }
+    else {
+        $videofilepathfordb = 'comment' . DIRECTORY_SEPARATOR . $rec_vid_fn_only;
+    }
+}
+
+error_log("video_filename: $video_filename rec_vid_fn_only: $rec_vid_fn_only existingVidChoice: $existingVidChoice existingVidChosen: $existingVidChosen videofilepathfordb: $videofilepathfordb");
 
 // database insertion code was here
+$redirectLocation = "";
+
+switch ($action) {
+    case "new":
+        $commentID = insertCommentIntoDatabase($sourceID, $parentID, $authorIDchecked, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $videofilepathfordb);
+        
+        if ($commentID) {
+            //$target_path = UPLOAD_DIR . "comment" . DIRECTORY_SEPARATOR . $commentID . ".webm";
+            
+            $target_path = "../uploads/comment/" . $rec_vid_fn_only;
+            $video_filename = "../uploads/temp/" . $rec_vid_fn_only;
+    
+            if ( ($existingVidChosen == FALSE) ) {
+                // need to copy comment video
+                // copy the video (existing or uploaded) to the comments directory
+                error_log("copying $video_filename to $target_path inside submit_comment");
+                if ( copy($video_filename, $target_path) ) {
+                    // successful copy
+                    $videofilepathfordb = $target_path;
+                    createThumbnail($target_path, $commentID, 1);
+                    
+                    // if the user uploaded a new video, we need to get rid of the temp one
+                    if ( $existingVidChosen == FALSE ) {
+                        error_log("calling unlink on file: $video_filename");    
+                        unlink($video_filename);
+                    }
+                }
+                else {
+                    error_log("ERROR COPYING FILE $videofilepathfordb FROM TEMP TO COMMENT FOLDER INSIDE SUBMIT_COMMENT.php");
+                }
+            }
+            else {
+                error_log("trying to create thumbnail for $videofilepathfordb in upload directory: " . UPLOAD_DIR);
+                createThumbnail(UPLOAD_DIR . $videofilepathfordb, $commentID, 1);
+            }
+        }
+        else {
+            error_log('ERROR in submit_comment.php while inserting new comment');
+            addError("Error creating new comment");
+        }
+        // can use generic redirect as all new comment insertions should go back to the original source
+        $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
+        break;
+    
+    case "edit":
+        if (editCommentInDatabase($parentID, $authorIDchecked, $comment, $start, $end, $temporal, $hasvid, $videofilepathfordb)) {
+            // set commentID to the comment we edited to trigger the video thumbnail function below    
+            $commentID = $parentID;
+        }
+        break;
+    
+    case "reply":
+        $commentID = insertCommentIntoDatabase($action, $sourceID, $parentID, $authorIDchecked, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $videofilepathfordb);
+        if ($commentID) {
+            
+        }
+        else {
+            error_log('ERROR in submit_comment.php while replying to coment');
+            addError("Error in creating your reply to a comment, sorry");
+
+            $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
+        }
+        break;
+    
+    case "create":
+        $newvidid = createNewSourceVideoInDatabase($authorIDchecked, $rec_vid_fn_only, $comment_text);
+        if ($newvidid) {
+            // move to uploads/video
+            //$target_path = VIDCOMMENT_DIR . $rec_vid_fn_only . ".webm";
+            // testing
+            $target_path = "../uploads/video/" . $rec_vid_fn_only;
+            $video_filename = "../uploads/temp/" . $rec_vid_fn_only;
+            $whereami = shell_exec('pwd');
+            error_log("OUTPUT FROM SUBMIT_COMMENT.php about where I am: $whereami ***************");
+            // end testing
+            error_log("attempting to copy $video_filename to $target_path inside submit_comment's create case");
+            if ( copy($video_filename, $target_path) ) {
+               // successful copy of file, need to delete the temp file
+               error_log("calling unlink on file: $video_filename"); 
+               unlink($video_filename);
+               
+               // redirect to just created source video
+               $redirectLocation = "index.php?v=$newvidid&pID=$authorIDsession";
+            }
+            $redirectLocation = "index.php?v=$newvidid&pID=$authorIDsession";
+        }
+        else {
+            error_log('ERROR in submit_comment.php while creating new video source');
+            addError("Error creating new video source");
+            $redirectLocation = "menteecreate.php?pID=$authorIDchecked";
+        }
+        
+        break;
+        
+    default:
+        
+        break;
+}
+
+header("Location: " . SITE_BASE . $redirectLocation);
 
 
-
-
-
-$commentID = insertCommentIntoDatabase($action, $sourceID, $parentID, $authorIDsession, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $video_filename);
-
+//$commentID = insertCommentIntoDatabase($action, $sourceID, $parentID, $authorIDsession, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $video_filename);
 
 if ($commentID) { // successful comment insertion into database
 	
-	/* file uploads to scripts/uploads
+	/* file uploads to uploads/temp
 	 upload to sever	*/
-	
-	//$target_path = "../uploads/comment/" . $comment_id . ".mp4";
+	 
 	$target_path = VIDCOMMENT_DIR . $commentID . ".webm";
 	
-	//$target_path = $target_path . basename( $fileName);
-	
+    if ( ($existingVidChosen == FALSE) ) {
+        // need to copy comment video
+        // copy the video (existing or uploaded) to the comments directory
+        error_log("copying $video_filename to $target_path inside submit_comment");
+        if ( copy($video_filename, $target_path) ) {
+            // successful copy
+            $videofilepathfordb = $target_path;
+            createThumbnail($target_path, $commentID, 1);
+            
+            // if the user uploaded a new video, we need to get rid of the temp one
+            if ( $existingVidChosen == FALSE ) {
+                error_log("calling unlink on file: $video_filename");    
+                unlink($video_filename);
+            }
+        }
+    }
+    else {
+        createThumbnail(UPLOAD_DIR . $videofilepathfordb, $commentID, 1);
+        
+    }
+    
+    
+    
+    
+    
 	//   if (!copy($fileName, $target_path)) {
 	//    	echo "failed to copy $file...\n";
 	//   }
 	
 	/****************GENERATE THUMBNAIL ******************************/
-	if ( isset($video_filename) ) {
-	    if ( copy($video_filename, $target_path) ) {// $_FILES['uploadedfile']['tmp_name']
+	//if ( $has_video && isset($video_filename) ) {
+    /*
+	if ( $has_video && !empty($videofilepathfordb) ) {
+        if ($existingVidChosen) {
+            $videofilepathfordb = '../uploads/video/' . $videofilepathfordb;
+            error_log("file path for copy call: $videofilepathfordb");
+        }
+	    if ( copy($videofilepathfordb, $target_path) ) {// $_FILES['uploadedfile']['tmp_name']
 	        createThumbnail($target_path, $commentID, 2);
-	        unlink($video_filename);
+	        // if the user didn't pick an existing video, we need
+	        // to get rid of the temporary uploaded user file
+	        // as we have already copied it
+	        if ( $existingVidChosen == FALSE ) {
+	            unlink($video_filename);
+            }
 	    }
 	}
-	
+    */
 	
 	// TODO: add uploaded video to list of existing vids for that user?
-	
 	
 	// header("Location: " . SITE_BASE . "index.php?v=$sourceID");
 	// require_once (INC_DIR . 'footer.php');
@@ -113,13 +266,12 @@ else {
 	addError("Error creating new comment");
 }
 
-header("Location: " . SITE_BASE . "index.php?v=$sourceID");
+header("Location: " . SITE_BASE . "index.php?v=$sourceID&pID=$authorIDsession");
 
 
 
 
-
-function insertCommentIntoDatabase($action, $sourceID, $parentID, $authID, $comment, $start, $end, $temporal, $hasvid, $vidfile) {
+function insertCommentIntoDatabase($sourceID, $parentID, $authID, $comment, $start, $end, $temporal, $hasvid, $vidfile) {
 	global $db;
 	/* Insert into database and pull out the comment id it just created
  	*/
@@ -135,27 +287,14 @@ function insertCommentIntoDatabase($action, $sourceID, $parentID, $authID, $comm
     // ('$videoNumber', '$parentID',  '$author', '$comment', '$start',  '$end',
     // '$now')";
     
-    switch ($action) {
-    case 'new':
-        $commentID = insertCommentIntoDatabase($sourceID, $parentID, $authorIDsession, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $video_filename);
-        break;
-    case 'edit':
-        
-        break;
-    case 'reply':
-        break;
-    
-    default:
-        
-        break;
-}
-    
     
     //  WHY aren't we using a prepared statement????
     $sql = "INSERT INTO video_comment (source_id, parent_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename) VALUES ('$sourceID', '$parentID','$authID','$comment','$start','$end',DEFAULT,'$temporal','$hasvid','$vidfile')";
 
 	error_log('sql statement for inserting comment into database: ' . $sql);
     $result = mysqli_query($db, $sql);
+
+    $commentIDreturned = mysqli_insert_id($db);
 
     $sql = "SELECT comment_id FROM video_comment ORDER BY comment_id DESC LIMIT 1";
     $result = mysqli_query($db, $sql);
@@ -175,10 +314,101 @@ function insertCommentIntoDatabase($action, $sourceID, $parentID, $authID, $comm
 	
 }
 
-function editCommentInDatabase($sourceID, $parentID, $authID, $comment, $start, $end, $temporal, $hasvid, $vidfile) {
+/**
+ * This inserts a new row in to the video_source table, essentially creating a new
+ * video for mentor's to evaluate and comment on, uses a default duration value in the DB of '50000'
+ * @param $partid the participant's id
+ * @param $vidtitle the filename of the video that is to be shown as the main video, ie) the uploaded video from the user
+ * @param $textcomm any supplemental text comment that the author wants to include
+ */
+function createNewSourceVideoInDatabase($partid, $vidtitle, $textcomm) {
     global $db;
     
-    // TODO: write this
+    // basic escaping, much better to use prepared statement
+    $participantid = intval($partid);
+    $videofilename = htmlentities(mysqli_real_escape_string($db, $vidtitle));
+    $textcomment = htmlentities(mysqli_real_escape_string($db, $textcomm));
+    
+    /* Insert into database and pull out the id it just created
+    */
+    
+    mysqli_query($db, "BEGIN");
+    mysqli_query($db, "START TRANSACTION");
+    
+    //  WHY aren't we using a prepared statement????
+    $sql = "INSERT INTO video_source (source_id, participant_id, title, duration, comment, created) values (DEFAULT, $participantid, '$videofilename', '50000', '$textcomment', DEFAULT)";
+
+    error_log('sql statement for inserting new video source into database: ' . $sql);
+    $result = mysqli_query($db, $sql);
+    
+    $commentIDreturned = mysqli_insert_id($db);
+
+    /*
+    $sql = "SELECT source_id FROM video_source ORDER BY source_id DESC LIMIT 1";
+    $result = mysqli_query($db, $sql);
+
+    while ( $row = mysqli_fetch_assoc($result) ) {
+        $videosource_id = $row['source_id'];
+    }
+    */
+    
+    if ( $commentIDreturned != 0 ) {
+        mysqli_query($db, "COMMIT");
+        return $commentIDreturned;
+    }
+    else {
+        mysqli_query($db, "ROLLBACK");
+        return NULL;
+    }
+    
+}
+
+
+
+/**
+ * Edits a comment given the comment ID
+ * 
+ * returns a boolean of true if the comment was edited, false if it wasn't
+ */
+function editCommentInDatabase($commentID, $authID, $comment, $start, $end, $temporal, $hasvid, $vidfile) {
+    global $db;
+    $commentID = intval($commentID);
+   
+    /* create a prepared statement */
+    $query = "UPDATE video_comment
+              SET text_comments = ?,
+                  comment_start_time = ?,
+                  comment_end_time = ?,
+                  temporal_comment = ?,
+                  has_video = ?,
+                  video_filename = ?
+              WHERE comment_id = ?,
+                  AND author_id = ?";
+                  
+    $stmt = mysqli_stmt_init($db);
+    
+    if ( !mysqli_stmt_prepare($stmt, $query)) {
+        error_log("Failed to prepare statement in " . __FUNCTION__);
+        print "Failed to prepare statement";
+        return FALSE;
+    }
+    else {
+
+        /* bind parameters */
+        mysqli_stmt_bind_param($stmt, "siiiisii", $comment, $start, $end, $temporal, $hasvid, $vidfile, $commentID, $authID);
+
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        // if we affected a row, that's good
+        // now we need to pull the results back from the database
+        if (mysqli_stmt_affected_rows($db) > 0) {
+            mysqli_stmt_close($stmt);
+            return TRUE;
+        }
+        
+        return FALSE;
+    }
 }
 
 

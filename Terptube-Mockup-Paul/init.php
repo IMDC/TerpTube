@@ -51,7 +51,7 @@
     
 <?php
     /* create a prepared statement */
-    $query = "INSERT INTO participants (id, created, name, supervisor, role, avatar) values (?, 'DEFAULT', 'participant', ?, ?, ?)";
+    $query = "INSERT INTO participants (id, created, name, supervisor, role, avatar) values (?, DEFAULT, 'participant', ?, ?, ?)";
     $stmt = mysqli_stmt_init($db);
     if ( !mysqli_stmt_prepare($stmt, $query)) {
         error_log("Failed to prepare statement in 'init.php'");
@@ -85,7 +85,7 @@
             echo "<p><a href='index.php?v=1&pID=$particID'>Proceed as Mentor</a></p>";
         }
         else if ($userrole == "Mentee") {
-            echo "<p><a href='create.php?pID=$particID'>Proceed as Mentee</a></p>";
+            echo "<p><a href='menteecreate.php?pID=$particID'>Proceed as Mentee</a></p>";
         }
         
     }

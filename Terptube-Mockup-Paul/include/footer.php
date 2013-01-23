@@ -42,6 +42,8 @@
         var speedSlow = false;
         var video_dom = $("video#myPlayer").get(0);
 
+        var $commentformcontainer = $("#comment-form-wrap");
+
         //form inputs
         var startTimeInput     = $("#start_time");
         var endTimeInput       = $("#end_time");
@@ -53,6 +55,8 @@
         var $postCommentButton  = $("#postCommentButton");
         var $cancelButton       = $("#cancel-button");
         var selectedVideoName;
+        
+        var $selectedComment;
 
         var signlinkArray = new Array();
         var commentArray  = new Array();
@@ -142,14 +146,20 @@
             $("[name=file-name]").val(selectedVideoName);
         });
 
+        // what actions happen when you click the new comment form 'cancel' button
         $cancelButton.click( function() {
             $optionFieldset.show();
             $videoNameFieldset.hide();
             
-            $(".comment-details").appendTo("#content-left").hide(); // move form to left side underneath 'post new comment' button
+            //$(".comment-details").detach().appendTo("#content-left"); // move form to left side underneath 'post new comment' button
+            //$(".comment-details").hide(); // hide the comment details form
+            $commentformcontainer.detach().appendTo("#content-left");
+            $commentformcontainer.hide();
+            
             $(".commentReplyLink").show(); // show all comment reply links if previously hidden
-     //       drawAreaOnBar(signlinkArray);
-     //       drawAreaOnBar(commentArray);
+            
+            drawAreaOnBar(signlinkArray);
+            drawAreaOnBar(commentArray);
             
             creatingTimedComment = false;
             resetNewCommentFormValues();
@@ -164,10 +174,20 @@
 			controls.drawComments();
 			controls.drawSignLinks();
 			
+            // remove the css class from the comment you clicked 'reply' on
+            console.log("removing css class from selectedComment element: " + $selectedComment.id);
+            $selectedComment.removeClass("writing-reply");
+            
+            // reset the variable
+            $selectedComment = null;
+
         });
         
         function resetNewCommentFormValues() {
-            var $commdet = $(".comment-details");
+
+            //var $commdet = $(".comment-details");
+            var $commdet = $commentformcontainer;
+            
             // reset start and end time inputs
             $("#new-comment-time-div input").val('');
             $("#new-comment-time-div").hide();
@@ -179,6 +199,7 @@
             $commdet.find("#fileName").val('').find("formAction").val('new');
             $commdet.find("input#new-comment-submit-button").attr("value", "Post Comment");
             $commdet.find("#parentCommentID").attr("value", "");
+            $commdet.find("#selectedCommentID").attr("value", "");
             $("#toggle-time-span").show();
         }
 
@@ -196,26 +217,34 @@
             // get comment id
             var commentID = $(this).attr('id').replace("edit-", '');
             
+            // set the 'global' selected comment variable
+            $selectedComment = $("div").find("[data-cid='" + commentID + "']");
+            
             // comment div container
-            var commentContainer = $("div#comment-"+commentID);
+            //var commentContainer = $("div#comment-"+commentID);
+            
+            // comment div container
+            $theCommentContainer = $("div").find("[data-cid='" + commentID + "']");
             
             // get start time of comment
-            var commentStartTime = commentContainer.find(".temporalinfo").data('startval');
+            var commentStartTime = $theCommentContainer.find(".temporalinfo").data('startval');
             
             // get end time of comment
-            var commentEndTime = commentContainer.find(".temporalinfo").data('endval');
+            var commentEndTime = $theCommentContainer.find(".temporalinfo").data('endval');
             
             // get comment text
-            var commentText = commentContainer.find(".comment-text span").text();
+            var commentText = $theCommentContainer.find(".comment-text span").text();
             
             // TODO: activate canvas handles
             
      //       console.log("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + "commenttext: " + commentText);
             
-            var $commdet = $("div.comment-details");
+            //var $commdet = $("div.comment-details");
+            var $commdet = $commentformcontainer;
             
             // move new comment form 
-            $commdet.appendTo("#comment-"+commentID).show(); // should move the element in the DOM
+            // $commdet.appendTo("#comment-"+commentID).show(); // should move the element in the DOM
+            $commdet.detach().appendTo("#comment-"+commentID).show(); // should move the element in the DOM
             $commdet.find("input#new-comment-submit-button").attr("value", "Finished Editing");
             
             // commentContainer.find(".edit-comment-wrap").show();
@@ -245,6 +274,7 @@
         $(".clock-icon").click(function(){
             video_dom.currentTime = $(this).data('startval');
         });
+
 
         //This will delete the specific comment when the user clicks the x icon
         $(".comment-delete-link").click(function(){
@@ -296,7 +326,7 @@
         $("form#submitReply").submit(function() {
             // we want to store the values from the form input box, then send via ajax below
 
-            var vidNumber =<?php echo $videoNumber; ?>;
+            var vidNumber =<?php echo (isset($videoNumber)) ? ($videoNumber) : ("''"); ?>;
             var $reply_container = $(this).parent('.comment-container').children('.reply-container');
             var $form_input =  $(this).children('.text_reply');
             var reply = $form_input.attr('value');
@@ -325,6 +355,7 @@
 
 
 
+        // when you click on the arrow button to expand a comments content
         $(".arrow-container").click(function() {
 //            var $video = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-video");
             var $video = $(this).parent(".comment-content-container").find(".comment-video");
@@ -364,7 +395,7 @@
             // stop the click from scrolling us around the page
            event.preventDefault();
            
-           var commentID = $(this).data('cid');
+           var commentID   = $(this).data('cid');
            var commentType = $(this).data('ctype');
            
            // establish the container comment structure that the reply link is associated to
@@ -372,22 +403,29 @@
            //$theCommentContainer = $("div#"+commentType+"-"+commentID);
            $theCommentContainer = $("div").find("[data-cid='" + commentID + "']");
            
+           // set the 'global' selected comment variable
+           $selectedComment = $theCommentContainer;
+           
            console.log(commentID + ', type: ' + commentType + ", container element is: " + $theCommentContainer[0].id);
            
            // hide the reply link 
            $(this).hide();
+           // hide all the reply links
+           $(".commentReplyLink").hide();
            
            // add a border to the container element to encompass the reply form
            $theCommentContainer.addClass("writing-reply");
            
            // make a reference to the reply form div wrapper
-           var $commdetwrap = $("div.comment-details");
+           //var $commdetwrap = $("div.comment-details");
+           var $commdetwrap = $commentformcontainer;
            
            //$commdetwrap.appendTo("#"+commentType+"-"+commentID).show(); 
-           $commdetwrap.appendTo($theCommentContainer).show();  // should move the element in the DOM
+           $commdetwrap.detach().appendTo($theCommentContainer).show();  // should move the element in the DOM
            
            $commdetwrap.find("form#new-comment-form").attr("action", "include/submit_comment.php?pID="+commentID+"aID=<?php echo $_SESSION['participantID'];?>");
            $commdetwrap.find("#parentCommentID").attr("value", commentID);
+           $commdetwrap.find("#selectedCommentID").attr("value", commentID);
            $commdetwrap.find("#formAction").attr("value", "reply");
            $commdetwrap.find("#new-comment-submit-button").attr("value", "Post Reply");
            
@@ -412,10 +450,12 @@
  //           clearCanvas(traversalctx);
             //$(".comment-details").show();
             
-            if ( (".comment-details").find("formAction").attr("value") == 'edit' ) {
+            //if ( (".comment-details").find("formAction").attr("value") == 'edit' ) {
+            if ( $commentformcontainer.find("formAction").attr("value") == 'edit' ) {    
                 // TODO: finish this
                 // get comment start and end time
-                var $commID = $(".comment-details").parent(".feedback-container").data('cid');
+                // var $commID = $(".comment-details").parent(".feedback-container").data('cid');
+                var $commID = $commentformcontainer.parent(".feedback-container").data('cid');
                 
             }
             else {
@@ -427,7 +467,8 @@
 
         // hide the new comment create form when user clicks 'cancel' on it
         $postCommentButton.click(function(){
-            $(".comment-details").show();
+            //$(".comment-details").show();
+            $commentformcontainer.show();
             $(this).hide();
         });
 
@@ -597,7 +638,10 @@
                 creatingTimedComment = true;
                 clearCanvas(ctx);
                 clearCanvas(traversalctx);
-                $(".comment-details").show();
+                
+                //$(".comment-details").show();
+                $commentformcontainer.show();
+                
                 startTimeInput.val( roundNumber(video_dom.currentTime, 2));
                 endTimeInput.val( roundNumber(video_dom.currentTime + 2, 2));
                 $(":button[name=previewButton]").css("display","inline");
@@ -923,7 +967,7 @@ echo '$("div#fullcommarraydiv").empty().html(' . $commentsAsText . ');';
 //-----------ADD SIGNLINKS TO DENSITY BAR ------------------------------------------//
 
 // TODO: fix this sql statement to use a prepared statement, extremely unsafe as is
-$sql = "Select * From video_signlink WHERE source_id = '$videoNumber' Order By start_time ASC";
+$sql = "Select * From video_signlink WHERE source_id = '" . $videoNumber . "' Order By start_time ASC";
 $result = mysqli_query($db, $sql);
 
 while ( $row = mysqli_fetch_assoc($result) ) {

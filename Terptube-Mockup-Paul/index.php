@@ -66,9 +66,9 @@ while ($row = mysqli_fetch_assoc($result)) {
             </div>
 
             <!-- This div will contain the form to add a new comment -->
-            <div class="comment-details" style="display:none">
+            <div id="comment-form-wrap" style="display:none">
 
-                <form id="new-comment-form" action="include/submit_comment.php?pID=0&?aID=<?php echo $_SESSION['participantID'];?>" enctype="multipart/form-data" method="post">
+                <form id="new-comment-form" action="include/submit_comment.php?pID=0&aID=<?php echo $_SESSION['participantID'];?>" enctype="multipart/form-data" method="post">
                     <span id="toggle-time-span">Apply comment to portion of video</span>
                     <div id="new-comment-time-div" style="display:none;">
                         <label>Start Time:</label>
@@ -126,6 +126,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                     <input type="hidden" name="partID" value="<?php echo $_SESSION['participantID'];?>" />
                     <input type="hidden" name="formAction" value="new" id="formAction" />
                     <input type="hidden" name="parentID" value="" id="parentCommentID" />
+                    <input type="hidden" name="commentID" value="" id="selectedCommentID" />
 
                     <br/>
 
@@ -156,13 +157,14 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <div class="comment-avatar-div">
                                 <img src="images/avatar/<?php echo $comment["authoravatarfilename"]; ?>" />
                                 <p>Name: <?php echo $comment["authorname"]; ?></p>
-                                <p>Joined: <?php echo date_format(new DateTime($comment["authorjoindate"]), 'M d,Y'); ?></p>
+                                <p>Joined: <?php echo $comment["authorjoindate"]; ?></p>
                             </div>
                             <?php if(intval($comment['author'])==intval($_SESSION['participantID'])){echo printCommentTools($comment["id"]);} ?>                         
                         </div>
                         <div class="clearfix"></div>
 
                         <div id="comment-content-container-<?php echo $comment["id"]; ?>" class="comment-content-container">
+                            <div class="comment-date"><?php echo $comment['date']; ?></div>
                             <div class="comment-content">
 
                                 <?php if ($comment["hasvideo"] === 1) { ?>
@@ -218,6 +220,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                         <div class="clearfix"></div>
 
                         <div id="comment-content-container-<?php echo $reply["id"]; ?>" class="comment-content-container reply-content-container">
+                            <div class="comment-date"><?php echo $reply['date']; ?></div>
                             <div class="comment-content reply-content">
                             <?php 
                             if ($reply["hasvideo"] === 1) { ?>

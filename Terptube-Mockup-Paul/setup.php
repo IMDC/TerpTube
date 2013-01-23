@@ -25,6 +25,9 @@ define('REL_UPLOAD_DIR', SITE_BASE . 'uploads' . DIRECTORY_SEPARATOR);
 // encoded videocomment storage directory
 define('VIDCOMMENT_DIR', REL_UPLOAD_DIR . 'comment' . DIRECTORY_SEPARATOR);
 
+// directory for existing videos
+define('EXISTINGVID_DIR', REL_UPLOAD_DIR . 'video' . DIRECTORY_SEPARATOR);
+
 // thumbnail directory
 //define('THUMBNAIL_DIR', VIDCOMMENT_DIR . 'thumb' . DIRECTORY_SEPARATOR);
 define('THUMBNAIL_DIR', 'uploads/comment/thumb' . DIRECTORY_SEPARATOR);

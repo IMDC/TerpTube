@@ -30,7 +30,7 @@
 	height:40px;
 }
 
-/*.record-or-preview .track
+.record-or-preview .track
 {
 	position:absolute;
 	left:0px;
@@ -38,7 +38,7 @@
     width: 640px;
     height: 40px;
 }
-*/
+
 #densitybar.record-or-preview 
 {
 	z-index: 1;
