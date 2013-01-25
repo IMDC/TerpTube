@@ -43,6 +43,7 @@ function createThumbnail($videoPath, $thumbName, $freezeTime, $size = "144x112")
 	$newthumbjpg = UPLOAD_DIR . "comment/thumb/" . $thumbName . ".jpg";
 	
     //$tempthumbjpg = $fnameonly . 'temp.jpg';
+    // $tempthumbjpg = "../comment/thumb/" . $fnameonly . 'temp.jpg';
 	$tempthumbjpg = UPLOAD_DIR . "comment/thumb/" . $fnameonly . 'temp.jpg';
 
     // $stringToExecuteRegular = "ffmpeg/ffmpeg -i " . $videoPath . " -ss " . $freezeTime . " -f image2 -vframes 1 -s " . $size . " " . $tempthumbjpg;

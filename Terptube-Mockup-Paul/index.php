@@ -45,7 +45,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                     </div> <!-- video-info-container -->
 
-  
+                    
                     
                     <div class="cleardiv"></div>
                     <!------------ Source video description Box ------------------------>
@@ -159,7 +159,11 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 <p>Name: <?php echo $comment["authorname"]; ?></p>
                                 <p>Joined: <?php echo $comment["authorjoindate"]; ?></p>
                             </div>
-                            <?php if(intval($comment['author'])==intval($_SESSION['participantID'])){echo printCommentTools($comment["id"]);} ?>                         
+                            <?php 
+                                if( isset($comment['author']) && isset($_SESSION['participantID']) && (intval($comment['author']) == intval($_SESSION['participantID'])) ) {
+                                    echo printCommentTools($comment["id"]);
+                                } 
+                            ?>                         
                         </div>
                         <div class="clearfix"></div>
 
@@ -268,7 +272,7 @@ while ($row = mysqli_fetch_assoc($result)) {
             </div>
             
         </div>
-	<!--	<script type="text/javascript" src="js/index/video-comment-martin.js"></script> -->
+
         <div id="footer">
             <?php include('include/footer.php'); ?>
         </div>

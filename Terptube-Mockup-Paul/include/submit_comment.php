@@ -5,9 +5,6 @@ require_once (INC_DIR . 'functions.inc.php');
 
 global $db;
 
-define('CREATE_NEW_COMMENT', 0);
-define('EDIT_COMMENT',       1);
-
 /** params needed for db **/
 
 $sourceID 		    = intval($_POST['v']);
@@ -33,12 +30,12 @@ $has_video			= 0; // initialize to 0, set later if true
 $video_filename     = ''; // init to empty, set later
 $rec_vid_fn_only    = '';
 $existingVidChoice  = ''; // init to empty, set later
-
-$existingVidChosen  = FALSE;
+$existingVidChosen  = 0;
 
 $videofilepathfordb = ''; // init to empty, set later
 
 error_log("form action received in submit_comment.php is $action");
+error_log("value of the user-existing-video from post is: " . $_POST['user-existing-video']);
 
 if ( ($authorIDform != $authorIDsession) && ($authorIDsession != $authorIDget) ) {
     error_log('comment creation failed, author ids are different');
@@ -60,9 +57,9 @@ if ( isset($_POST['file-name']) ) {
 }
 
 // check if user selected to use an existing video in the comment
-if ( isset($_POST['user-existing-video']) ) {
+if ( isset($_POST['user-existing-video']) && !empty($_POST['user-existing-video'])  ) {
 	$existingVidChoice = $_POST['user-existing-video'];
-    $existingVidChosen = TRUE;
+    $existingVidChosen = 1;
 }
 
 
@@ -74,18 +71,20 @@ if ( isset($comment_start_time) && (isset($comment_end_time)) ) {
     }
 }
 
-// if there is a video filename or an existing video selected in the dropdown box
+// if there is a recorded video filename or an existing video selected in the dropdown box
 if ( $rec_vid_fn_only || $existingVidChoice ) {
+	// set has_video flag    
 	$has_video = 1;
     
-    // if user selected both an existing vid and an upload, use the upload
-	if ($existingVidChoice && $rec_vid_fn_only ) {
+    // if user selected an upload or a recording, use that video file name
+	//if ($existingVidChoice && $rec_vid_fn_only ) {
+    if ( $rec_vid_fn_only ) {
 		$videofilepathfordb = 'comment' . DIRECTORY_SEPARATOR . $rec_vid_fn_only;
 	}
     // if no upload selected but user chose an existing vid
     else if (empty($rec_vid_fn_only) && !empty($existingVidChoice)) {
         $videofilepathfordb = 'video' . DIRECTORY_SEPARATOR . $existingVidChoice;
-        $existingVidChosen = TRUE;
+        $existingVidChosen = 1;
     }
     else {
         $videofilepathfordb = 'comment' . DIRECTORY_SEPARATOR . $rec_vid_fn_only;
@@ -101,40 +100,58 @@ switch ($action) {
     case "new":
         $commentID = insertCommentIntoDatabase($sourceID, $parentID, $authorIDchecked, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $videofilepathfordb);
         
-        if ($commentID) {
-            //$target_path = UPLOAD_DIR . "comment" . DIRECTORY_SEPARATOR . $commentID . ".webm";
-            
-            $target_path = "../uploads/comment/" . $rec_vid_fn_only;
-            $video_filename = "../uploads/temp/" . $rec_vid_fn_only;
-    
-            if ( ($existingVidChosen == FALSE) ) {
-                // need to copy comment video
-                // copy the video (existing or uploaded) to the comments directory
-                error_log("copying $video_filename to $target_path inside submit_comment");
-                if ( copy($video_filename, $target_path) ) {
-                    // successful copy
-                    $videofilepathfordb = $target_path;
-                    createThumbnail($target_path, $commentID, 1);
-                    
-                    // if the user uploaded a new video, we need to get rid of the temp one
-                    if ( $existingVidChosen == FALSE ) {
-                        error_log("calling unlink on file: $video_filename");    
-                        unlink($video_filename);
-                    }
-                }
-                else {
-                    error_log("ERROR COPYING FILE $videofilepathfordb FROM TEMP TO COMMENT FOLDER INSIDE SUBMIT_COMMENT.php");
-                }
-            }
-            else {
-                error_log("trying to create thumbnail for $videofilepathfordb in upload directory: " . UPLOAD_DIR);
-                createThumbnail(UPLOAD_DIR . $videofilepathfordb, $commentID, 1);
-            }
-        }
-        else {
+        if ( !$commentID  || !isset($commentID) ) {
+            // fail, comment wasn't inserted in to our database
             error_log('ERROR in submit_comment.php while inserting new comment');
             addError("Error creating new comment");
+            $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
+            header("Location: " . SITE_BASE . $redirectLocation);
+            return;
         }
+        
+        // successful comment created in database from here
+            
+        // check for if comment has video data
+        if (!$has_video) {
+            // comment successfully created, didn't have any video info, so no thumbnail image needed
+            error_log("comment id: $commentID created successfully with no video thumbnail necessary");
+            $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
+            header("Location: " . SITE_BASE . $redirectLocation);
+            return;
+        }
+        
+        // comment has video data, need to create thumbnails
+        
+        //$target_path = UPLOAD_DIR . "comment" . DIRECTORY_SEPARATOR . $commentID . ".webm";
+        $video_filename = "../uploads/temp/"    . $rec_vid_fn_only;
+        $target_path    = "../uploads/comment/" . $rec_vid_fn_only;
+
+        if ( $existingVidChosen == 1 ) {
+            $target_path    = "../uploads/video/" . $existingVidChoice;
+            error_log("existing video chosen, trying to create thumbnail for $videofilepathfordb in upload directory: " . UPLOAD_DIR);
+            //createThumbnail(UPLOAD_DIR . $videofilepathfordb, $commentID, 1);
+            createThumbnail($target_path, $commentID, 1);
+        }
+        else {
+            // need to copy comment video
+            // copy the video (existing or uploaded) to the comments directory
+            error_log("no existing video chosen, so copying $video_filename to $target_path inside submit_comment");
+            
+            if ( copy($video_filename, $target_path) ) {
+                // successful copy
+                // $videofilepathfordb = $target_path;
+                createThumbnail($target_path, $commentID, 1);
+                
+                // the user uploaded a new video, we need to get rid of the temp one
+                error_log("calling unlink on file: $video_filename");    
+                unlink($video_filename);
+            }
+            else {
+                error_log("ERROR COPYING FILE $videofilepathfordb FROM TEMP TO COMMENT FOLDER INSIDE SUBMIT_COMMENT.php");
+            }
+        }
+
+        
         // can use generic redirect as all new comment insertions should go back to the original source
         $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
         break;
@@ -199,10 +216,11 @@ header("Location: " . SITE_BASE . $redirectLocation);
 
 //$commentID = insertCommentIntoDatabase($action, $sourceID, $parentID, $authorIDsession, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $video_filename);
 
+/***
 if ($commentID) { // successful comment insertion into database
 	
-	/* file uploads to uploads/temp
-	 upload to sever	*/
+	 // file uploads to uploads/temp
+	 // upload to sever
 	 
 	$target_path = VIDCOMMENT_DIR . $commentID . ".webm";
 	
@@ -227,6 +245,8 @@ if ($commentID) { // successful comment insertion into database
         
     }
     
+
+ */
     
     
     
@@ -260,6 +280,7 @@ if ($commentID) { // successful comment insertion into database
 	// header("Location: " . SITE_BASE . "index.php?v=$sourceID");
 	// require_once (INC_DIR . 'footer.php');
 	
+	/*
 }
 else {
 	error_log('ERROR in submit_comment.php');
@@ -268,7 +289,7 @@ else {
 
 header("Location: " . SITE_BASE . "index.php?v=$sourceID&pID=$authorIDsession");
 
-
+*/
 
 
 function insertCommentIntoDatabase($sourceID, $parentID, $authID, $comment, $start, $end, $temporal, $hasvid, $vidfile) {

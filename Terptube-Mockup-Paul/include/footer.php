@@ -16,7 +16,10 @@
 			
                 playing = false;
                 creatingTimedComment = true;
-                $(".comment-details").show();
+                // $(".comment-details").show();
+                $("button#postCommentButton").hide();
+                $("#comment-form-wrap").show();
+                $("span#toggle-time-span").click();
                 controls.currentMinTimeSelected = controls.getCurrentTime();
                 controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
                 controls.currentMaxTimeSelected = controls.currentMinTimeSelected+controls.options.minLinkTime;
@@ -188,9 +191,14 @@
             //var $commdet = $(".comment-details");
             var $commdet = $commentformcontainer;
             
+            // show the span that wraps the start and end time inputs
+            // and hide the div that wraps the inputs
+            $("span#toggle-time-span").show();
+            $("#new-comment-time-div").hide();
+            
             // reset start and end time inputs
             $("#new-comment-time-div input").val('');
-            $("#new-comment-time-div").hide();
+            
             // clear text area
             $("#comment-textarea").attr("value", "");
             // reset existing video to blank choice
