@@ -97,7 +97,8 @@ error_log("video_filename: $video_filename rec_vid_fn_only: $rec_vid_fn_only exi
 $redirectLocation = "";
 
 switch ($action) {
-    case "new":
+    case "new"   :
+    case "reply" :
         $commentID = insertCommentIntoDatabase($sourceID, $parentID, $authorIDchecked, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $videofilepathfordb);
         
         if ( !$commentID  || !isset($commentID) ) {
@@ -162,20 +163,7 @@ switch ($action) {
             $commentID = $parentID;
         }
         break;
-    
-    case "reply":
-        $commentID = insertCommentIntoDatabase($action, $sourceID, $parentID, $authorIDchecked, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $videofilepathfordb);
-        if ($commentID) {
-            
-        }
-        else {
-            error_log('ERROR in submit_comment.php while replying to coment');
-            addError("Error in creating your reply to a comment, sorry");
 
-            $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
-        }
-        break;
-    
     case "create":
         $newvidid = createNewSourceVideoInDatabase($authorIDchecked, $rec_vid_fn_only, $comment_text);
         if ($newvidid) {

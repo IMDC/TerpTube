@@ -150,14 +150,21 @@ function createSignlinkThumb($videoPath, $thumbName, $freezeTime, $size = "144x1
  * @param $idonly if set to 1 will return the id only, not the full path of the file
  * @return the string name of the comment.jpg file, or a default thumbnail file
  */
-function getVideoThumbnail( $commid, $idonly=1 ) {
+function getVideoThumbnail( $commid, $vidfilepath, $idonly=1 ) {
 	$cid = intval($commid);	
 	
 	$thumb = THUMBNAIL_DIR . $cid . ".jpg";
 	error_log("trying to find comment id: $cid in getVideoThumbnail function");
 	if (!file_exists($thumb)) {
 		error_log("thumbnail not found for comment id: " . $cid . " when searching in $thumb");
-		return THUMBNAIL_DEFAULT;
+	
+		$target_path = "../uploads/" . $vidfilepath;
+        error_log("attempting to create new thumbnail from file: $target_path for comment: $cid in getVideoThumbnail function");
+		$newthumb = createThumbnail($target_path, $cid, 1);
+		if (!$newthumb)
+		  return THUMBNAIL_DEFAULT;
+        
+        return THUMBNAIL_DIR . $cid . ".jpg";
 	}
 	
 	if ( intval($idonly) == 1 )
@@ -444,7 +451,7 @@ function getTopLevelCommentsForSourceID($sourceID) {
         mysqli_stmt_execute($stmt);
         
         /* bind results */
-        mysqli_stmt_bind_result($stmt, $commID, $source_id, $authID, $parentID, $textcont, 
+        mysqli_stmt_bind_result($stmt, $commID, $source_id, $parentID, $authID, $textcont, 
                                     $start, $end, $commdate, $deleted, $tempcommentbool, 
                                     $hasvideobool, $videofilename, $partname, $partdatecreated, 
                                     $partrole, $partavatarfilename);
@@ -453,7 +460,7 @@ function getTopLevelCommentsForSourceID($sourceID) {
         while (mysqli_stmt_fetch($stmt)) {
             $singleCommentArray = array("id" => $commID, 
                                         "sourceid" => $source_id,
-                                        "author" => $authID, 
+                                        "author" => $authID,
                                         "parentid" => $parentID,
                                         "text" => htmlentities($textcont), 
                                         "starttime" => $start, 

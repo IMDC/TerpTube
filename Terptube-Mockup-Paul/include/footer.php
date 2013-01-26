@@ -156,13 +156,13 @@
             
             //$(".comment-details").detach().appendTo("#content-left"); // move form to left side underneath 'post new comment' button
             //$(".comment-details").hide(); // hide the comment details form
-            $commentformcontainer.detach().appendTo("#content-left");
+            $commentformcontainer.detach().appendTo("div#content-left");
             $commentformcontainer.hide();
             
             $(".commentReplyLink").show(); // show all comment reply links if previously hidden
             
-            drawAreaOnBar(signlinkArray);
-            drawAreaOnBar(commentArray);
+            // drawAreaOnBar(signlinkArray);
+            // drawAreaOnBar(commentArray);
             
             creatingTimedComment = false;
             resetNewCommentFormValues();
@@ -178,8 +178,8 @@
 			controls.drawSignLinks();
 			
             // remove the css class from the comment you clicked 'reply' on
-            console.log("removing css class from selectedComment element: " + $selectedComment.id);
-            $selectedComment.removeClass("writing-reply");
+            //console.log("removing css class from selectedComment element: " + $selectedComment.id);
+            //$selectedComment.removeClass("writing-reply");
             
             // reset the variable
             $selectedComment = null;
@@ -309,6 +309,7 @@
                                 if ( retdata.status === "success" ) {
                                     alert('awesome');
                                     $("div#comment-" + retdata.id).remove();
+                                    //TODO: MARTIN add something to delete timeline region
                                 }
                             console.log(data);
                             return true; 
@@ -409,7 +410,7 @@
            // establish the container comment structure that the reply link is associated to
            // can be a top level 'comment' or a nested 'reply'
            //$theCommentContainer = $("div#"+commentType+"-"+commentID);
-           $theCommentContainer = $("div").find("[data-cid='" + commentID + "']");
+           $theCommentContainer = $("div").find("[data-cid='" + commentID + "']").eq(0);
            
            // set the 'global' selected comment variable
            $selectedComment = $theCommentContainer;
@@ -422,7 +423,7 @@
            $(".commentReplyLink").hide();
            
            // add a border to the container element to encompass the reply form
-           $theCommentContainer.addClass("writing-reply");
+           //$theCommentContainer.addClass("writing-reply");
            
            // make a reference to the reply form div wrapper
            //var $commdetwrap = $("div.comment-details");

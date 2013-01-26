@@ -131,7 +131,6 @@ while ($row = mysqli_fetch_assoc($result)) {
                     <br/>
 
                     <input type="button" id="previewButton" name="previewButton" style="display:none" value="Preview"/>
-
                     <input type="submit" id="new-comment-submit-button" value="Post Comment" />
                     <input type="button" id="cancel-button" name="cancel-button" value ="Cancel" />
 
@@ -139,7 +138,7 @@ while ($row = mysqli_fetch_assoc($result)) {
             </div>
 
 
-        </div>
+        </div>  <!-- end of content-left div -->
         <div id="content-right">
             <!-- Holds the comments -->
             <div class="comment-container" id="3" >
@@ -160,6 +159,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 <p>Joined: <?php echo $comment["authorjoindate"]; ?></p>
                             </div>
                             <?php 
+                                error_log("output from index.php printing comment tools: comment author: " .  $comment['author'] . " participantID: " . $_SESSION['participantID']);
                                 if( isset($comment['author']) && isset($_SESSION['participantID']) && (intval($comment['author']) == intval($_SESSION['participantID'])) ) {
                                     echo printCommentTools($comment["id"]);
                                 } 
@@ -173,7 +173,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                                 <?php if ($comment["hasvideo"] === 1) { ?>
                                     <!--  <video class="comment-video" preload="auto" poster="uploads/comment/thumb/<?php echo getVideoThumbnail($comment["id"],1); ?>" style="left:35%"> -->
-                                    <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($comment["id"], 0); ?>" style="left:35%">
+                                    <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($comment["id"], $comment["videofilename"], 0); ?>" style="left:35%">
                                         <!-- <source src="uploads/comment/<?php echo $comment["id"]; ?>.webm" type="video/webm" /> -->
                                         <!--   <source src="<?php echo VIDCOMMENT_DIR . $comment["id"]; ?>.webm" type="video/webm" />	-->
                                         <?php echo printCommentVideoSource($comment); ?>
@@ -228,7 +228,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <div class="comment-content reply-content">
                             <?php 
                             if ($reply["hasvideo"] === 1) { ?>
-                                <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($reply["id"], 0); ?>" style="left:35%">
+                                <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($reply["id"], $comment["videofilename"], 0); ?>" style="left:35%">
                                     <?php echo printCommentVideoSource($reply); ?>
                                     <?php //TODO: check after a comment is uploaded that it is converted to webm or mp4 ?? ?>
                                 </video>
@@ -257,9 +257,11 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 <br/>
                             <?php } ?>
                         </div>
+                        <!--
                         <div class="reply-wrap">
                             <p></p><a href="#" class="commentReplyLink" data-cid="<?php echo $reply['id'];?>" data-ctype="reply">Reply</a></p>
                         </div>
+                        -->
                     </div>
                     
                     <?php 
