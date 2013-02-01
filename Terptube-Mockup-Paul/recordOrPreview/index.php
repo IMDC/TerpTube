@@ -27,8 +27,6 @@ else {
 	$video = NULL;
 }
 
-
-
 ?>
 
 <div class="record-or-preview" id="playerContent">        

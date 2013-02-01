@@ -17,6 +17,7 @@ function getFFMPEGPath()
 	 */
 function parseFFMPEGTimeToSeconds($time)
 {
+	echo $time;
 	$array = preg_split("/[:.]/", $time);
 	
 	error_log("FFMPEG TIME PARSED: $array[0] $array[1] $array[2] $array[3]");

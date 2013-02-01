@@ -135,13 +135,7 @@ function createControls()
 	//Set dimensions for the playHead Top
 	if (this.options.playHeadImage)
 	{
-		this.playHeadImage = new Image();
-		this.playHeadImage.src = this.options.playHeadImage;
-		this.playHeadImageHighlighted = false;
-		this.playHeadImage.heightNormal = this.trackPadding*1.5;
-		this.playHeadImage.widthNormal = this.trackPadding*1.5;
-		this.playHeadImage.heightHighlighted = this.trackPadding*1.8;
-		this.playHeadImage.widthHighlighted = this.trackPadding*1.8;
+		this.setPlayHeadImage(this.options.playHeadImage);
 	}
 //	var recording_maxRecordingTime = 60*1000; //60 seconds
 //	var recording_minRecordingTime = 1000*3;
@@ -154,6 +148,21 @@ function createControls()
 	{
 		this.setupVideo();
 	}
+}
+function setPlayHeadImage(image)
+{
+	if (!image)
+	{
+		this.playHeadImage = image;
+		return;
+	}
+	this.playHeadImage = new Image();
+	this.playHeadImage.src = image;
+	this.playHeadImageHighlighted = false;
+	this.playHeadImage.heightNormal = this.trackPadding*1.5;
+	this.playHeadImage.widthNormal = this.trackPadding*1.5;
+	this.playHeadImage.heightHighlighted = this.trackPadding*1.8;
+	this.playHeadImage.widthHighlighted = this.trackPadding*1.8;
 }
 
 /*
@@ -322,6 +331,7 @@ function DensityBar(elementID, videoID, options)
 	this.setSignLinks = setSignLinks;
 	this.drawSignLinks = drawSignLinks;
 	this.drawSignLink = drawSignLink;
+	this.setPlayHeadImage = setPlayHeadImage;
 }
 
 
@@ -795,8 +805,6 @@ function setInputEnabled(element, enabled)
 
 function recording_checkStop()
 {
-	// if (video.paused)
-		// return;
 	this.repaint();
 	var time = this.getCurrentTime();
 	if (!this.isPastMinimumRecording && time >=this.options.minRecordingTime)

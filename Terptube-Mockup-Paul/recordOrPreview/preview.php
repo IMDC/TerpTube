@@ -107,8 +107,6 @@ if ($postType == 'upload')
 </script>
 
 <?php
-	
-	
 }
 else if ($postType == 'record')
 {
