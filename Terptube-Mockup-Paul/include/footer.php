@@ -232,7 +232,66 @@
             // get comment text
             var commentText = $theCommentContainer.find(".comment-text span").text();
             
-            // TODO: activate canvas handles
+            if (commentStartTime !== commentEndTime)
+            {
+            	 $("span#toggle-time-span").parent('#new-comment-form').find("#new-comment-time-div").show();
+            $("span#toggle-time-span").hide();
+            
+            video_dom.pause();
+            video_dom.currentTime = commentStartTime;
+            playing = false;
+            creatingTimedComment = true;
+        	controls.playHeadImage = undefined;
+            // $(".comment-details").show();
+            controls.currentMinTimeSelected = commentStartTime;
+            controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+            controls.currentMaxTimeSelected = commentEndTime;
+            controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+          	controls.setAreaSelectionEnabled(true);
+            startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+            startTimeInput.on("change",function(){
+				if (startTimeInput.val() >= controls.currentMaxTimeSelected - controls.options.minLinkTime)
+				{
+					controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
+					controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+					startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+				}
+				else if (startTimeInput.val()<=0)
+				{
+					controls.currentMinTimeSelected = 0;
+					controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+					startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+				}
+				else
+				{
+					controls.currentMinTimeSelected = startTimeInput.val();
+					controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+				}
+				controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
+            });
+            endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+            endTimeInput.on("change",function(){
+				if (endTimeInput.val() <= controls.currentMinTimeSelected + controls.options.minLinkTime)
+				{
+					controls.currentMaxTimeSelected = controls.currentMinTimeSelected + controls.options.minLinkTime;
+					controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+					endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+				}
+				else if (endTimeInput.val()>=controls.getDuration())
+				{
+					controls.currentMaxTimeSelected = controls.getDuration();
+					controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+					endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+				}
+				else
+				{
+					controls.currentMaxTimeSelected = endTimeInput.val();
+					controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+				}
+				controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
+				
+            });
+            }
             
      //       console.log("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + "commenttext: " + commentText);
             
