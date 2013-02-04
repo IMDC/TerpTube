@@ -341,12 +341,16 @@
 
 
         //This will delete the specific comment when the user clicks the x icon
-        $(".comment-delete-link").click(function(){
+        $(".comment-delete-link").click(function(event){
+            // prevent the click from scrolling around the page
+            event.preventDefault();
+            
             // get the comment's ID
             var commentID = stringToIntegersOnly($(this).attr('id'));
             
             // fade out the comment in question
-            $("div#comment-" + commentID).fadeTo('slow', 0.5);
+            //$("div#comment-" + commentID).fadeTo('slow', 0.5);
+            $("div").find("[data-cid='" + commentID + "']").eq(0).fadeTo('medium', 0.5);
 //            alert(commentID);
 
             // show a dialog box asking for confirmation of delete
@@ -364,7 +368,8 @@
                                 var retdata = $.parseJSON(data);
                                 if ( retdata.status === "success" ) {
                                     alert('awesome');
-                                    $("div#comment-" + retdata.id).remove();
+                                    //$("div#comment-" + retdata.id).remove();
+                                    $("div").find("[data-cid='" + retdata.id + "']").eq(0).remove();
                                     //TODO: MARTIN add something to delete timeline region
                                     removeComment(commentID);
                                 }
@@ -381,7 +386,8 @@
                     },
                     Cancel: function() {
                         $( this ).dialog( "close" );
-                        $("div#comment-" + commentID).fadeTo('slow', 1.0);
+                        //$("div#comment-" + commentID).fadeTo('slow', 1.0);
+                        $("div").find("[data-cid='" + commentID + "']").eq(0).fadeTo('slow', 1.0);
                     }
                 }
             });

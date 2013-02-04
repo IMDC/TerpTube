@@ -161,8 +161,49 @@ switch ($action) {
     case "edit":
         // $parentIDfromForm is actually the commentID of the comment to be edited
         if (editCommentInDatabase($parentIDfromForm, $authorIDchecked, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $videofilepathfordb)) {
-            // set commentID to the comment we edited to trigger the video thumbnail function below    
-            //$commentID = $parentID;
+            // set commentID to the comment we edited to trigger the video thumbnail function below 
+            $commentID = $parentIDfromForm;
+            
+            // check for if comment has video data
+            if (!$has_video) {
+                // comment successfully created, didn't have any video info, so no thumbnail image needed
+                error_log("comment id: $commentID edited successfully with no video thumbnail necessary");
+                $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
+                header("Location: " . SITE_BASE . $redirectLocation);
+                return;
+            }
+            
+            // comment has video data, need to create thumbnails
+            
+            //$target_path = UPLOAD_DIR . "comment" . DIRECTORY_SEPARATOR . $commentID . ".webm";
+            $video_filename = "../uploads/temp/"    . $rec_vid_fn_only;
+            $target_path    = "../uploads/comment/" . $rec_vid_fn_only;
+    
+            if ( $existingVidChosen == 1 ) {
+                $target_path    = "../uploads/video/" . $existingVidChoice;
+                error_log("existing video chosen when editing a comment, trying to create thumbnail for $videofilepathfordb in upload directory: " . UPLOAD_DIR);
+                //createThumbnail(UPLOAD_DIR . $videofilepathfordb, $commentID, 1);
+                createThumbnail($target_path, $commentID, 1);
+            }
+            else {
+                // need to copy comment video
+                // copy the video (existing or uploaded) to the comments directory
+                error_log("no existing video chosen when editing a comment, so copying $video_filename to $target_path inside submit_comment");
+                
+                if ( copy($video_filename, $target_path) ) {
+                    // successful copy
+                    // $videofilepathfordb = $target_path;
+                    createThumbnail($target_path, $commentID, 1);
+                    
+                    // the user uploaded a new video, we need to get rid of the temp one
+                    error_log("calling unlink on file while editing comment: $video_filename");    
+                    unlink($video_filename);
+                }
+                else {
+                    error_log("ERROR COPYING FILE $videofilepathfordb FROM TEMP TO COMMENT FOLDER INSIDE SUBMIT_COMMENT.php while editing");
+                }
+            }
+            
             
             error_log("comment id: $commentID edited successfully");
             $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
