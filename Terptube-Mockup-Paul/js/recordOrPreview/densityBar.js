@@ -258,6 +258,8 @@ function DensityBar(elementID, videoID, options)
 	//playHeadImageOnClick - function to call on playheadImageClick
 	//onAreaSelectionChanged - triggered when adjusting the selectionArea
 	//signLinkColor - color for the signlinks
+	//onCommentMouseOver(comment) - triggered when hovering over a comment
+	//onCommentMouseOut(comment) - triggered when no longer hovering over a comment
 	this.options = {
 			volumeControl:true,
 			type:DENSITY_BAR_TYPE_PLAYER,
@@ -332,6 +334,8 @@ function DensityBar(elementID, videoID, options)
 	this.drawSignLinks = drawSignLinks;
 	this.drawSignLink = drawSignLink;
 	this.setPlayHeadImage = setPlayHeadImage;
+	this.checkMouseOverFunctions = checkMouseOverFunctions;
+	this.onCommentMouseOver = onCommentMouseOver;
 }
 
 
@@ -594,8 +598,46 @@ function setMouseOutThumb(event)
     	var instance = this;
 	var densityBarThumbElement = $(this.elementID).find(".videoControlsContainer.track.thumb").eq(0);
 	densityBarThumbElement.off('mousemove');
-	densityBarThumbElement.on("mousemove", function(e){instance.setMouseOverThumb(e);});
+	densityBarThumbElement.on("mousemove", function(e){instance.checkMouseOverFunctions(e);});
 }
+
+
+function checkMouseOverFunctions(e)
+{
+    this.setMouseOverThumb(e);
+    this.onCommentMouseOver(e);
+}
+
+function onCommentMouseOver(event)
+{
+    var thumbCanvas = $(this.elementID).find(".videoControlsContainer.track.thumb").eq(0);
+    var coords = getRelativeMouseCoordinates(event);
+    for (var i=0;i<this.comments.length; i++)
+    {
+	var comment = this.comments[i];
+	if (comment.isDeleted==true)
+	    continue;
+	var startX = this.getXForTime(comment.startTime);
+	var endX = this.getXForTime(comment.endTime);
+	if (startX>coords.x || endX< coords.x || coords.y < this.trackPadding || coords.y > this.trackPadding +this.trackHeight)
+	{
+	    if (comment.highlighted ==true)
+	    {
+		comment.highlighted=undefined;
+		this.options.onCommentMouseOut(comment);
+	    }
+	    continue;
+	    
+	}
+	if (comment.highlighted == true)
+	    continue;
+	comment.highlighted=true;
+	//console.log(this.comments[i]);
+	this.options.onCommentMouseOver(comment);
+	
+    }
+}
+
 
 function setMouseOverThumb(event)
 {
@@ -764,8 +806,8 @@ function setupVideoPlayback()
 	densityBarThumbElement.on('mousedown',function(e){densityBarThumbElement.off("mousemove");
 							 instance.setMouseDownThumb(e);});
 	densityBarThumbElement.on('mouseout', function(e){instance.setMouseOutThumb(e);});
-	densityBarThumbElement.on('mouseup', function(e){densityBarThumbElement.off("mousemove"); densityBarThumbElement.on("mousemove", function(e1){instance.setMouseOverThumb(e1);})});
-	densityBarThumbElement.on('mousemove', function(e){instance.setMouseOverThumb(e);});
+	densityBarThumbElement.on('mouseup', function(e){densityBarThumbElement.off("mousemove"); densityBarThumbElement.on("mousemove", function(e1){instance.checkMouseOverFunctions(e1);})});
+	densityBarThumbElement.on('mousemove', function(e){instance.checkMouseOverFunctions(e);});
 	densityBarThumbElement.on('click', function(e){instance.checkForPlayHeadClick(e);});
 
 }
@@ -856,6 +898,8 @@ function recording_recordingStarted()
 	this.recordTimer = setInterval(function(){instance.recording_checkStop();}, 100);
 	
 }
+
+
 
 function recording_stopRecording()
 {

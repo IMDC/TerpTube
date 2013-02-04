@@ -20,6 +20,19 @@
 				startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
                 endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
 		};
+		controls.options.onCommentMouseOver = function(comment)
+		{
+			var commentElement = $("div").find("[data-cid='" + comment.id + "']").eq(0);
+			comment.originalColor = commentElement.css("background-color");
+			commentElement.css("background-color", "#ff0000");
+		};
+		controls.options.onCommentMouseOut = function(comment)
+		{
+			var commentElement = $("div").find("[data-cid='" + comment.id + "']").eq(0);
+			commentElement.css("background-color", comment.originalColor);
+			comment.originalColor = undefined;
+		};
+		
 		controls.options.signLinkColor = "#0000FF";
 		controls.createControls();
 		
