@@ -249,6 +249,7 @@ html[xmlns] .clearfix {
     width: 100%;
     float: left;
     display: inline-block;
+    text-align: center;
 }
 
 .comment-tools-div ul li,a {

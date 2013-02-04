@@ -209,8 +209,11 @@
         });
 
         // Editing a comment by clicking on it's 'edit' button
-        //FIXME edit does not work for replies
-        $("a.comment-edit-link").click(function() {
+        $("a.comment-edit-link").click(function(event) {
+            
+            // stop the click from scrolling us around the page
+            event.preventDefault();
+            
             $cancelButton.click();
             // $(".comment-details").show();
             $postCommentButton.hide();
