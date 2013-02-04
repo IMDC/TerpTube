@@ -10,6 +10,7 @@ global $db;
 $sourceID 		    = intval($_POST['v']);
 // get parent id of post, will be 0 if a top-level comment, other id for a nested comment
 $parentID 			= intval($_GET['pID']);
+$parentIDfromForm   = intval($_POST['parentID']);
 
 $authorIDform       = intval($_POST['partID']);
 $authorIDsession    = intval($_SESSION['participantID']);
@@ -158,9 +159,22 @@ switch ($action) {
         break;
     
     case "edit":
-        if (editCommentInDatabase($parentID, $authorIDchecked, $comment, $start, $end, $temporal, $hasvid, $videofilepathfordb)) {
+        // $parentIDfromForm is actually the commentID of the comment to be edited
+        if (editCommentInDatabase($parentIDfromForm, $authorIDchecked, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $videofilepathfordb)) {
             // set commentID to the comment we edited to trigger the video thumbnail function below    
-            $commentID = $parentID;
+            //$commentID = $parentID;
+            
+            error_log("comment id: $commentID created successfully with no video thumbnail necessary");
+            $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
+            header("Location: " . SITE_BASE . $redirectLocation);
+            return;
+            
+        }
+        else {
+            $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
+            addError("Couldn't edit comment"); 
+            header("Location: " . SITE_BASE . $redirectLocation);
+            return;
         }
         break;
 
@@ -382,6 +396,7 @@ function createNewSourceVideoInDatabase($partid, $vidtitle, $textcomm) {
 function editCommentInDatabase($commentID, $authID, $comment, $start, $end, $temporal, $hasvid, $vidfile) {
     global $db;
     $commentID = intval($commentID);
+    $authID = intval($authID);
    
     /* create a prepared statement */
     $query = "UPDATE video_comment
@@ -391,10 +406,12 @@ function editCommentInDatabase($commentID, $authID, $comment, $start, $end, $tem
                   temporal_comment = ?,
                   has_video = ?,
                   video_filename = ?
-              WHERE comment_id = ?,
+              WHERE comment_id = ?
                   AND author_id = ?";
                   
     $stmt = mysqli_stmt_init($db);
+    
+    
     
     if ( !mysqli_stmt_prepare($stmt, $query)) {
         error_log("Failed to prepare statement in " . __FUNCTION__);
@@ -411,7 +428,7 @@ function editCommentInDatabase($commentID, $authID, $comment, $start, $end, $tem
         
         // if we affected a row, that's good
         // now we need to pull the results back from the database
-        if (mysqli_stmt_affected_rows($db) > 0) {
+        if (mysqli_stmt_affected_rows($stmt) > 0) {
             mysqli_stmt_close($stmt);
             return TRUE;
         }
