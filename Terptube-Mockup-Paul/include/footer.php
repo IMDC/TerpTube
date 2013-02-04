@@ -13,7 +13,8 @@
 		controls.options.type = DENSITY_BAR_TYPE_PLAYER;
 		controls.options.playHeadImage = "images/feedback_icons/round_plus.png";
 		controls.options.playHeadImageOnClick = function(){ 
-			 $("span#toggle-time-span").click();
+			$postCommentButton.click();
+			$("span#toggle-time-span").click();
 		};
 		controls.options.onAreaSelectionChanged = function(){
 				startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
@@ -31,7 +32,7 @@
         var speedSlow = false;
         var video_dom = $("video#myPlayer").get(0);
 
-        var $commentformcontainer =  $("#content-left").find(".comment-details").eq(0);
+        var $commentformcontainer =  $("#comment-form-wrap");
 
         //form inputs
         var startTimeInput     = $("#start_time");
@@ -185,6 +186,7 @@
             $("span#toggle-time-span").show();
             $("#new-comment-time-div").hide();
             
+            
             // reset start and end time inputs
             $("#new-comment-time-div input").val('');
             
@@ -207,7 +209,9 @@
         });
 
         // Editing a comment by clicking on it's 'edit' button
+        //FIXME edit does not work for replies
         $("a.comment-edit-link").click(function() {
+            $cancelButton.click();
             // $(".comment-details").show();
             $postCommentButton.hide();
             
@@ -221,7 +225,7 @@
             //var commentContainer = $("div#comment-"+commentID);
             
             // comment div container
-            $theCommentContainer = $("div").find("[data-cid='" + commentID + "']");
+            $theCommentContainer = $("div").find("[data-cid='" + commentID + "']").eq(0);
             
             // get start time of comment
             var commentStartTime = $theCommentContainer.find(".temporalinfo").data('startval');
@@ -234,63 +238,63 @@
             
             if (commentStartTime !== commentEndTime)
             {
-            	 $("span#toggle-time-span").parent('#new-comment-form').find("#new-comment-time-div").show();
-            $("span#toggle-time-span").hide();
-            
-            video_dom.pause();
-            video_dom.currentTime = commentStartTime;
-            playing = false;
-            creatingTimedComment = true;
-        	controls.playHeadImage = undefined;
-            // $(".comment-details").show();
-            controls.currentMinTimeSelected = commentStartTime;
-            controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
-            controls.currentMaxTimeSelected = commentEndTime;
-            controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
-          	controls.setAreaSelectionEnabled(true);
-            startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
-            startTimeInput.on("change",function(){
-				if (startTimeInput.val() >= controls.currentMaxTimeSelected - controls.options.minLinkTime)
-				{
-					controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
-					controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
-					startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
-				}
-				else if (startTimeInput.val()<=0)
-				{
-					controls.currentMinTimeSelected = 0;
-					controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
-					startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
-				}
-				else
-				{
-					controls.currentMinTimeSelected = startTimeInput.val();
-					controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
-				}
-				controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
-            });
-            endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
-            endTimeInput.on("change",function(){
-				if (endTimeInput.val() <= controls.currentMinTimeSelected + controls.options.minLinkTime)
-				{
-					controls.currentMaxTimeSelected = controls.currentMinTimeSelected + controls.options.minLinkTime;
-					controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
-					endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
-				}
-				else if (endTimeInput.val()>=controls.getDuration())
-				{
-					controls.currentMaxTimeSelected = controls.getDuration();
-					controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
-					endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
-				}
-				else
-				{
-					controls.currentMaxTimeSelected = endTimeInput.val();
-					controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
-				}
-				controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
-				
-            });
+            	$("span#toggle-time-span").parent('#new-comment-form').find("#new-comment-time-div").show();
+	            $("span#toggle-time-span").hide();
+	            
+	            video_dom.pause();
+	            video_dom.currentTime = commentStartTime;
+	            playing = false;
+	            creatingTimedComment = true;
+	        	controls.playHeadImage = undefined;
+	            // $(".comment-details").show();
+	            controls.currentMinTimeSelected = commentStartTime;
+	            controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+	            controls.currentMaxTimeSelected = commentEndTime;
+	            controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+	          	controls.setAreaSelectionEnabled(true);
+	            startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+	            startTimeInput.on("change",function(){
+					if (startTimeInput.val() >= controls.currentMaxTimeSelected - controls.options.minLinkTime)
+					{
+						controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
+						controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+						startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+					}
+					else if (startTimeInput.val()<=0)
+					{
+						controls.currentMinTimeSelected = 0;
+						controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+						startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+					}
+					else
+					{
+						controls.currentMinTimeSelected = startTimeInput.val();
+						controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+					}
+					controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
+	            });
+	            endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+	            endTimeInput.on("change",function(){
+					if (endTimeInput.val() <= controls.currentMinTimeSelected + controls.options.minLinkTime)
+					{
+						controls.currentMaxTimeSelected = controls.currentMinTimeSelected + controls.options.minLinkTime;
+						controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+						endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+					}
+					else if (endTimeInput.val()>=controls.getDuration())
+					{
+						controls.currentMaxTimeSelected = controls.getDuration();
+						controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+						endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+					}
+					else
+					{
+						controls.currentMaxTimeSelected = endTimeInput.val();
+						controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+					}
+					controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
+					
+	            });
             }
             
      //       console.log("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + "commenttext: " + commentText);
@@ -300,7 +304,8 @@
             
             // move new comment form 
             // $commdet.appendTo("#comment-"+commentID).show(); // should move the element in the DOM
-            $commdet.detach().appendTo("#comment-"+commentID).show(); // should move the element in the DOM
+         //  $commdet.detach().appendTo("#comment-"+commentID).show(); // should move the element in the DOM
+        	 $commdet.detach().appendTo($theCommentContainer).show();
             $commdet.find("input#new-comment-submit-button").attr("value", "Finished Editing");
             
             // commentContainer.find(".edit-comment-wrap").show();
