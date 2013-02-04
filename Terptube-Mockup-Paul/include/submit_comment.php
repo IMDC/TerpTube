@@ -400,17 +400,9 @@ function editCommentInDatabase($commentID, $authID, $comment, $start, $end, $tem
    
     /* create a prepared statement */
     $query = "UPDATE video_comment
-              SET text_comments = ?,
-                  comment_start_time = ?,
-                  comment_end_time = ?,
-                  temporal_comment = ?,
-                  has_video = ?,
-                  video_filename = ?
-              WHERE comment_id = ?
-                  AND author_id = ?";
+              SET text_comments = ?, comment_start_time = ?, comment_end_time = ?, temporal_comment = ?, has_video = ?, video_filename = ? WHERE comment_id = ? AND author_id = ?";
                   
     $stmt = mysqli_stmt_init($db);
-    
     
     
     if ( !mysqli_stmt_prepare($stmt, $query)) {
