@@ -350,6 +350,21 @@
         //Clicking the clock icon will move the density bar to the comments time
         $(".clock-icon").click(function(){
             video_dom.currentTime = $(this).data('startval');
+            //highlight comment temporarily on the density bar
+            var commentContainer = $(this).parents(".feedback-container").eq(0);
+            var comment = getCommentById(commentContainer.data("cid"));
+            comment.paintHighlighted = true;
+            controls.clearDensityBar();
+			controls.drawSignLinks();
+			controls.drawComments();
+
+			//clear the highlighted comment after 3 seconds
+           	setTimeout(function(){
+				comment.paintHighlighted = undefined;
+				controls.clearDensityBar();
+				controls.drawSignLinks();
+				controls.drawComments();
+           	}, 3000);
         });
 
 
@@ -383,7 +398,7 @@
                                     alert('awesome');
                                     //$("div#comment-" + retdata.id).remove();
                                     $("div").find("[data-cid='" + retdata.id + "']").eq(0).remove();
-                                    //TODO: MARTIN add something to delete timeline region
+                                    //delete timeline region
                                     removeComment(commentID);
                                 }
                             console.log(data);
@@ -1094,11 +1109,7 @@ mysqli_close($db);
 
 						controls.clearDensityBar();
 						controls.setComments(fullCommentArray);
-					//	controls.drawComments();
-						controls.setSignLinks(signlinkArray);
-				//		controls.drawSignLinks("#0000FF");
-                //       drawAreaOnBar(commentArray);
-                //       drawAreaOnBar(signlinkArray);
+				//		controls.setSignLinks(signlinkArray);
 
 
                        function initializeCommentVideo($video) {
@@ -1149,6 +1160,17 @@ mysqli_close($db);
 									controls.drawComments();
 									
 									return;
+								}
+							}
+						}
+
+						function getCommentById(commentId)
+						{
+							for (var i=0; i< fullCommentArray.length; i++)
+							{
+								if (fullCommentArray[i].id == commentId)
+								{
+									return fullCommentArray[i]
 								}
 							}
 						}
