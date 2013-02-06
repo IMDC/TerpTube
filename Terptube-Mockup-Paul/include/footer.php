@@ -41,6 +41,7 @@
         var CAPTION_SHOW = 2;
 
 
+        var textVisible = false;
         //set up variables
         var speedSlow = false;
         var video_dom = $("video#myPlayer").get(0);
@@ -62,60 +63,7 @@
         var $selectedComment;
 
         var signlinkArray = new Array();
-        var commentArray  = new Array();
         var fullCommentArray = new Array();
-
-	//	controls.setComments(tempFullCommentObject);
-	//	controls.drawComments();
-        var tempStartTime;
-        var tempEndtTime;
-        var tempName;
-        var tempComment;
-        var tempLink;
-
-  //      var plusSignVisible      = false;
-        var creatingTimedComment = false;
-
-        var regionPointer = 0; // used to keep track where the link index is for LinkTimes array
-        var playing       = false;
-        var textVisible   = false;
-        
-/*        var linkCanvas  = document.getElementById('linkCanvas');
-        var ctx         = linkCanvas.getContext('2d');
-        ctx.globalAlpha = 0.4;
-        
-        var traversalCanvas     = document.getElementById('traversalCanvas');
-        var traversalctx        = traversalCanvas.getContext('2d');
-        var traversalCanvasDrag = false;
-
-        var myRectangle =  {x: -10,y: 17 - 1, width: 1, height: ctx.canvas.height, borderWidth: 1};
-        var plusCircle  =  {x: 0,y: 8 , width: 7, height: Math.PI*2};
-
-        var selectorRectLeft  = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
-        var selectorRectRight = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
-        var selectorInBetween = {x:0, y:17 - 1, width:1, height:ctx.canvas.height};
-
-        var selectorRightDrag = false;
-        var selectorLeftDrag  = false;
-        //var selectorRectRight = {};
-
-        var date = new Date();
-        var time = date.getTime();
-
-        //canvas images
-        var plusImage = new Image();
-        plusImage.src = "images/feedback_icons/round_plus.png";
-
-        var selectorLeftImg = new Image();
-        selectorLeftImg.src = "images/feedback_icons/selector_left.png";
-
-        var selectorRightImg = new Image();
-        selectorRightImg.src = "images/feedback_icons/selector_right.png";
-*/
-        //current link is the video the user has selected or the play head is in contact with
-        var currentLink = -1;
-        var currentClickableIndex = -1;
-        var sourceVideoClickable = false;
 
         window.onload = createUploader($(this));
 
@@ -124,23 +72,6 @@
         // duration here functions as a 'global'
         var duration = 0;
         
-        // event listener to set the correct duration when the video metadata has been loaded
- /*       video_dom.addEventListener('loadedmetadata', function() {
-            console.log(video_dom.duration);
-            setSourceDuration(video_dom.duration);
-            drawAreaOnBar(signlinkArray);
-            drawAreaOnBar(commentArray);
-        });
-        
-        // sets the global 'duration' variable to the argument passed in
-        // also changes the html span element representing the video total time
-        function setSourceDuration(theDur) {
-            duration = theDur;
-            // change the html duration value to reflect this
-            $("span#video-total-time").html(formatVideoTime(duration))
-        }
-        //var duration = video_dom.duration;
-*/
         $selectVideoDrop.change(function() {
             $optionFieldset.hide();
             $videoNameFieldset.show();
@@ -336,17 +267,6 @@
 
         });
         
-/*		// show seek bar plus sign for new comment on mouse hover
-        $("#traversalCanvas").hover(
-            function(){
-                plusSignVisible = true;
-            },
-            function(){
-                plusSignVisible = false;
-            }
-        );
-*/
-
         //Clicking the clock icon will move the density bar to the comments time
         $(".clock-icon").click(function(){
             video_dom.currentTime = $(this).data('startval');
@@ -591,9 +511,6 @@
             });
             controls.repaint();
             
- //           clearCanvas(ctx);
- //           clearCanvas(traversalctx);
-            //$(".comment-details").show();
             
             //if ( (".comment-details").find("formAction").attr("value") == 'edit' ) {
             if ( $commentformcontainer.find("formAction").attr("value") == 'edit' ) {    
@@ -651,22 +568,7 @@
                 $("#video-speed").attr("src", 'images/slowdown-normal.png');
             }
         });
-/*
-        //PlayButton Clicked
-        $("#play-button").click(function() {
-            if (playing){
-                $("#play-button").attr("src", 'images/play_button.png');
-                video_dom.pause();
-                playing = false;
-            }
-            else {
-                video_dom.play();
-                playing = true;
-                $("#play-button").attr("src", 'images/pause_button.png');
-                animate(time, myRectangle);
-            }
-        });
-*/
+
         $("#closed-caption-button").click(function() {
             // alert(video_dom.tracks[0].mode);
             if(video_dom.tracks[0].mode == 2){
@@ -699,8 +601,6 @@
                 }
 
             }
-       //     movePlayHead();
-            animate();
         });
 
         $("#video-link-back-button").click(function() {
@@ -712,8 +612,6 @@
             else{
                 video_dom.currentTime = signlinkArray[signlinkArray.length - 1].startTime;
             }
-            animate();
-     //       movePlayHead();
         });
 
 
@@ -731,324 +629,7 @@
                 textVisible = true;
             }
         });
-/*
-        //code to run every second and run through the canvas
-        video_dom.addEventListener('play', function() {
-            
-//            video_dom.width = canvas_draw.width = video_dom.offsetWidth;
-//            video_dom.height = canvas_draw.height = video_dom.offsetHeight;
-//            var ctx_draw = canvas_draw.getContext('2d');
-            
-            video_dom.width = video_dom.offsetWidth;
-            video_dom.height = video_dom.offsetHeight;
-            var ctx_draw = traversalCanvas.getContext('2d');
-            
-            playing=true;
-            draw_interval = setInterval(function() {
-            }, 1000)
-        }, false);
 
-        //SENSES WHEN VIDEO ENDS
-        video_dom.addEventListener('ended', function() {
-            $("#play-button").attr("src", 'images/play_button.png');
-            playing = false;
-
-        }, false);
-
-        video_dom.addEventListener('pause', function() {
-            interval = null;
-            playing = false;
-            //animProp.animate = false;
-
-        }, false);
-*/
-/*        traversalCanvas.addEventListener('mousedown', function(e) {
-            var offset = $(this).offset();
-            // var position = $('#traversalCanvas').position();
-            var position = $(this).position();
-
-            e.clientX = e.clientX - offset.left;
-            //if they click on the plus sign
-            var relX = e.clientX - offset.left;
-            var relY = e.clientY - offset.top;
-            console.log("e.clientX: " + e.clientX + " e.clientY: " + e.clientY + " relX: " + relX + " relY: " + relY);
-
-            //if user clicks the "plus" icon above the playhead
-            if (relX < plusCircle.x + plusCircle.width && relX > plusCircle.x - plusCircle.width && !creatingTimedComment
-                && relY < plusImage.height && relY > 0 ){ //plusCircle.y - plusImage.height
-                // startTimeInput.val(roundNumber(convertCanvasPointToTime(plusCircle.x,duration),2));
-                // video_dom.pause();
-                video_dom.pause();
-                playing = false;
-                creatingTimedComment = true;
-                clearCanvas(ctx);
-                clearCanvas(traversalctx);
-                
-                //$(".comment-details").show();
-                $commentformcontainer.show();
-                
-                startTimeInput.val( roundNumber(video_dom.currentTime, 2));
-                endTimeInput.val( roundNumber(video_dom.currentTime + 2, 2));
-                $(":button[name=previewButton]").css("display","inline");
-
-
-            }
-            else if(creatingTimedComment) {
-
-                //left comment triangle
-                if (relX < selectorRectLeft.x  && relX > selectorRectLeft.x - selectorLeftImg.width
-                    && relY > selectorRectLeft.y + selectorRectLeft.height  && relY < selectorRectLeft.y + selectorLeftImg.height + selectorRectLeft.height){
-                    selectorLeftDrag = true;
-
-                    traversalCanvas.addEventListener('mousemove', function(e) {
-
-                        if(selectorLeftDrag && (e.clientX - offset.left < selectorRectRight.x - 3 )){
-                            selectorRectLeft.x = e.clientX - offset.left;
-                            video_dom.currentTime = convertCanvasPointToTime(selectorRectLeft.x, duration);
-                            startTimeInput.val(roundNumber(video_dom.currentTime, 2));
-                        }
-                    }, true);
-                }
-
-                //right comment triangle
-                if (relX > selectorRectRight.x  && relX < selectorRectRight.x + selectorRightImg.width
-                    && relY > selectorRectRight.y + selectorRectRight.height  && relY < selectorRectRight.y + selectorRightImg.height + selectorRectRight.height){
-                    selectorRightDrag = true;
-                    traversalCanvas.addEventListener('mousemove', function(e) {
-
-                        if(selectorRightDrag && (e.clientX - offset.left > selectorRectLeft.x + 1 )){
-                            selectorRectRight.x = e.clientX - offset.left;
-                            video_dom.currentTime = convertCanvasPointToTime(selectorRectRight.x, duration);
-                            endTimeInput.val(roundNumber(video_dom.currentTime, 2));
-
-                        }
-                    }, true);
-                }
-            }
-            else{
-                var relativeX = (e.pageX - offset.left);
-                percentage = relativeX / traversalCanvas.width;
-                video_dom.currentTime = percentage * video_dom.duration;
-                movePlayHead();
-                animate();
-                traversalCanvasDrag = true;
-            }
-
-
-        }, true);
-
-        traversalCanvas.addEventListener('mouseup', function(e) {
-            traversalCanvasDrag = false;
-            selectorRightDrag = false;
-            selectorLeftDrag = false;
-
-        }, true);
-
-        traversalCanvas.addEventListener('mousemove', function(e) {
-            if(traversalCanvasDrag && !creatingTimedComment){
-                var offset = $(this).offset();
-                var relativeX = (e.pageX - offset.left);
-
-                percentage = relativeX / traversalCanvas.width;
-                video_dom.currentTime = percentage * video_dom.duration;
-                movePlayHead();
-                traversalCanvasDrag = true;
-            }
-        }, true);
-
-*/
-        //to make the bar move
-        function animate() {
-            //This will light up the box red if there is a comment at that second
-            //If current link is equal to -1 that means there is no comment at this time.
-            //if it selects a comment at the time it takes currentLink the array id and will keep checking until it is off
-            //and change it back to blue
-
-            sourceVideoClickable = playHeadInColoredRegion();
-
-            if(sourceVideoClickable && !creatingTimedComment)
-            {
-                $(".source-media-container").css("background", "red");
-            }
-            else{
-                $(".source-media-container").css("background", "#dcd3e3");
-                currentLink = -1;
-            }
-
-            //Change the position of playheads
-            if(creatingTimedComment)
-            {
-                moveSliders();
-            }
-            else{
-        //        movePlayHead();
-            }
-
-
-            // Loop animate
-            requestAnimFrame(function(){
-                animate();
-            });
-        }
-/*
-        function formatVideoTime(seconds) {
-            var m=Math.floor(seconds/60)<10?"0"+Math.floor(seconds/60):Math.floor(seconds/60);
-            var s=Math.floor(seconds-(m*60))<10?"0"+Math.floor(seconds-(m*60)):Math.floor(seconds-(m*60));
-            return m+":"+s;
-        }
-*/
-
-  /*      function movePlayHead(){
-
-            // calculate the percentage of current time in relation to the canvas size
-            //call move Playhead to advance the play head
-            var currentTime = video_dom.currentTime;
-            //var duration = video_dom.duration; //edited to use global
-            var percentage = currentTime/duration;
-            var xPosition = percentage*traversalCanvas.width;
-
-            // draw times on the bar
-            $("span#video-current-time").html(formatVideoTime(currentTime));
-            //$("span#video-total-time").html(formatVideoTime(duration));
-
-            // clear
-            traversalctx.clearRect(0, 0, traversalCanvas.width, traversalCanvas.height);
-
-            // draw
-            traversalctx.beginPath();
-            traversalctx.rect(xPosition, myRectangle.y, myRectangle.width, myRectangle.height);
-
-            plusCircle.x = xPosition;
-
-            //draw plus circle
-            if(plusSignVisible){
-                //uncomment below line if you want to use arc instead of image
-                //traversalctx.arc(xPosition, plusCircle.y, plusCircle.width, 0, plusCircle.height, true);
-                traversalctx.drawImage(plusImage, xPosition - (plusImage.width /2), plusCircle.y - (plusImage.height /2));
-            }
-
-            traversalctx.fillStyle = "red";
-            traversalctx.fill();
-            traversalctx.lineWidth = myRectangle.borderWidth;
-            traversalctx.strokeStyle = "black";
-            traversalctx.stroke();
-
-            selectorRectLeft.x = xPosition;
-            selectorRectRight.x = xPosition + 4;
-        }
-*/
-    /*    function moveSliders(){
-            // calculate the percentage of current time in relation to the canvas size
-            //call move Playhead to advance the play head
-            // clear
-            traversalctx.clearRect(0, 0, traversalCanvas.width, traversalCanvas.height);
-            // draw
-            traversalctx.beginPath();
-
-            traversalctx.rect(selectorRectLeft.x, selectorRectLeft.y, selectorRectLeft.width, selectorRectLeft.height);
-            traversalctx.rect(selectorRectRight.x, selectorRectRight.y, selectorRectLeft.width, selectorRectLeft.height);
-            traversalctx.rect(selectorRectLeft.x, selectorInBetween.y, selectorRectRight.x - selectorRectLeft.x, selectorRectLeft.height);
-
-            traversalctx.drawImage(selectorLeftImg, selectorRectLeft.x - selectorLeftImg.width, 42);
-            traversalctx.drawImage(selectorRightImg, selectorRectRight.x, 42);
-
-            traversalctx.fillStyle = "black";
-            traversalctx.fill();
-            traversalctx.lineWidth = myRectangle.borderWidth;
-            traversalctx.strokeStyle = "black";
-            traversalctx.stroke();
-        }
-*/
-
-        //this will analyze where the currentTime is and see what the back and forward
-        //should point to
-        function calculateColorRegionPosition() {
-            for(var i = signlinkArray.length - 1; i > -1; i--){
-                if(video_dom.currentTime >= signlinkArray[i].startTime && video_dom.currentTime <= signlinkArray[i].endTime){
-                    //if the playhead is in a colored region
-                    return i;
-                }
-                else if(video_dom.currentTime >= signlinkArray[i - 1].endTime && video_dom.currentTime <= signlinkArray[i].startTime){
-                    //if the playhead is not in a region does not cover if its the first 1
-                    return i;
-                }
-                else if(video_dom.currentTime <= signlinkArray[0].startTime){
-                    return 0;
-                }
-            }
-        }
-
-        function playHeadInColoredRegion() {
-
-            for(var i = signlinkArray.length - 1; i > -1; i--) {
-                if(video_dom.currentTime >= signlinkArray[i].startTime && video_dom.currentTime <= signlinkArray[i].endTime){
-                    //if the playhead is in a colored region
-                    currentLink = i;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        window.requestAnimFrame = (function(callback){
-            return window.requestAnimationFrame ||
-                window.webkitRequestAnimationFrame ||
-                window.mozRequestAnimationFrame ||
-                window.oRequestAnimationFrame ||
-                window.msRequestAnimationFrame ||
-                function(callback){
-                window.setTimeout(callback, 1000 / 60);
-            };
-        })();
-
-
-        //when passed in a alt id it will spit out
-        //needs to be changed
-        function updateCurrentLinkFromAlt(altID) {
-            for(var i = 0; i < signlinkArray.length; i++) {
-                if(altID == signlinkArray[i].link) {
-                    currentLink = i;
-                    break;
-                }
-            }
-        }
-
-        //canvas code generated by database start and end times
-        //Generate the colored region for the comments
-//        duration = 33;
-        // duration = $("video#myPlayer").get(0).duration;
-        // duration
-
-<?php
-$sql = "Select * From video_comment WHERE source_id = $videoNumber Order By comment_start_time ASC";
-$result = mysqli_query($db, $sql);
-
-while ($row = mysqli_fetch_assoc($result)) {
-
-    //if there is no video associated to the comment it means it is purely a text comment
-    if (file_exists('uploads/comment/' . $row['comment_id'] . '.webm')) {
-        ?>
-                tempStartTime =  <?php echo $row['comment_start_time']; ?>;
-                tempEndTime = <?php echo $row['comment_end_time']; ?>;
-    <?php } else {
-        ?>
-                tempStartTime = -1;
-                tempEndTime = -1;
-    <?php } ?>
-
-                tempName = "<?php echo $row['comment_id']; ?>";
-                tempComment = "<?php echo htmlentities($row['text_comments']); ?>";
-
-
-                var postObject = new comment(tempStartTime, tempEndTime, tempName, tempComment,get_random_color());
-                commentArray.push(postObject);
-
-        
-    <?php
-}
-
-?>
-    
 <?php
     $allcomms = json_decode(getAllCommentsForSourceID($videoNumber, 1),true);
     foreach($allcomms as $each_array) {
@@ -1176,38 +757,6 @@ mysqli_close($db);
 						}
 
                        
-
-                /*       function drawAreaOnBar(object) {
-                           for(var i = 0; i < object.length; i++) {
-
-                               if(object[i].name > 0 || object[i].comment > 0) {
-                                   //canvas color get random colors for each comment
-                                   ctx.fillStyle = get_random_color();
-                               }
-                               else {
-                                   //canvas color get random colors for each comment
-                                   ctx.fillStyle = "rgb(0,0,0)";
-                               }
-                               //calulate start of canvas comment
-                               var videoPercentageStart = object[i].startTime / duration;
-                               var canvasPercentageStart = videoPercentageStart*ctx.canvas.width;
-
-                               //calculate end of canvas comment
-                               var videoPercentageEnd = object[i].endTime / duration;
-                               var canvasPercentageEnd = videoPercentageEnd*ctx.canvas.width;
-
-                               var width = Math.floor(canvasPercentageEnd) - Math.floor(canvasPercentageStart);
-
-                               if(width == 0)
-                               {
-                                   width = 1;
-                               }
-
-                               //rect x,y,width,height
-                               ctx.fillRect(canvasPercentageStart ,0, width, ctx.canvas.height);
-                           }
-                       }
-*/
 
                        //called when user uploads a video in the reply box
                        function createUploader($this){

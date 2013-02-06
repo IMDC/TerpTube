@@ -31,10 +31,10 @@ while ($row = mysqli_fetch_assoc($result)) {
                     <div id="main-video-container" class="video-info-container">
                         <div class="source-video-controls">
                             <img class="clickable" id="video-speed" src="images/slowdown-normal.png" /><br/>
-                            <img class="clickable" id="video-link-forward-button" src="images/link-forward.png" /><br/>
+                 <!--            <img class="clickable" id="video-link-forward-button" src="images/link-forward.png" /><br/>
                             <img class="clickable" id="video-link-back-button" src="images/link-back.png" /><br/>
-                            <img class="clickable" id="source-text-comment-button" src="images/text-no-comment.png" /><br/>
-                            <img class="clickable" id="closed-caption-button" src="images/closedCaptioning.jpg" width="23" height="22" /><br/>
+                         -->    <img class="clickable" id="source-text-comment-button" src="images/text-no-comment.png" /><br/>
+<!--                             <img class="clickable" id="closed-caption-button" src="images/closedCaptioning.jpg" width="23" height="22" /><br/> -->
                         </div> <!-- source-video-controls -->
 
                         <video id="myPlayer" id="videoTest" width="640" preload="auto">
