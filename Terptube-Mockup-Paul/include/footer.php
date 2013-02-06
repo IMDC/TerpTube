@@ -68,9 +68,6 @@
         window.onload = createUploader($(this));
 
         //jQuery('#mycarousel').jcarousel();
-
-        // duration here functions as a 'global'
-        var duration = 0;
         
         $selectVideoDrop.change(function() {
             $optionFieldset.hide();
@@ -584,37 +581,6 @@
 
         });
 
-        //To move the link forward or back
-        $("#video-link-forward-button").click(function() {
-            regionPointer = calculateColorRegionPosition();
-
-            if(regionPointer == (signlinkArray.length - 1) && playHeadInColoredRegion() )
-            {
-                video_dom.currentTime = signlinkArray[0].startTime;
-            }
-            else{
-                if(playHeadInColoredRegion()){
-                    video_dom.currentTime = signlinkArray[regionPointer + 1].startTime;
-                }
-                else{
-                    video_dom.currentTime = signlinkArray[regionPointer].startTime;
-                }
-
-            }
-        });
-
-        $("#video-link-back-button").click(function() {
-            regionPointer = calculateColorRegionPosition();
-            if(!(regionPointer == 0) ) // if its not at the first link still
-            {
-                video_dom.currentTime = signlinkArray[regionPointer - 1].startTime;
-            }
-            else{
-                video_dom.currentTime = signlinkArray[signlinkArray.length - 1].startTime;
-            }
-        });
-
-
         //toggles the display of the supplemental text of the source video
         $("#source-text-comment-button").click(function() {
             $(".source-text-container").toggle();
@@ -646,15 +612,15 @@
 			.$each_array['sourceid']."','"
 			.$each_array['author']."','"
 			.$each_array['parentid']."','"
-			.$each_array['text']."',"
+			.htmlentities($each_array['text'], ENT_QUOTES)."',"
 			.$each_array['starttime'].","
 			.$each_array['endtime'].",'"
 			.$each_array['date']."',"
 			.$each_array['isdeleted'].","
 			.$each_array['istemporalcomment'].","
 			.$each_array['hasvideo'].",'"
-			.$each_array['videofilename']."','"
-			.$each_array['authorname']."','"
+			.htmlentities($each_array['videofilename'], ENT_QUOTES)."','"
+			.htmlentities($each_array['authorname'], ENT_QUOTES)."','"
 			.$each_array['authorjoindate']."','"
 			.$each_array['authorrole']."', get_random_color());\n";
         echo "fullCommentArray.push(tempFullCommentObject);\n";

@@ -13,7 +13,7 @@ function loadRecorderPage(targetID,address, dataSend)
 		success: function (data){
 //			alert(data);
 			$('#'+targetID).append(data);	},
-		error:function(request){alert(request.statusText)}
+		error:function(request){alert(request.statusText);}
 	});
 	
 	
