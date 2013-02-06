@@ -41,7 +41,7 @@
         <label>Enter the supervisor's name</label>
         <input type="text" id="supervisor" name="supervisor" required>
         <label>Enter the particpant's id:</label>
-        <input type="number" size="10" id="participantid" min="4" name="participantid" required>
+        <input type="number" size="10" id="participantid" min="4" max="2147483647" name="participantid" required>
         <select name="role">
             <option value="Mentor">Mentor</option>
             <option value="Mentee">Mentee</option>

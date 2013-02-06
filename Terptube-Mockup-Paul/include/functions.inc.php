@@ -254,6 +254,9 @@ function removeCommentFromDatabaseByID($commid) {
     
 }
 
+/**
+ * currently not used and not known if it works,
+*/
 function convertJSONCommentArrayToHTML($commarr) {
     $fullCommentArray = json_decode($commarr, true);
     $outputText = '';
@@ -423,11 +426,34 @@ function getAllCommentsForSourceID($sourceID, $json=0) {
  * Returns an array of top level comment details stored in an array, given a source video id
  * Uses the video_comment table to return this info, will not return 'deleted' comments
  * @param $sourceid the id of the source video
+ * @param $del optional, set to 0 to hide deleted comments, set to 1 to show regular and deleted comments
+ * @param $particID optional participant ID to filter the returned comments made only by that participant
+ *          and the admin, if set to (-1) will return comments by any author and all 'deleted' comments
  * @return an array object filled with comments that are associative arrays
  */
-function getTopLevelCommentsForSourceID($sourceID) {
+function getTopLevelCommentsForSourceID($sourceID, $del=0, $particID=NULL) {
     global $db;
     $sID = intval($sourceID);
+    $del = intval($del);
+    
+    
+    
+    if ($del != 0) {
+        error_log('del is not 0');
+        $dellADD = '';
+    }
+    else {
+        $dellADD = ' AND vc.deleted=0';
+    }
+    
+    // if particID is set, it means we only want results from the admin and the current participant
+    if (isset($particID)) {
+        $pID = intval($particID);
+        $queryADD = ' AND vc.author_id IN(0,' . $pID . ');';
+    }
+    else {
+        $queryADD = '';
+    }
     
     /* create a prepared statement */
     //$query = "Select comment_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename from video_comment where source_id=? AND deleted=0 AND parent_id=0";
@@ -438,9 +464,8 @@ function getTopLevelCommentsForSourceID($sourceID) {
               FROM video_comment vc, 
                    participants p 
               WHERE source_id=? 
-                    AND p.id=vc.author_id
                     AND vc.parent_id=0
-                    AND vc.deleted=0";
+                    AND p.id=vc.author_id" . $dellADD . $queryADD;
     $stmt = mysqli_stmt_init($db);
     if ( !mysqli_stmt_prepare($stmt, $query)) {
         error_log("Failed to prepare statement in " . __FUNCTION__);
@@ -451,6 +476,8 @@ function getTopLevelCommentsForSourceID($sourceID) {
         /* bind parameters */
         mysqli_stmt_bind_param($stmt, "i", $sID);
 
+        error_log("mysql query for getTopLevelCommentsForSourceID: $query");
+        
         /* execute query */
         mysqli_stmt_execute($stmt);
         

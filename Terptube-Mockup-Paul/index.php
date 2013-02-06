@@ -145,9 +145,18 @@ while ($row = mysqli_fetch_assoc($result)) {
             <div class="comment-container" id="3" >
 
                 <?php
-                //This will pull top level comments
-                             
-				$toplevelcomments = getTopLevelCommentsForSourceID($videoNumber);
+                // check if we should only show comments made by the admin and current participant, or ALL the comments
+                isset($_GET['all']) ? ($showAllComments=intval($_GET['all'])) : ($showAllComments=0);
+
+                if ($showAllComments >= 1) {
+                    //$toplevelcomments = getTopLevelCommentsForSourceID($videoNumber);
+                    $toplevelcomments = getTopLevelCommentsForSourceID($videoNumber, 1, NULL);
+                }
+                else {
+                    //This will pull top level non-deleted comments made by the admin (id=0) and the currently logged in participant
+                    $toplevelcomments = getTopLevelCommentsForSourceID($videoNumber, 0, isset($_SESSION['participantID']) ? (intval($_SESSION['participantID'])) : NULL);    
+                }
+				
 				foreach ($toplevelcomments as $comment) {
 	
                     ?>
