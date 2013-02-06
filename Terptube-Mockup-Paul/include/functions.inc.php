@@ -54,8 +54,8 @@ function createThumbnail($videoPath, $thumbName, $freezeTime, $size = "144x112")
 
     //echo $escaped_command;
     //$output = shell_exec($escaped_command); 
-    $output = shell_exec($escaped_command);
-    error_log($output);
+    $output = shell_exec($escaped_command . " 2>&1");
+    error_log("Here is the output from the ffmpeg command inside createThumbnail: $output");
 
     // make sure new JPG file exists
     if (!file_exists($tempthumbjpg)) {
@@ -73,8 +73,8 @@ function createThumbnail($videoPath, $thumbName, $freezeTime, $size = "144x112")
     }
 
     // declare the path to our play button image
-    $pathToDefImage = "../images/play_btn.png";
-    //$pathToDefImage = IMAGES_DIR . "play_btn.png";
+    //$pathToDefImage = "images" . DIRECTORY_SEPARATOR . "play_btn.png";
+    $pathToDefImage = FFMPEG_PLAYIMAGE_FULLPATH . "play_btn.png";
 
 
     $watermark = imagecreatefrompng($pathToDefImage);
@@ -140,6 +140,7 @@ function createSignlinkThumb($videoPath, $thumbName, $freezeTime, $size = "144x1
     return basename($newthumbjpg);
 }
 
+
 /**
  * Checks for existence of a .jpg file with the same name as the comment id
  * in thumbnail directory specified in the setup.php file
@@ -158,7 +159,9 @@ function getVideoThumbnail( $commid, $vidfilepath, $idonly=1 ) {
 	if (!file_exists($thumb)) {
 		error_log("thumbnail not found for comment id: " . $cid . " when searching in $thumb");
 	
-		$target_path = "../uploads/" . $vidfilepath;
+		//$target_path = "../uploads/" . $vidfilepath;
+        $target_path = "uploads" . DIRECTORY_SEPARATOR . $vidfilepath;
+        //error_log(shell_exec("pwd"));
         error_log("attempting to create new thumbnail from file: $target_path for comment: $cid in getVideoThumbnail function");
 		$newthumb = createThumbnail($target_path, $cid, 1);
 		if (!$newthumb)
@@ -173,6 +176,7 @@ function getVideoThumbnail( $commid, $vidfilepath, $idonly=1 ) {
 		return $thumb;
 	
 }
+
 
 /**
  * This function does not remove a comment from the database!
@@ -462,9 +466,9 @@ function getTopLevelCommentsForSourceID($sourceID) {
                                         "sourceid" => $source_id,
                                         "author" => $authID,
                                         "parentid" => $parentID,
-                                        "text" => htmlentities($textcont), 
-                                        "starttime" => $start, 
-                                        "endtime" => $end, 
+                                        "text" => htmlentities($textcont),
+                                        "starttime" => $start,
+                                        "endtime" => $end,
                                         "date" => $commdate,
                                         "isdeleted" => $deleted,
                                         "istemporalcomment" => $tempcommentbool,
@@ -699,15 +703,17 @@ function addError($errorString) {
 
 /**
  * Prints the 'Edit' and 'Delete' links for a comment
+ * @param $cID the comment ID
+ * @param $ctype the type of comment, either "comment" or "reply"
  */
-function printCommentTools($cID) {  
+function printCommentTools($cID, $ctype) {  
     $cid = intval($cID);
 
     $output = "<div class='comment-tools-div'>
                     <ul>
-                        <li><a href='#' id='edit-$cid' class='comment-edit-link'>Edit</a></li>
-                        <li><a href='#' id='delete-$cid' class='comment-delete-link'>Delete</a></li>
-                    </ul>         
+                        <li><a href='#' id='edit-$cid' class='comment-edit-link' data-cid='$cid' data-ctype='$ctype'>Edit</a></li>
+                        <li><a href='#' id='delete-$cid' class='comment-delete-link' data-cid='$cid' data-ctype='$ctype'>Delete</a></li>
+                    </ul>
                 </div>";
     return $output;
 }

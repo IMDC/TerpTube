@@ -21,7 +21,8 @@ $authorIDchecked;
 // action is the action to take on the comment: new, edit, reply
 $action             = mysqli_real_escape_string($db, $_POST['formAction']);
 
-$comment_text 		= htmlentities(mysqli_real_escape_string($db, $_POST['comment']));
+//$comment_text 		= htmlentities(mysqli_real_escape_string($db, $_POST['comment']));
+$comment_text 		= htmlentities($_POST['comment']);
 $comment_start_time = $_POST['start_time'];
 $comment_end_time 	= $_POST['end_time'];
 
@@ -167,7 +168,15 @@ switch ($action) {
             // check for if comment has video data
             if (!$has_video) {
                 // comment successfully created, didn't have any video info, so no thumbnail image needed
-                error_log("comment id: $commentID edited successfully with no video thumbnail necessary");
+                
+                // delete old thumbnail if there is one
+                $oldThumbnailFile = '../uploads/comment/thumb/' . $commentID . '.jpg';
+                if (file_exists($oldThumbnailFile)) {
+                    error_log("deleting old thumbnail file for comment: $commentID");    
+                    unlink($oldThumbnailFile);
+                }
+                
+                error_log("comment id: $commentID edited successfully with no video thumbnail necessary or old thumbnail deleted");
                 $redirectLocation = "index.php?v=$sourceID&pID=$authorIDchecked";
                 header("Location: " . SITE_BASE . $redirectLocation);
                 return;

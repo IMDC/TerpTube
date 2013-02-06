@@ -41,6 +41,8 @@ define('FFMPEG_LOG_FILE', LOG_DIR . "ffmpeg-error.log" );
 // ffmpeg included binary path
 define('FFMPEG_PATH', INC_DIR . 'ffmpeg' . DIRECTORY_SEPARATOR);
 
+define('FFMPEG_PLAYIMAGE_FULLPATH', APP_DIR . 'images' . DIRECTORY_SEPARATOR);
+
 // Default avatar filename
 define('DEFAULT_AVATAR_FILENAME', 'genericAvatar.gif');
 

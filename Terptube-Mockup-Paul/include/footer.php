@@ -53,8 +53,8 @@
         var endTimeInput       = $("#end_time");
         
         var $selectVideoDrop    = $("[name=select-video-names]");  // unused?
-        var $optionFieldset     = $("#video-option-fiedset");
-        var $videoNameFieldset  = $("#video-name-fieldset");
+        var $optionFieldset     = $("#video-option-fieldset"); // contains the existing video,record,upload inputs
+        var $videoNameFieldset  = $("#video-name-fieldset");   // will display selected video to be uploaded on form
         
         var $postCommentButton  = $("#postCommentButton");
         var $cancelButton       = $("#cancel-button");
@@ -87,15 +87,19 @@
             //$(".comment-details").detach().appendTo("#content-left"); // move form to left side underneath 'post new comment' button
             //$(".comment-details").hide(); // hide the comment details form
             $commentformcontainer.detach().appendTo("div#content-left");
+            
+            resetNewCommentFormValues();
+            
             $commentformcontainer.hide();
             
-            $(".commentReplyLink").show(); // show all comment reply links if previously hidden
+            showCommentReplyLinks();  // show all comment reply links if previously hidden
+            showCommentTools();       // show all the comment tools divs that contain edit/delete links
             
             // drawAreaOnBar(signlinkArray);
             // drawAreaOnBar(commentArray);
             
             creatingTimedComment = false;
-            resetNewCommentFormValues();
+            
             $postCommentButton.show();
             
 			controls.setAreaSelectionEnabled(false);
@@ -135,16 +139,34 @@
             $("#comment-textarea").attr("value", "");
             // reset existing video to blank choice
             $commdet.find("#userExistingVideo").val(0);
-            // clear file input, reset form action to 'new' value
-            $commdet.find("#fileName").val('').find("formAction").val('new');
+            
+            // reset the video upload area fields
+            $commdet.find("#video-name-fieldset div p.video-title").empty();
+            $commdet.find("#video-name-fieldset").hide();
+            $commdet.find("#video-option-fieldset").show();
+            
+            // clear file input hidden var and reset form action hidden var to 'new' value
+            $commdet.find("#fileName").val('');
+            $commdet.find("#formAction").val('new');
+            
+            // change Text in comment submit button back to original text
             $commdet.find("input#new-comment-submit-button").attr("value", "Post Comment");
+            
+            // reset more hidden form values back to default
             $commdet.find("#parentCommentID").attr("value", "");
             $commdet.find("#selectedCommentID").attr("value", "");
+            
+            // show the span that allows you to apply comment to video timeline
             $("#toggle-time-span").show();
         }
 
-        // is this used for anything?!
-        $(".edit-video-link").click(function(){
+        // When the user clicks the 'modify' link inside the new comment form
+        // this needs to show the video option fieldset that contains the buttons
+        // to record a new video, upload a video or choose an existing video
+        $(".edit-video-link").click(function(event){
+            //prevent the click from scrolling the page
+            event.preventDefault();
+            
             $optionFieldset.show();
             $videoNameFieldset.hide();
         });
@@ -159,17 +181,25 @@
             // $(".comment-details").show();
             $postCommentButton.hide();
             
+            hideCommentReplyLinks();
+            hideCommentTools();
+            
+            // grab relevant comment info like id and type
+            var commentID   = $(this).data('cid');
+            var commentType = $(this).data('ctype');
+            
             // get comment id
-            var commentID = $(this).attr('id').replace("edit-", '');
+            //var commentID = $(this).attr('id').replace("edit-", '');
             
             // set the 'global' selected comment variable
-            $selectedComment = $("div").find("[data-cid='" + commentID + "']");
+            $selectedComment = $(this).parents("div[data-cid='" + commentID + "']").eq(0);
+
+            // returns an array
+            var commentDetails = getCommentById(commentID);
             
             // comment div container
-            //var commentContainer = $("div#comment-"+commentID);
-            
-            // comment div container
-            $theCommentContainer = $("div").find("[data-cid='" + commentID + "']").eq(0);
+            //$theCommentContainer = $("div").find("[data-cid='" + commentID + "']").eq(0);
+            $theCommentContainer = $(this).parents("div[data-cid='" + commentID + "']").eq(0);
             
             // get start time of comment
             var commentStartTime = $theCommentContainer.find(".temporalinfo").data('startval');
@@ -179,6 +209,10 @@
             
             // get comment text
             var commentText = $theCommentContainer.find(".comment-text span").text();
+            // or use commentDetails.text
+            
+            console.log("comment start: " + commentStartTime + ", comment end: " + commentEndTime + ", comment Text: " + commentText);
+            console.log("comment info from js array-> hasVideo: " + commentDetails.hasVideo +", video filename: " + commentDetails.videoFileName)
             
             if (commentStartTime !== commentEndTime)
             {
@@ -241,19 +275,14 @@
 	            });
             }
             
-     //       console.log("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + "commenttext: " + commentText);
+            console.log("comment id: " + commentID + ", starttime: " + commentStartTime + ", endtime: " + commentEndTime + ", commenttext: " + commentText);
             
-            //var $commdet = $("div.comment-details");
             var $commdet = $commentformcontainer;
             
             // move new comment form 
-            // $commdet.appendTo("#comment-"+commentID).show(); // should move the element in the DOM
-         //  $commdet.detach().appendTo("#comment-"+commentID).show(); // should move the element in the DOM
-        	 $commdet.detach().appendTo($theCommentContainer).show();
+        	$commdet.detach().appendTo($theCommentContainer).show();
+            // set text on form submit button to reflect that we are editing a comment
             $commdet.find("input#new-comment-submit-button").attr("value", "Finished Editing");
-            
-            // commentContainer.find(".edit-comment-wrap").show();
-            // var editForm = commentContainer.find("#form-edit-comment-"+commentID);
             
             // set form action to be "edit"
             $commdet.find("#formAction").val('edit');
@@ -261,6 +290,27 @@
             $commdet.find("#end_time").val(commentEndTime);
             $commdet.find("#comment-textarea").val(commentText);
             $commdet.find("#parentCommentID").attr("value", commentID);
+            
+            // TODO: change the video value of the form to reflect the current comment's video value if there is one
+            if (commentDetails.hasVideo) {
+                
+                if (commentDetails.videoFileName.substring(0,5) === "video") {  // user selected an existing video
+                    var videonameonly = commentDetails.videoFileName.substring(6); // should get rid of the 'video/' part of the string
+                    console.log(videonameonly);
+                    $commdet.find("#userExistingVideo").val(videonameonly); //set value in select input
+                }
+                else {
+                    // hide the upload/record section because this comment already has a video
+                    $commdet.find("#video-option-fieldset").hide();
+                    
+                    // show the existing comment's video filename and the modify link
+                    $commdet.find("#video-name-fieldset div p.video-title").empty().html(commentDetails.videoFileName);
+                    $commdet.find("#video-name-fieldset").show();
+                    
+                    // set the value of the hidden field in the form
+                    $commdet.find("input#fileName").val(commentDetails.videoFileName);
+                }
+            }
 
         });
         
@@ -295,8 +345,11 @@
             
             // fade out the comment in question
             //$("div#comment-" + commentID).fadeTo('slow', 0.5);
-            $("div").find("[data-cid='" + commentID + "']").eq(0).fadeTo('medium', 0.5);
-//            alert(commentID);
+            //$("div").find("[data-cid='" + commentID + "']").eq(0).fadeTo('medium', 0.5);
+            
+            $(this).parents("[data-cid='" + commentID + "']").eq(0).fadeTo('medium', 0.5);
+
+            var $theDeleteLink = $(this);
 
             // show a dialog box asking for confirmation of delete
             $( "#dialog-confirm" ).dialog({
@@ -312,9 +365,10 @@
                             success: function(data){
                                 var retdata = $.parseJSON(data);
                                 if ( retdata.status === "success" ) {
-                                    alert('awesome');
+                                    //alert('awesome');
                                     //$("div#comment-" + retdata.id).remove();
-                                    $("div").find("[data-cid='" + retdata.id + "']").eq(0).remove();
+                                    //$("div").find("[data-cid='" + retdata.id + "']").eq(0).remove();
+                                    $theDeleteLink.parents("[data-cid='" + retdata.id + "']").eq(0).fadeTo('slow', 0.0).remove();
                                     //delete timeline region
                                     removeComment(commentID);
                                 }
@@ -332,7 +386,8 @@
                     Cancel: function() {
                         $( this ).dialog( "close" );
                         //$("div#comment-" + commentID).fadeTo('slow', 1.0);
-                        $("div").find("[data-cid='" + commentID + "']").eq(0).fadeTo('slow', 1.0);
+                        //$("div").find("[data-cid='" + commentID + "']").eq(0).fadeTo('slow', 1.0);
+                        $theDeleteLink.parents("[data-cid='" + commentID + "']").eq(0).fadeTo('slow', 1.0);
                     }
                 }
             });
@@ -418,17 +473,20 @@
            // establish the container comment structure that the reply link is associated to
            // can be a top level 'comment' or a nested 'reply'
            //$theCommentContainer = $("div#"+commentType+"-"+commentID);
-           $theCommentContainer = $("div").find("[data-cid='" + commentID + "']").eq(0);
+           //$theCommentContainer = $("div").find("[data-cid='" + commentID + "']").eq(0);
+           
+           $theCommentContainer = $(this).parents("div[data-cid='" + commentID + "']").eq(0);
            
            // set the 'global' selected comment variable
            $selectedComment = $theCommentContainer;
            
            console.log(commentID + ', type: ' + commentType + ", container element is: " + $theCommentContainer[0].id);
            
-           // hide the reply link 
-           $(this).hide();
            // hide all the reply links
-           $(".commentReplyLink").hide();
+           hideCommentReplyLinks();
+           
+           // temporarily hide the comment tools links that include 'edit' and 'delete'
+           hideCommentTools();
            
            // add a border to the container element to encompass the reply form
            //$theCommentContainer.addClass("writing-reply");
@@ -658,6 +716,24 @@ mysqli_close($db);
 						controls.setComments(fullCommentArray);
 				//		controls.setSignLinks(signlinkArray);
 
+
+                        function hideCommentReplyLinks() {
+                            $("a.commentReplyLink").hide();
+                        }
+                        function showCommentReplyLinks() {
+                            $("a.commentReplyLink").show();
+                        }
+                        function hideCommentTools() {
+                            // $("a.comment-edit-link").hide();
+                            // $("a.comment-delete-link").hide();
+                            $("div.comment-tools-div").hide();
+                        }
+                        function showCommentTools() {
+                            // $("a.comment-edit-link").hide();
+                            // $("a.comment-delete-link").hide();
+                            $("div.comment-tools-div").show();
+                        }
+                
 
                        function initializeCommentVideo($video) {
 

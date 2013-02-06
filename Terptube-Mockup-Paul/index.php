@@ -81,7 +81,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                     </div>
                     <textarea id="comment-textarea" name="comment"></textarea>
 
-                    <fieldset id="video-option-fieldset" name="video-option-fiedset">
+                    <fieldset id="video-option-fieldset" name="video-option-fieldset">
                         <legend>Choose a Video Upload Option:</legend>
 
                         <label>Existing Video:</label>
@@ -139,6 +139,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 
         </div>  <!-- end of content-left div -->
+        <div> <!-- test div added to encompass the content-right div and possibly enable comment scrolling -->
         <div id="content-right">
             <!-- Holds the comments -->
             <div class="comment-container" id="3" >
@@ -161,7 +162,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <?php 
                                 error_log("output from index.php printing comment tools: comment author: " .  $comment['author'] . " participantID: " . $_SESSION['participantID']);
                                 if( isset($comment['author']) && isset($_SESSION['participantID']) && (intval($comment['author']) == intval($_SESSION['participantID'])) ) {
-                                    echo printCommentTools($comment["id"]);
+                                    echo printCommentTools($comment["id"], 'comment');
                                 } 
                             ?>                         
                         </div>
@@ -219,7 +220,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 <p>Name: <?php echo $reply["authorname"]; ?></p>
                                 <p>Joined: <?php echo date_format(new DateTime($reply["authorjoindate"]), 'M d,Y'); ?></p>
                             </div>
-                            <?php if(intval($reply['author'])==intval($_SESSION['participantID'])){echo printCommentTools($reply["id"]);} ?>                         
+                            <?php if(intval($reply['author'])==intval($_SESSION['participantID'])){echo printCommentTools($reply["id"], 'reply');} ?>                         
                         </div>
                         <div class="clearfix"></div>
 
@@ -273,7 +274,8 @@ while ($row = mysqli_fetch_assoc($result)) {
 
             </div>
             
-        </div>
+        </div> <!-- end of content-right div -->
+        </div> <!-- end test div to encompass content-right div -->
 
         <div id="footer">
             <?php include('include/footer.php'); ?>

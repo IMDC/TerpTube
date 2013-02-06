@@ -411,6 +411,14 @@ form.commentReplyForm {
 	width:25px;
 }
 
+#comment-form-wrap {
+    clear: both;
+}
+
+#new-comment-time-div label, input {
+    display: inline;
+}
+
 #commentButtonWrap {
     float: left;
     clear: both;
