@@ -338,7 +338,7 @@ function drawComments()
 
 function drawComment(comment)
 {
-	if (comment.isDeleted)
+	if (comment.isDeleted || comment.isTemporal==0)
 		return;
 	var densityBarElement = $(this.elementID).find(
 			".videoControlsContainer.track.densitybar").eq(0);
@@ -816,7 +816,7 @@ function onCommentMouseOver(event)
 	for ( var i = 0; i < this.comments.length; i++)
 	{
 		var comment = this.comments[i];
-		if (comment.isDeleted == true)
+		if (comment.isDeleted == true || comment.isTemporal==0)
 			continue;
 		var startX = this.getXForTime(comment.startTime);
 		var endX = this.getXForTime(comment.endTime);

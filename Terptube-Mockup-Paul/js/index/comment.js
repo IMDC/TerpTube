@@ -18,7 +18,7 @@ function fullcomment(commID, source_id, authID, parentID, textcont, start, end,
 	this.endTime = end;
 	this.date = commdate;
 	this.isDeleted = deleted;
-	this.isTemporalComment = tempcommentbool;
+	this.isTemporal = tempcommentbool;
 	this.hasVideo = hasvideobool;
 	this.videoFileName = videofilename;
 	this.authorName = authorname;
