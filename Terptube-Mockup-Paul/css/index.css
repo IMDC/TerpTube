@@ -1,3 +1,14 @@
+h1 {
+    font-family: Tahoma, sans-serif;
+    font-size: 1em;
+}
+h3 {
+    font-family: Tahoma, sans-serif;
+    font-size: 16px;
+    line-height: 150%;
+    padding-left: 20px;
+}
+
 /************* MAIN containers *****************/
 
 #container {
@@ -219,7 +230,7 @@ html[xmlns] .clearfix {
  */
 
 .arrow-container{
-	background: #dedede;
+	background: rgb(228,250,238);
 	width:100%;
 	height:25px
 }
@@ -333,13 +344,14 @@ form.commentReplyForm {
 
 }
 
-.comment-avatar-div{
+.comment-avatar-div {
 /*	width:24%;*/
 	text-align:center;
 /*    float:left;*/
 /*    display: inline-block;*/	
 	font-size: 0.85em;
 	margin-bottom: 5px;
+	margin-top: 15px;
 }
 
 .comment-avatar-div img {
@@ -353,7 +365,7 @@ form.commentReplyForm {
 }
 
 .feedback-properties{
-   width: 3%;
+   width: 4%;
    height: 100%;
    float: right;
 }
@@ -364,13 +376,15 @@ form.commentReplyForm {
 }
 
 .comment-text{
-	overflow-y:auto;
-	width:90%;
+	overflow-y: auto;
+	width:100%;
 	height:auto;
 	min-height: 45px;
-	margin:5px auto;
+	/*margin:5px auto;*/
 	background:white;
 /*	border:1px solid black;*/
+    padding: 10px 5px 5px;
+    line-height: 1.4em;
 }
 
 .reply-content {

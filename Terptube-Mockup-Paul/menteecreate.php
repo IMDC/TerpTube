@@ -16,7 +16,10 @@ $partIDget        = intval($_GET['pID']);
 
 <div id="container">
     <div id="header">
-        <h3>Terptube Mentee Video Creation <?php echo implode(', ', array(SITE_BASE, $partIDsession, $_SESSION['supervisorName'], $_SESSION['role'])); ?> </h3>
+        <img src="images/eku.jpg" title="Eastern Kentucky University" alt="Eastern Kentucky University" style="width:10%;padding-left:15%;" />
+        <img src="images/imdclogosmall.png" title="Inclusive Media and Design Centre" alt="IMDC lab at Ryerson University" style="width:10%;clear:both;padding-left:15%;" />
+        <br />
+        <h1>Terptube Mentee Video Creation <?php echo implode(', ', array(SITE_BASE, $partIDsession, $_SESSION['supervisorName'], $_SESSION['role'])); ?> </h1>
     </div>
     <div id="navigation"></div>
     <?php echo checkError(); // add  ?>

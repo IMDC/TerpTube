@@ -18,7 +18,11 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 <div id="container">
     <div id="header">
-        <h3>Terptube Interpretation Review/Discussion <?php echo implode(', ', array(SITE_BASE, $_SESSION['participantID'], $_SESSION['supervisorName'], $_SESSION['role'])); ?> </h3>
+        <img src="images/eku.jpg" title="Eastern Kentucky University" alt="Eastern Kentucky University" style="height:30px;;" />
+        <img src="images/imdclogosmall.png" title="Inclusive Media and Design Centre" alt="IMDC lab at Ryerson University" style="height:30px;clear:both;" />
+        <br />
+        <h1>Terptube Interpretation Review/Discussion</h1>
+        <h1><?php echo implode(', ', array(SITE_BASE, $_SESSION['participantID'], $_SESSION['supervisorName'], $_SESSION['role'])); ?></h1>
     </div>
     <div id="navigation"></div>
 	<?php echo checkError(); ?>
