@@ -866,6 +866,7 @@ function setMouseOverThumb(event)
 }
 function setMouseDownThumb(event)
 {
+	event.preventDefault();
 	var instance = this;
 	var thumbCanvas = $(this.elementID).find(
 			".videoControlsContainer.track.thumb").eq(0);

@@ -516,10 +516,18 @@
         	controls.playHeadImage = undefined;
             // $(".comment-details").show();
             $commentformcontainer.show();
-            controls.currentMinTimeSelected = controls.getCurrentTime();
+            if (controls.getCurrentTime()+controls.options.minLinkTime>controls.getDuration())
+            {
+                controls.currentMinTimeSelected = controls.getDuration() - controls.options.minLinkTime;
+            }
+            else
+            {
+            	controls.currentMinTimeSelected = controls.getCurrentTime();
+            }
             controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
             controls.currentMaxTimeSelected = controls.currentMinTimeSelected+controls.options.minLinkTime;
             controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+            
           	controls.setAreaSelectionEnabled(true);
             startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
             startTimeInput.on("change",function(){
