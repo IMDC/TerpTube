@@ -111,8 +111,8 @@ html[xmlns] .clearfix {
 	width: auto;
 	height: auto;
 	padding:10px;
-	background: rgb(245, 250, 255);
-	border: 1px solid rgb(105, 186, 211);
+	/*background: rgb(245, 250, 255);*/
+	/*border: 1px solid rgb(105, 186, 211);*/
 	float: left;
 }
 
@@ -270,8 +270,10 @@ html[xmlns] .clearfix {
 .comment-date {
 	font-size: 0.6em;
 	float: left;
-	color: #999999;
+	color: rgb(175,175,175);
 	padding: 3px 0;
+	width: 100%;
+	border-bottom: 1px dotted rgb(231,227,227);
 }
 
 .comment-edit-link {
@@ -293,8 +295,8 @@ html[xmlns] .clearfix {
 	clear:right;
 	margin-bottom:10px;
 /*	background:#dcd3e3;*/
-	background:#efefef;
-	border:1px solid gray;
+	/*background:#efefef;*/
+	border:1px dotted rgb(175,175,175);
 	overflow:hidden;
 }
 
@@ -317,8 +319,8 @@ form.commentReplyForm {
 	float: left;
 	width: 70%;
 	height: 100%;
-	background: #efefef;
-	/*border: 1px solid #dedede;*/
+	/*background: #efefef;*/
+	border: 1px solid rgb(236,236,236);
 }
 
 .comment-content{

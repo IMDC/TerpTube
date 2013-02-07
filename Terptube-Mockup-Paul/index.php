@@ -73,7 +73,7 @@ while ($row = mysqli_fetch_assoc($result)) {
             <div id="comment-form-wrap" style="display:none">
 
                 <form id="new-comment-form" action="include/submit_comment.php?pID=0&aID=<?php echo $_SESSION['participantID'];?>" enctype="multipart/form-data" method="post">
-                    <span id="toggle-time-span">Apply comment to portion of video</span>
+                    <span id="toggle-time-span"><img src="images/feedback_icons/clock.png" style="vertical-align:middle;width:25px;height:25px;" />Apply comment to portion of video</span>
                     <div id="new-comment-time-div" style="display:none;">
                         <label>Start Time:</label>
                         <input type="text" id="start_time" name="start_time" />
