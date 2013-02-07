@@ -172,7 +172,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <div class="comment-avatar-div">
                                 <img src="images/avatar/<?php echo $comment["authoravatarfilename"]; ?>" />
                                 <p>Name: <?php echo $comment["authorname"]; ?></p>
-                                <p>Joined: <?php echo $comment["authorjoindate"]; ?></p>
+                                <p>Joined: <?php echo date_format(new DateTime($comment["authorjoindate"]), 'M d, Y'); ?></p>
                             </div>
                             <?php 
                                 error_log("output from index.php printing comment tools: comment author: " .  $comment['author'] . " participantID: " . $_SESSION['participantID']);
@@ -218,7 +218,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                         	<?php } ?>
                         </div>
                         <div class="reply-wrap">
-                            <p></p><a href="#" class="commentReplyLink" data-cid="<?php echo $comment['id'];?>" data-ctype="comment">Reply</a></p>
+                            <a href="#" class="commentReplyLink" data-cid="<?php echo $comment['id'];?>" data-ctype="comment">Reply</a></p>
                         </div>
                     </div>
 
@@ -233,7 +233,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <div class="comment-avatar-div">
                                 <img src="images/avatar/<?php echo $reply["authoravatarfilename"]; ?>" />
                                 <p>Name: <?php echo $reply["authorname"]; ?></p>
-                                <p>Joined: <?php echo date_format(new DateTime($reply["authorjoindate"]), 'M d,Y'); ?></p>
+                                <p>Joined: <?php echo date_format(new DateTime($reply["authorjoindate"]), 'M d, Y'); ?></p>
                             </div>
                             <?php if(intval($reply['author'])==intval($_SESSION['participantID'])){echo printCommentTools($reply["id"], 'reply');} ?>                         
                         </div>
