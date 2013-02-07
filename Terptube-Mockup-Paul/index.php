@@ -160,10 +160,12 @@ while ($row = mysqli_fetch_assoc($result)) {
                     //This will pull top level non-deleted comments made by the admin (id=0) and the currently logged in participant
                     $toplevelcomments = getTopLevelCommentsForSourceID($videoNumber, 0, isset($_SESSION['participantID']) ? (intval($_SESSION['participantID'])) : NULL);    
                 }
-				
-				foreach ($toplevelcomments as $comment) {
-	
-                    ?>
+                // check if there are NO comments
+                if (empty($toplevelcomments))
+                  echo '<div class="feedback-container clearfix"><p>No comments yet</p></div>';
+                else {
+                  foreach ($toplevelcomments as $comment) {
+                ?>
 
                     <div class="feedback-container clearfix" id="comment-<?php echo $comment["id"]; ?>" data-cid="<?php echo $comment["id"];?>" data-ctype="comment">
                         <div class="comment-left-side-wrap">
@@ -242,7 +244,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <div class="comment-content reply-content">
                             <?php 
                             if ($reply["hasvideo"] === 1) { ?>
-                                <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($reply["id"], $comment["videofilename"], 0); ?>" style="left:35%">
+                                <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($reply["id"], $reply["videofilename"], 0); ?>" style="left:35%">
                                     <?php echo printCommentVideoSource($reply); ?>
                                     <?php //TODO: check after a comment is uploaded that it is converted to webm or mp4 ?? ?>
                                 </video>
@@ -283,9 +285,10 @@ while ($row = mysqli_fetch_assoc($result)) {
                     } // end foreach loop to process replies to the top level comments
                         
                 } // end foreach loop to process top level comments 
+            } // end else statement if there are no top level comments
             ?>
 
-            </div>
+            </div> <!-- end of comment-container div -->
             
         </div> <!-- end of content-right div -->
         </div> <!-- end test div to encompass content-right div -->

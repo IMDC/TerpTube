@@ -97,18 +97,18 @@
     <div class="infotext">
     <?php 
         if ( isset($_SESSION['participantID']) ) {
-            echo "<p>You currently have a participant id of: <span>" . $_SESSION['participantID'] . "</span> under supervisor: <span>" . $_SESSION['supervisorName'] . "</span> acting as a: <span>" . $_SESSION['role'] . "</span></p>";
+            echo "<p>You currently have a participant ID of: <span>" . $_SESSION['participantID'] . "</span> under supervisor: <span>" . $_SESSION['supervisorName'] . "</span> acting as a: <span>" . $_SESSION['role'] . "</span></p>";
             echo "<p><span class='important'>Pressing submit will clear these values!</span></p>";
         } 
         else {
-            echo '<p>You currently are <span class="important">not</span> assigned a participand ID or a supervisor</p>'; 
+            echo '<p>You currently are <span class="important">not</span> assigned a participant ID or a supervisor</p>'; 
         }
     ?>
     </div>
     <form id="start-form" action="init.php" enctype="multipart/form-data" method="post">
         <label>Enter the supervisor's name</label>
         <input type="text" id="supervisor" name="supervisor" required><br />
-        <label>Enter the particpant's id:</label>
+        <label>Enter the participant's id:</label>
         <input type="number" size="10" id="participantid" min="4" max="2147483647" name="participantid" required><br />
         <label>Select the role of the participant</label>
         <select name="role">

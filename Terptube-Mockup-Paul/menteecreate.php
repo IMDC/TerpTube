@@ -62,7 +62,7 @@ $partIDget        = intval($_GET['pID']);
                     <label for="comment">Additional text information</label>
                     <textarea id="comment-textarea" name="comment" style="max-width:400px;"></textarea>
 
-                    <input type="submit" id="new-comment-submit-button" value="Post Comment" />
+                    <input type="submit" id="new-comment-submit-button" value="Finish Creating Video" />
                     <input type="button" id="cancel-button" name="cancel-button" value ="Cancel" />
 
                 </form>

@@ -45,10 +45,28 @@
         display: block;
         padding: 40px;
     }
+    ul.testlinklist {
+        margin-top: 20px;
+        width: 400px;
+        height: auto;
+        left: 100px;
+        position: relative;
+    }
+    ul.testlinklist li {
+        cursor: pointer;
+        padding: 10px 5px;
+        border-bottom: 1px solid rgb(186,186,189);
+    }
+    ul.testlinklist li a:hover {
+        background: rgba(186,186,189,0.5);
+    }
     
 </style>
 <div class="container">
-    
+    <img src="images/eku.jpg" title="Eastern Kentucky University" alt="Eastern Kentucky University" style="width:10%;padding-left:15%;" />
+    <img src="images/imdclogosmall.png" title="Inclusive Media and Design Centre" alt="IMDC lab at Ryerson University" style="width:10%;clear:both;padding-left:15%;" />
+    <br />
+    <div style="padding-left: 20px;">
 <?php
     /* create a prepared statement */
     $query = "INSERT INTO participants (id, created, name, supervisor, role, avatar) values (?, DEFAULT, 'participant', ?, ?, ?)";
@@ -70,26 +88,36 @@
             error_log("ERROR: $errnum, $errmsg");
             echo $errmsg;
             
-            echo "<h1>An error has occured, please go back and try again</h1>";
+            echo "<h1 style='color:#ff0000;font-weight:bold;border-bottom:1px solid #ff0000;'>An error has occured, please go back and try again</h1><br /><br />";
             echo "<a href='start.php'>Go back</a>";
             return;
         }
         
-        echo "<h1>Success</h1><h3>particpantid: $particID </h3><h3> supervisor: $supername </h3><h3>role: $userrole</h3>";
+        echo "<h1 style='color:#00ff00;font-weight:bold;border-bottom:1px solid #00ff00;'>Success</h1><br /><h3> Supervisor: $supername </h3><h3>Participant ID: $particID </h3><h3>Role: $userrole</h3>";
         
         $_SESSION['participantID'] = $particID;
         $_SESSION['supervisorName'] = $supername;
         $_SESSION['role'] = $userrole;
         
+        echo "<ul class='testlinklist'>";
+        
         if ($userrole == "Mentor") {
-            echo "<p><a href='index.php?v=1&pID=$particID'>Proceed as Mentor</a></p>";
+            echo "<li><a href='index.php?v=1&pID=$particID' target='_blank'>Mentor Orientation 1</li>";
+            echo "<li><a href='index.php?v=2&pID=$particID' target='_blank'>Mentor Orientation 2</li>";
+            echo "<li><a href='index.php?v=3&pID=$particID' target='_blank'>Mentor Test</a></li>";
         }
         else if ($userrole == "Mentee") {
-            echo "<p><a href='menteecreate.php?pID=$particID'>Proceed as Mentee</a></p>";
+            echo "<li><a href='index.php?v=4&pID=$particID' target='_blank'>Mentee Orientation</a></li>";
+            echo "<li><a href='menteecreate.php?pID=$particID' target='_blank'>Mentee Test</a></li>";
         }
+        
+        echo '</ul>';
+        echo '<br /><br />';
+        echo '<p><a href="start.php">Finish Test</a></p>';
         
     }
 ?>
+            </div>
         </div>
     </body>
 </html>
