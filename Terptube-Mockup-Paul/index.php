@@ -201,7 +201,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                                 <?php if ($comment["text"] != "") { ?>
                                     <div class="comment-text">
-                                        <span><?php echo html_entity_decode($comment["text"]); ?></span>
+                                        <?php echo $comment["text"]; ?>
                                     </div>
                                 <?php } ?>
                             
@@ -254,7 +254,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <?php 
                             if (!empty($comment["text"])) { ?>
                                 <div class="comment-text">
-                                    <span><?php echo html_entity_decode($reply["text"]); ?></span>
+                                    <?php echo $reply["text"]; ?>
                                 </div>
                             <?php 
                             } 

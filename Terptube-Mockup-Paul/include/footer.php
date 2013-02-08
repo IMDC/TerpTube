@@ -208,7 +208,8 @@
             var commentEndTime = $theCommentContainer.find(".temporalinfo").data('endval');
             
             // get comment text
-            var commentText = $theCommentContainer.find(".comment-text span").text();
+            //var commentText = $theCommentContainer.find(".comment-text span").text();
+            var commentText = $theCommentContainer.find("div.comment-text").text();
             // or use commentDetails.text
             
             console.log("comment start: " + commentStartTime + ", comment end: " + commentEndTime + ", comment Text: " + commentText);
@@ -687,7 +688,7 @@
 			.$each_array['sourceid']."','"
 			.$each_array['author']."','"
 			.$each_array['parentid']."','"
-			.htmlentities($each_array['text'], ENT_QUOTES)."',"
+			.html_entity_decode(preg_replace("/\r*\n/", "", $each_array['text']))."',"
 			.$each_array['starttime'].","
 			.$each_array['endtime'].",'"
 			.$each_array['date']."',"
