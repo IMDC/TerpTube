@@ -23,14 +23,14 @@
 		controls.options.onCommentMouseOver = function(comment)
 		{
 			var commentElement = $("div").find("[data-cid='" + comment.id + "']").eq(0);
-			comment.originalColor = commentElement.css("background-color");
-			commentElement.css("background-color", "#ff0000");
+			comment.originalOutline = commentElement.css("outline");
+			commentElement.css("outline", "3px solid red");
 		};
 		controls.options.onCommentMouseOut = function(comment)
 		{
 			var commentElement = $("div").find("[data-cid='" + comment.id + "']").eq(0);
-			commentElement.css("background-color", comment.originalColor);
-			comment.originalColor = undefined;
+			commentElement.css("outline", comment.originalOutline);
+			comment.originalOutline = undefined;
 		};
 		
 		controls.options.signLinkColor = "#0000FF";
