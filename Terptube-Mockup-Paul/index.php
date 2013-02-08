@@ -14,6 +14,10 @@ $result = mysqli_query($db, $sql);
 while ($row = mysqli_fetch_assoc($result)) {
     $videoName = $row['title'];
 }
+
+if (!isset($_SESSION['participantID'])) {
+    header("Location: " . SITE_BASE . 'start.php');
+}
 ?>
 
 <div id="container">
@@ -252,7 +256,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                             } 
                             ?>
                             <?php 
-                            if (!empty($comment["text"])) { ?>
+                            if (!empty($reply["text"])) { ?>
                                 <div class="comment-text">
                                     <?php echo $reply["text"]; ?>
                                 </div>

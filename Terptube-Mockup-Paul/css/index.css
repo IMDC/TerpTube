@@ -387,6 +387,9 @@ form.commentReplyForm {
 /*	border:1px solid black;*/
     padding: 10px 5px 5px;
     line-height: 1.4em;
+    font-family: Tahoma, Geneva, sans-serif;
+    color: #555;
+    font-size: 0.75em;
 }
 
 .reply-content {
