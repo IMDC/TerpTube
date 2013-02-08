@@ -334,6 +334,15 @@
            	}, 3000);
         });
 
+        $("div#input-upload-div").hover(
+            function() {
+                $(this).find("input#uploadedfileButton").addClass('awesomehighlight');
+            },
+            function() {
+                $(this).find("input#uploadedfileButton").removeClass('awesomehighlight');
+            }
+        );
+
 
         //This will delete the specific comment when the user clicks the x icon
         $(".comment-delete-link").click(function(event){

@@ -413,10 +413,13 @@ form.commentReplyForm {
 
 .commentReplyLink {
     text-decoration: none;
-    background: rgba(196,241,196,0.41);
+    background: rgb(207,239,253);
     padding: 3px 10px;
     border-radius: 5px;
     border: 1px solid rgb(193,221,193);
+}
+.commentReplyLink:hover {
+    background: rgba(196,241,196,0.41);
 }
 
 .text_reply{
@@ -428,10 +431,10 @@ form.commentReplyForm {
 }
 
 .delete-comment{
-	display:none;
-	position:relative;
-	left:500px;
-	width:25px;
+	display: none;
+	position: relative;
+	left: 500px;
+	width: 25px;
 }
 
 #comment-form-wrap {
@@ -467,9 +470,28 @@ img.clickable {
 	width: 300px;
 }
 
-#new-comment-form input[type="button"]:hover, input[type="submit"]:hover, input[type="file"]:hover {
-    background: #ccffcc;
+#cancel-button {
+
 }
+
+#cancel-button:hover {
+
+}
+
+.awesomehighlight, #new-comment-form input[type="button"]:hover, input[type="submit"]:hover, input[type="file"]:hover {
+    background: #befa7a; /* Old browsers */
+    background: -moz-linear-gradient(top, #befa7a 0%, #73da04 50%, #befa7a 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#befa7a), color-stop(50%,#73da04), color-stop(100%,#befa7a)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #befa7a 0%,#73da04 50%,#befa7a 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #befa7a 0%,#73da04 50%,#befa7a 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #befa7a 0%,#73da04 50%,#befa7a 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #befa7a 0%,#73da04 50%,#befa7a 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#befa7a', endColorstr='#befa7a',GradientType=0 ); /* IE6-9 */
+    color: #666;
+    cursor: pointer;
+}
+
+
 
 /************ error stuff ************/
 .error-wrap {

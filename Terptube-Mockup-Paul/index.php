@@ -66,7 +66,7 @@ while ($row = mysqli_fetch_assoc($result)) {
             <!---------------------------- Used to add a comment form --------------------------------------- -->
             <!-- Everytime this is clicked it will toggle the input form submission -->
             <div id="commentButtonWrap">
-                <button id="postCommentButton" name="postCommentbutton">Post a new comment</button>
+                <button id="postCommentButton" name="postCommentbutton"><img src="images/feedback_icons/round_plus.png" style="vertical-align:middle;margin-right:10px;"/>Post a new comment</button>
             </div>
 
             <!-- This div will contain the form to add a new comment -->
@@ -218,7 +218,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                         	<?php } ?>
                         </div>
                         <div class="reply-wrap">
-                            <a href="#" class="commentReplyLink" data-cid="<?php echo $comment['id'];?>" data-ctype="comment">Reply</a></p>
+                            <a href="#" class="commentReplyLink" data-cid="<?php echo $comment['id'];?>" data-ctype="comment">Reply<img src="images/feedback_icons/reply-arrow.png" style="height:25px;vertical-align:middle;" alt="" /></a></p>
                         </div>
                     </div>
 
