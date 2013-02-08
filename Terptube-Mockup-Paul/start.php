@@ -90,6 +90,11 @@
 </style>
 
 <div class="container">
+    <?php
+    if ( isset($_GET['nologin'])) {
+        print '<div style="width:100%;padding:20px;border:1px solid red;margin:0 auto;color:red;font-size:2em;font-weight:bold;">You are not signed in as a participant.<br />Please sign in below</div>';
+    }
+    ?>
     <img src="images/eku.jpg" title="Eastern Kentucky University" alt="Eastern Kentucky University" style="width:10%;padding-left:15%;" />
     <img src="images/imdclogosmall.png" title="Inclusive Media and Design Centre" alt="IMDC lab at Ryerson University" style="width:10%;clear:both;padding-left:15%;" />
     <br />

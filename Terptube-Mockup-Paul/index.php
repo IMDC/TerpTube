@@ -15,8 +15,9 @@ while ($row = mysqli_fetch_assoc($result)) {
     $videoName = $row['title'];
 }
 
+// redirect the user to the start page if they are not logged in
 if (!isset($_SESSION['participantID'])) {
-    header("Location: " . SITE_BASE . 'start.php');
+    header("Location: " . SITE_BASE . 'start.php?nologin=1');
 }
 ?>
 
@@ -65,7 +66,6 @@ if (!isset($_SESSION['participantID'])) {
 
 
             <div class="cleardiv"></div>
-            <div id="fullcommarraydiv">There should be stuff in here</div>
             
             <!---------------------------- Used to add a comment form --------------------------------------- -->
             <!-- Everytime this is clicked it will toggle the input form submission -->

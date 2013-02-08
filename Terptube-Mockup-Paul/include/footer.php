@@ -672,18 +672,14 @@
             }
         });
 
-<?php
-    $allcomms = json_decode(getAllCommentsForSourceID($videoNumber, 1),true);
-    foreach($allcomms as $each_array) {
-        $output = array();
-        foreach ($each_array as $key=>$val) {
-            //echo "$key:$val";
-            //echo "$key: $val";
-            array_push($output, '"'.$val.'"');
-//			echo("Key:".$key." value: ".$val);
-        }
-        $fullcommentargs = implode($output, ',');
- //       echo "var tempFullCommentObject = new fullcomment($fullcommentargs, get_random_color());\n";
+<?php    
+    // if we want all videos displayed, get all of them so the timeline temporal regions are drawn correctly
+    if (isset($_GET['all']) && ($_GET['all']==1))
+        $allcomms = getAllCommentsForSourceID($videoNumber, 0);
+    else // only show the participant's created comments, and the ones from the admin
+        $allcomms = getFilteredCommentsForSourceID($videoNumber, 1, 0, $_SESSION['participantID']);
+    
+    foreach($allcomms as $each_array) { 
 		echo "var tempFullCommentObject = new fullcomment('".$each_array['id']."','"
 			.$each_array['sourceid']."','"
 			.$each_array['author']."','"
@@ -701,16 +697,8 @@
 			.$each_array['authorrole']."', get_random_color());\n";
         echo "fullCommentArray.push(tempFullCommentObject);\n";
     }
-?>
-    //var tempFullCommentObject = new fullcomment(cid,sid,aid,pid,text,start,end,date,del,tempbool,hasvid,vidfilename);
-    //fullCommentArray.push(tempFullCommentObject);
-        
-        <?php
 
 
-$commentsAsText = convertJSONCommentArrayToHTML($allcomms);
-
-echo '$("div#fullcommarraydiv").empty().html(' . $commentsAsText . ');';
 
 //-----------ADD SIGNLINKS TO DENSITY BAR ------------------------------------------//
 

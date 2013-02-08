@@ -338,7 +338,7 @@ function drawComments()
 
 function drawComment(comment)
 {
-	if (comment.isDeleted || comment.isTemporal==0)
+	if (comment.isTemporal==0)
 		return;
 	var densityBarElement = $(this.elementID).find(
 			".videoControlsContainer.track.densitybar").eq(0);
