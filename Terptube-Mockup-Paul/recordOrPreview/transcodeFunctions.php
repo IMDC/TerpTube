@@ -52,14 +52,21 @@ function parseSecondsToFFMPEGTime($time)
 }
 
 
-function trimVideo($inputVideoFile, $outputVideoFile, $startTime, $endTime, $keepInputFile)
+function trimVideo($inputVideoFile, $outputVideoFile, $startTime, $endTime, $keepInputFile, $keepAudio)
 {
         $duration = $endTime - $startTime;
         $startTimeFFMPEG = parseSecondsToFFMPEGTime($startTime);
         $durationFFMPEG = parseSecondsToFFMPEGTime($duration);
         $ffmpeg = getFFMPEGPath();
 		//TODO look into getting the output to see if the transcoding succeeded
-        exec("$ffmpeg  -ss $startTimeFFMPEG -t $durationFFMPEG -i '".$inputVideoFile."' -codec:v copy -codec:a copy -y '".$outputVideoFile."'");
+        if ($keepAudio == true)
+        {
+       	 	exec("$ffmpeg  -ss $startTimeFFMPEG -t $durationFFMPEG -i '".$inputVideoFile."' -codec:v copy -codec:a copy -y '".$outputVideoFile."'");
+        }
+        else
+        {
+        	exec("$ffmpeg  -ss $startTimeFFMPEG -t $durationFFMPEG -i '".$inputVideoFile."' -codec:v copy -an -y '".$outputVideoFile."'");
+        }
 		
 		//FIXME no permissions to delete file
 		if (!$keepInputFile)
@@ -94,6 +101,7 @@ function convertVideoToWEBM($inputVideoFile, $outputVideoFile, $keepAudio, $keep
 {
 	$ffmpeg = getFFMPEGPath();
 //	echo "converting video";
+error_log("Convert: Keep Audio:".$keepAudio);
 	if ($keepAudio)
 	{
 			$command = "$ffmpeg -i '".$inputVideoFile."' -codec:a libvorbis -ar 22050 -b:a 64k -ac 1 -b:v 600k -qmin 10 -qmax 42 -quality good -s ". VIDEO_RESOLUTION_MINIMUM_STANDARD." -y '".$outputVideoFile."' 2>&1";

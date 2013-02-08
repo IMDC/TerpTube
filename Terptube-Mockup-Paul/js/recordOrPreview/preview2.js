@@ -11,9 +11,16 @@ function goBack(where)
 	}
 		
 }
-function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile,controls)
+function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile, controls)
 {
 	setControlsEnabled(false);
+	var keepAudio = true;
+	if (controls.options.audioBar)
+	{
+		if ($(controls.elementID).find("#audioOff").eq(0).attr("checked"))
+			keepAudio = false;
+	}
+	
 	if (controls.currentMinSelected == controls.minSelected && controls.currentMaxSelected == controls.maxSelected)
 	{
 		//No need to trim as the user has not moved the start/end points
@@ -29,7 +36,8 @@ function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile,controls)
 			outputVidFile: outputVideoFile,
 			startTime: controls.currentMinTimeSelected, 
 			endTime: controls.currentMaxTimeSelected, 
-			keepInputFile: inputVideoFile},
+			keepInputFile: inputVideoFile,
+			keepAudio: keepAudio},
 		success: function (data){transcodeSuccess(data);},
 		error: function (data) {transcodeError(data);}
 	});	
@@ -68,7 +76,7 @@ function transcodeSuccess(data)
 	setBlurText("");
 	setBlur(false);
 //	setControlsEnabled(true);
-	alert("VideoFile created: "+data);
+//	alert("VideoFile created: "+data);
 	//window.location.href = "recordOrPreview/streams.php";
 	updateFileNameField("fileName", data);
 	

@@ -15,7 +15,10 @@ $keepInputFile = 'keepInputFile';
 
 $convert = 'convert';
 $keepAudio = 'keepAudio';
-
+if (!isset($_POST[$keepAudio]))
+		$keepAudio = true;
+else 
+	$keepAudio = $_POST[$keepAudio]=="true";
 if (isset($_POST[$trim]) && $_POST[$trim]=="yes")
 {  //trimming video
 	if (isset($_POST[$inputVideoFile]) && isset($_POST[$outputVideoFile]))
@@ -29,7 +32,7 @@ if (isset($_POST[$trim]) && $_POST[$trim]=="yes")
 		}
 		else if(isset($_POST[$startTime]) && isset($_POST[$endTime]) && isset($_POST[$keepInputFile]))
 		{ //Input is proper
-			trimVideo($inputVideoDirectory.$_POST[$inputVideoFile], $outputVideoFile, $_POST[$startTime], $_POST[$endTime], $_POST[$keepInputFile]==true);
+			trimVideo($inputVideoDirectory.$_POST[$inputVideoFile], $outputVideoFile, $_POST[$startTime], $_POST[$endTime], $_POST[$keepInputFile]==true, $keepAudio);
 			echo basename($outputVideoFile); //returns the filename
 		}
 		else 
