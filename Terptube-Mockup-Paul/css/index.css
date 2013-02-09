@@ -421,14 +421,25 @@ form.commentReplyForm {
     border: none;
     padding: 5px;
     margin-top: 10px;
+    margin-right: 17px;
 }
 
 .commentReplyLink {
     text-decoration: none;
-    background: rgb(207,239,253);
+    background: rgb(240,250,254); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(240,250,254,1) 0%, rgba(212,241,254,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(240,250,254,1)), color-stop(100%,rgba(212,241,254,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(240,250,254,1) 0%,rgba(212,241,254,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(240,250,254,1) 0%,rgba(212,241,254,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(240,250,254,1) 0%,rgba(212,241,254,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom, rgba(240,250,254,1) 0%,rgba(212,241,254,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f0fafe', endColorstr='#d4f1fe',GradientType=0 ); /* IE6-9 */
     padding: 3px 10px;
     border-radius: 5px;
     border: 1px solid rgb(193,221,193);
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 0.80em;
+    text-shadow: 1px 1px 1px #fff;
 }
 
 .commentReplyLink:hover {
