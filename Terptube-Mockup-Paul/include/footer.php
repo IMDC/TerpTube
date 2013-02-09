@@ -209,8 +209,8 @@
             
             // get comment text
             //var commentText = $theCommentContainer.find(".comment-text span").text();
-            var commentText = $theCommentContainer.find("div.comment-text").text();
-            // or use commentDetails.text
+            //var commentText = $theCommentContainer.find("div.comment-text").text();			var commentText = $('<div/>').html(commentDetails.text.replace(/<br[ ]*\/*>/ig, "\r\n")).text();
+            // or use 
             
             //console.log("comment start: " + commentStartTime + ", comment end: " + commentEndTime + ", comment Text: " + commentText);
             //console.log("comment info from js array-> hasVideo: " + commentDetails.hasVideo +", video filename: " + commentDetails.videoFileName)
@@ -758,7 +758,7 @@
     if (isset($_GET['all']) && ($_GET['all']==1))
         $allcomms = getAllCommentsForSourceID($videoNumber, 0);
     else // only show the participant's created comments, and the ones from the admin
-        $allcomms = getFilteredCommentsForSourceID($videoNumber, 1, 0, $_SESSION['participantID']);
+        $allcomms = getFilteredCommentsForSourceID($videoNumber, 0, $_SESSION['participantID']);
     
     foreach($allcomms as $each_array) { 
 		echo "var tempFullCommentObject = new fullcomment('".$each_array['id']."','"

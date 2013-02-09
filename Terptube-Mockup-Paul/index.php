@@ -203,7 +203,7 @@ if (!isset($_SESSION['participantID'])) {
 
                                 <?php if ($comment["text"] != "") { ?>
                                     <div class="comment-text">
-                                        <?php echo $comment["text"]; ?>
+                                        <?php echo (preg_replace("/\r*\n/", "", $comment["text"])); ?>
                                     </div>
                                 <?php } ?>
                             
@@ -256,7 +256,7 @@ if (!isset($_SESSION['participantID'])) {
                             <?php 
                             if (!empty($reply["text"])) { ?>
                                 <div class="comment-text">
-                                    <?php echo $reply["text"]; ?>
+                                    <?php echo (preg_replace("/\r*\n/", "",$reply["text"])); ?>
                                 </div>
                             <?php 
                             } 

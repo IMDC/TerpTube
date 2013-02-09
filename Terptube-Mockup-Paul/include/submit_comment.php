@@ -22,7 +22,7 @@ $authorIDchecked;
 $action             = mysqli_real_escape_string($db, $_POST['formAction']);
 
 //$comment_text 		= htmlentities(mysqli_real_escape_string($db, $_POST['comment']));
-$comment_text 		= mysqli_real_escape_string($db,htmlentities(nl2br($_POST['comment']), ENT_QUOTES));
+$comment_text 		= mysqli_real_escape_string($db,htmlentities(preg_replace("/\r*\n/", "", nl2br($_POST['comment'])), ENT_QUOTES));
 $comment_start_time = $_POST['start_time'];
 $comment_end_time 	= $_POST['end_time'];
 
