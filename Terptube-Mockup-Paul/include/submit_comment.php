@@ -101,7 +101,7 @@ $redirectLocation = "";
 switch ($action) {
     case "new"   :
     case "reply" :
-        $commentID = insertCommentIntoDatabase($sourceID, $parentID, $authorIDchecked, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $videofilepathfordb);
+        $commentID = insertCommentIntoDatabase($sourceID, $parentIDfromForm, $authorIDchecked, $comment_text, $comment_start_time, $comment_end_time, $temporal_comment, $has_video, $videofilepathfordb);
         
         if ( !$commentID  || !isset($commentID) ) {
             // fail, comment wasn't inserted in to our database

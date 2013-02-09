@@ -212,8 +212,8 @@
             var commentText = $theCommentContainer.find("div.comment-text").text();
             // or use commentDetails.text
             
-            console.log("comment start: " + commentStartTime + ", comment end: " + commentEndTime + ", comment Text: " + commentText);
-            console.log("comment info from js array-> hasVideo: " + commentDetails.hasVideo +", video filename: " + commentDetails.videoFileName)
+            //console.log("comment start: " + commentStartTime + ", comment end: " + commentEndTime + ", comment Text: " + commentText);
+            //console.log("comment info from js array-> hasVideo: " + commentDetails.hasVideo +", video filename: " + commentDetails.videoFileName)
             
             if (commentStartTime !== commentEndTime)
             {
@@ -368,6 +368,25 @@
            	}, 3000);
         });
 
+        // client-side form validation so you can't submit an empty comment form
+        $("form#new-comment-form").submit(function() {
+            // validate
+            
+            // if there is any content in the text area, any existing video chosen, or any video uploaded/recorded
+            if ( !( (!$.trim($("#comment-textarea").val()))
+                    &&  (!$(this).find("select#userExistingVideo").val())  
+                    &&  (!$.trim($(this).find("p.video-title").html()))     ) ) {
+                // form contains valid input, we should allow the submit
+                return true;
+            }
+            
+            alert("Please fill in at least one field to comment");
+            $(this).stop().css("background-color", "#D80032").animate({ backgroundColor: "#FFFFFF"}, 1500);
+            return false;
+        })
+
+
+        // highlight the 'record video' button when you hover over it, required for some reason
         $("div#input-upload-div").hover(
             function() {
                 $(this).find("input#uploadedfileButton").addClass('awesomehighlight');
@@ -379,6 +398,7 @@
 
 
         //This will delete the specific comment when the user clicks the x icon
+        // TODO: if you delete a top-level comment that has replies, those replies will no longer show up, fix this?
         $(".comment-delete-link").click(function(event){
             // prevent the click from scrolling around the page
             event.preventDefault();
@@ -386,10 +406,7 @@
             // get the comment's ID
             var commentID = stringToIntegersOnly($(this).attr('id'));
             
-            // fade out the comment in question
-            //$("div#comment-" + commentID).fadeTo('slow', 0.5);
-            //$("div").find("[data-cid='" + commentID + "']").eq(0).fadeTo('medium', 0.5);
-            
+            // fade out the comment in question        
             $(this).parents("[data-cid='" + commentID + "']").eq(0).fadeTo('medium', 0.5);
 
             var $theDeleteLink = $(this);
@@ -408,9 +425,6 @@
                             success: function(data){
                                 var retdata = $.parseJSON(data);
                                 if ( retdata.status === "success" ) {
-                                    //alert('awesome');
-                                    //$("div#comment-" + retdata.id).remove();
-                                    //$("div").find("[data-cid='" + retdata.id + "']").eq(0).remove();
                                     $theDeleteLink.parents("[data-cid='" + retdata.id + "']").eq(0).fadeTo('slow', 0.0).remove();
                                     //delete timeline region
                                     removeComment(commentID);
@@ -428,8 +442,6 @@
                     },
                     Cancel: function() {
                         $( this ).dialog( "close" );
-                        //$("div#comment-" + commentID).fadeTo('slow', 1.0);
-                        //$("div").find("[data-cid='" + commentID + "']").eq(0).fadeTo('slow', 1.0);
                         $theDeleteLink.parents("[data-cid='" + commentID + "']").eq(0).fadeTo('slow', 1.0);
                     }
                 }
@@ -530,6 +542,9 @@
            
            // temporarily hide the comment tools links that include 'edit' and 'delete'
            hideCommentTools();
+           
+           // hide the Post a new comment button
+           $postCommentButton.hide();
            
            // add a border to the container element to encompass the reply form
            //$theCommentContainer.addClass("writing-reply");
