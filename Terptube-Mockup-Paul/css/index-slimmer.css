@@ -13,7 +13,7 @@ h3 {
 
 #container {
 	margin: 0;
-	width: 1300px;
+	width: 1200px;
 	background: #fff;
 }
 
@@ -52,16 +52,16 @@ h3 {
 
 #content-container {
 	float: left;
-	width: 1300px;
+	width: 1200px;
 	background: #fff;
 }
 
 #content-left {
 	clear: left;
 	float: left;
-	width: 700px;
+	width: 645px;
 	padding: 20px 0;
-	margin: 0 0 0 30px;
+	margin: 0 0 0 10px;
 	display: inline;
 }
 
@@ -69,9 +69,9 @@ h3 {
 
 #content-right {
 	float: right;
-	width: 500px;
+	width: 525px;
 	padding: 20px 0;
-	margin: 0 20px 0 0;
+	margin: 0;
 	display: inline;
 }
 
@@ -110,7 +110,7 @@ html[xmlns] .clearfix {
 .source-media-container{
 	width: auto;
 	height: auto;
-	padding:10px;
+	/*padding:10px;*/
 	/*background: rgb(245, 250, 255);*/
 	/*border: 1px solid rgb(105, 186, 211);*/
 	float: left;
@@ -196,6 +196,14 @@ html[xmlns] .clearfix {
     border: 1px solid rgb(114,201,98);
 }
 
+#new-comment-form {
+}
+
+#video-option-fieldset {
+    border: 1px dotted #ddd;
+    padding: 0 25px;
+}
+
 #new-comment-form input, textarea{
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   border:1px solid #ccc;
@@ -218,6 +226,7 @@ html[xmlns] .clearfix {
     width: 90%;
     height: auto;
     min-height: 90px;
+    margin-bottom: 15px !important;
 }
 
 #new-comment-form span#toggle-time-span {
@@ -462,8 +471,10 @@ form.commentReplyForm {
 	width: 25px;
 }
 
-#comment-form-wrap {
+#comment-form-wrap * {
     clear: both;
+    text-align: center;
+    margin: 0 auto;
 }
 
 #new-comment-time-div label, input {
@@ -475,6 +486,7 @@ form.commentReplyForm {
     clear: both;
     margin: 25px 0;
     width: 100%;
+    text-align:center;
 }
 
 #commentButtonWrap button {

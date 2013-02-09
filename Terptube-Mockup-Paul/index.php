@@ -70,7 +70,7 @@ if (!isset($_SESSION['participantID'])) {
             <!---------------------------- Used to add a comment form --------------------------------------- -->
             <!-- Everytime this is clicked it will toggle the input form submission -->
             <div id="commentButtonWrap">
-                <button id="postCommentButton" name="postCommentbutton"><img src="images/feedback_icons/round_plus.png" style="vertical-align:middle;margin-right:10px;"/>Post a new comment</button>
+                <button id="postCommentButton" name="postCommentbutton"><img src="images/feedback_icons/round_plus.png" style="vertical-align:middle;margin-right:10px;height:20px;"/>Post a new comment</button>
             </div>
 
             <!-- This div will contain the form to add a new comment -->
@@ -90,11 +90,11 @@ if (!isset($_SESSION['participantID'])) {
                     <textarea id="comment-textarea" name="comment"></textarea>
 
                     <fieldset id="video-option-fieldset" name="video-option-fieldset">
-                        <legend>Choose a Video Upload Option:</legend>
+                        <legend style="padding-bottom:10px;">Choose a Video Upload Option:</legend>
 
                         <label>Existing Video:</label>
                         <?php $existingvideos = getExistingVideosForSourceID($videoNumber); ?>
-                        <select id="userExistingVideo" name="user-existing-video">
+                        <select style="margin-bottom:10px;" id="userExistingVideo" name="user-existing-video">
                         	<option value=""> </option>
                         	<?php 
                         	foreach ($existingvideos as $existingVid) {
@@ -135,9 +135,7 @@ if (!isset($_SESSION['participantID'])) {
                     <input type="hidden" name="formAction" value="new" id="formAction" />
                     <input type="hidden" name="parentID" value="" id="parentCommentID" />
                     <input type="hidden" name="commentID" value="" id="selectedCommentID" />
-
                     <br/>
-
                     <input type="button" id="previewButton" name="previewButton" style="display:none" value="Preview"/>
                     <input type="submit" id="new-comment-submit-button" value="Post Comment" />
                     <input type="button" id="cancel-button" name="cancel-button" value ="Cancel" />

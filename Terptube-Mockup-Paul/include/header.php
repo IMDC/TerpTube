@@ -11,7 +11,7 @@
         <!-- CSS files -->
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/reset.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/jquery-ui-1.9.0.custom.min.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/index.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/index-slimmer.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/playr.css" type="text/css" media="screen" />
 
         <link rel="stylesheet" href="<?php echo SITE_BASE ?>css/record-or-preview/common.css" type="text/css" media="screen" />
