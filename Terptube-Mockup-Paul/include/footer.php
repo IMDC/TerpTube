@@ -235,9 +235,26 @@
 	            startTimeInput.on("change",function(){
 					if (startTimeInput.val() >= controls.currentMaxTimeSelected - controls.options.minLinkTime)
 					{
-						controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
-						controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
-						startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+						if (startTimeInput.val() >= controls.getDuration()-controls.options.minLinkTime)
+						{
+							controls.currentMaxTimeSelected = controls.getDuration();
+							controls.currentMinTimeSelected = Number(controls.currentMaxTimeSelected) - controls.options.minLinkTime;
+							controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+							controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+							endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+							startTimeInput.val(roundNumber(controls.currentMinTimeSelected, 2));
+						}
+						else
+						{
+							controls.currentMinTimeSelected = startTimeInput.val();
+							controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+							controls.currentMaxTimeSelected = Number(controls.currentMinTimeSelected) + controls.options.minLinkTime;
+							controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+							endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+					//		controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
+					//		controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+					//		startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+						}
 					}
 					else if (startTimeInput.val()<=0)
 					{
@@ -251,14 +268,30 @@
 						controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
 					}
 					controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
+					controls.setVideoTime(controls.currentMinTimeSelected);
 	            });
 	            endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
 	            endTimeInput.on("change",function(){
-					if (endTimeInput.val() <= controls.currentMinTimeSelected + controls.options.minLinkTime)
+					if (endTimeInput.val() <= Number(controls.currentMinTimeSelected) + controls.options.minLinkTime)
 					{
-						controls.currentMaxTimeSelected = controls.currentMinTimeSelected + controls.options.minLinkTime;
-						controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
-						endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+						if (endTimeInput.val()<controls.options.minLinkTime)
+						{
+							controls.currentMinTimeSelected = 0;
+							controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+							startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+							controls.currentMaxTimeSelected = Number(controls.currentMinTimeSelected) + controls.options.minLinkTime;
+							controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+							endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+						}
+						else
+						{
+							controls.currentMaxTimeSelected = endTimeInput.val();
+							controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+							endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+							controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
+							controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+							startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+						}
 					}
 					else if (endTimeInput.val()>=controls.getDuration())
 					{
@@ -272,7 +305,7 @@
 						controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
 					}
 					controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
-					
+					controls.setVideoTime(controls.currentMaxTimeSelected);
 	            });
             }
             
@@ -526,7 +559,7 @@
         	controls.playHeadImage = undefined;
             // $(".comment-details").show();
             $commentformcontainer.show();
-            if (controls.getCurrentTime()+controls.options.minLinkTime>controls.getDuration())
+            if (Number(controls.getCurrentTime())+controls.options.minLinkTime>controls.getDuration())
             {
                 controls.currentMinTimeSelected = controls.getDuration() - controls.options.minLinkTime;
             }
@@ -535,7 +568,7 @@
             	controls.currentMinTimeSelected = controls.getCurrentTime();
             }
             controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
-            controls.currentMaxTimeSelected = controls.currentMinTimeSelected+controls.options.minLinkTime;
+            controls.currentMaxTimeSelected = Number(controls.currentMinTimeSelected)+controls.options.minLinkTime;
             controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
             
           	controls.setAreaSelectionEnabled(true);
@@ -543,9 +576,26 @@
             startTimeInput.on("change",function(){
 				if (startTimeInput.val() >= controls.currentMaxTimeSelected - controls.options.minLinkTime)
 				{
-					controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
-					controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
-					startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+					if (startTimeInput.val() >= controls.getDuration()-controls.options.minLinkTime)
+					{
+						controls.currentMaxTimeSelected = controls.getDuration();
+						controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
+						controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+						controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+						endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+						startTimeInput.val(roundNumber(controls.currentMinTimeSelected, 2));
+					}
+					else
+					{
+						controls.currentMinTimeSelected = startTimeInput.val();
+						controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+						controls.currentMaxTimeSelected = Number(controls.currentMinTimeSelected) + controls.options.minLinkTime;
+						controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+						endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+				//		controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
+				//		controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+				//		startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+					}
 				}
 				else if (startTimeInput.val()<=0)
 				{
@@ -559,28 +609,44 @@
 					controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
 				}
 				controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
+				controls.setVideoTime(controls.currentMinTimeSelected);
             });
             endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
             endTimeInput.on("change",function(){
-				if (endTimeInput.val() <= controls.currentMinTimeSelected + controls.options.minLinkTime)
-				{
-					controls.currentMaxTimeSelected = controls.currentMinTimeSelected + controls.options.minLinkTime;
-					controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
-					endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
-				}
-				else if (endTimeInput.val()>=controls.getDuration())
-				{
-					controls.currentMaxTimeSelected = controls.getDuration();
-					controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
-					endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
-				}
-				else
-				{
-					controls.currentMaxTimeSelected = endTimeInput.val();
-					controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
-				}
-				controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
-				
+				if (endTimeInput.val() <= Number(controls.currentMinTimeSelected) + controls.options.minLinkTime)
+					{
+						if (endTimeInput.val()<controls.options.minLinkTime)
+						{
+							controls.currentMinTimeSelected = 0;
+							controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+							startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+							controls.currentMaxTimeSelected = Number(controls.currentMinTimeSelected) + controls.options.minLinkTime;
+							controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+							endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+						}
+						else
+						{
+							controls.currentMaxTimeSelected = endTimeInput.val();
+							controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+							endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+							controls.currentMinTimeSelected = controls.currentMaxTimeSelected - controls.options.minLinkTime;
+							controls.currentMinSelected = controls.getXForTime(controls.currentMinTimeSelected);
+							startTimeInput.val( roundNumber(controls.currentMinTimeSelected, 2));
+						}
+					}
+					else if (endTimeInput.val()>=controls.getDuration())
+					{
+						controls.currentMaxTimeSelected = controls.getDuration();
+						controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+						endTimeInput.val( roundNumber(controls.currentMaxTimeSelected, 2));
+					}
+					else
+					{
+						controls.currentMaxTimeSelected = endTimeInput.val();
+						controls.currentMaxSelected = controls.getXForTime(controls.currentMaxTimeSelected);
+					}
+					controls.setHighlightedRegion(controls.currentMinSelected, controls.currentMaxSelected);
+					controls.setVideoTime(controls.currentMaxTimeSelected);
             });
             controls.repaint();
             
