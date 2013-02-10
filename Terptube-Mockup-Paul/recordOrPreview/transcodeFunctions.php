@@ -4,6 +4,31 @@ require_once("../setup.php");
 
 define(VIDEO_RESOLUTION_MINIMUM_STANDARD, "640x480");
 
+function getExtension($filename)
+{
+	return end(explode('.', $filename));
+}
+
+function getVideoType($video)
+{
+	$extension = getExtension($video);
+	if ( $extension == "mp4")
+	{
+		return 'video/mp4';
+	}
+	else if ( $extension == "ogv")
+	{
+		return 'video/ogg';
+	}
+	else if ( $extension == "webm" )
+	{
+		return 'video/webm';
+	}
+	else {
+		return 'video/unknown';
+	}
+}
+
 function getFFMPEGPath()
 {
 	return "/usr/local/bin/ffmpeg";

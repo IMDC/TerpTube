@@ -4,30 +4,7 @@
 //FIXME add option to preview an existing video online to edit it. (record and replace the existing video)
 require_once("transcodeFunctions.php");
 require_once("../setup.php");
-function getExtension($filename)
-{
-	return end(explode('.', $filename));	
-}
 
-function getVideoType($video)
-{
-	$extension = getExtension($video);	
-	if ( $extension == "mp4")
-	{
-		return 'video/mp4';
-	}
-	else if ( $extension == "ogv")
-	{
-		return 'video/ogg';	
-	}
-	else if ( $extension == "webm" )
-	{
-		return 'video/webm';	
-	}
-	else {
-		return 'video/unknown';
-	}
-}
 ?>
 <script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/preview2.js"></script>
 
@@ -132,40 +109,6 @@ else
         <source id="video-source" src="<?php echo $video ?>" type="<?php echo getVideoType($video)?>">
         Browser cannot play video. 
     </video> 
-<!--    <div class="record-or-preview video" id="track">
-        <canvas class="record-or-preview track" id="densitybar" >
-        </canvas>
-        <canvas class="record-or-preview track" id="selectedRegion" >
-        </canvas>
-        <canvas class="record-or-preview track" id="thumb" onMouseOver="javascript:setVolumeBarVisible(false)">
-        </canvas>
-      	<div class="record-or-preview" id="timeBox">0:00:00/0:00:00</div>
-       	<div class="record-or-preview" id="volume"  onMouseOver="javascript:setVolumeBarVisible(true)">
-       		<img class="record-or-preview" id="volumeImage" alt="volume control" src="images/recordOrPreview/audioOn.png"  onClick="javascript:toggleMute()"/>
-       		<div class="record-or-preview" id="volumeSlider"></div>
-       	</div>
-	</div>
-    <div class="record-or-preview" id="buttonsBar">
-        <div class="record-or-preview" id="backButtons">
-        	<button class="record-or-preview preview" id="backButton" type="button" onclick="javascript:goBack('<?php echo $postType?>');"></button>
-        </div>
-        <div class="record-or-preview" id="videoControls">
-            <button class="record-or-preview preview" id="beginButton" type="button" onclick="javascript:jumpTo(0);"></button>
-            <button class="record-or-preview preview" id="stepBackwardButton" type="button" onclick="javascript:stepBackward();"></button>
-            <button class="record-or-preview preview" id="playButton" type="button" onclick="javascript:playPause();" ></button>
-            
-            <button class="record-or-preview preview" id="stepForwardButton" type="button" onclick="javascript:stepForward();"></button>
-            <button class="record-or-preview preview" id="endButton" type="button" onclick="javascript:jumpTo(1);"></button>
-        </div>
-        <div class="record-or-preview" id="forwardButtons">
-   	     	<button class="record-or-preview preview" id="submitButton" type="button" onclick="javascript:transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>);"></button>
-        </div>
-        <div class="record-or-preview" id="audioButtonsBar">
-        Remove audio from the video?<br />	<label for="audioOff"><img src="images/recordOrPreview/audioOff.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="false" id="audioOff" />
-            <label for="audioOn"><img src="images/recordOrPreview/audioOn.png" width="30px" height="30px" alt="audio enabled" /> </label><input type="radio" name="audioEnabled" value="true" class="record-or-preview" id="audioOn" checked="checked" />
-             
-        </div>
-    </div> -->
 </div>
 <script type="text/javascript">
 

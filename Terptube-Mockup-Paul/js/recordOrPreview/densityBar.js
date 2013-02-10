@@ -960,7 +960,8 @@ function setMouseDownThumb(event)
 										instance.currentMaxSelected);
 								instance
 										.setVideoTime(instance.currentMinTimeSelected);
-								instance.options.onAreaSelectionChanged();
+								if (instance.options.onAreaSelectionChanged)
+									instance.options.onAreaSelectionChanged();
 							});
 
 		}
@@ -995,7 +996,8 @@ function setMouseDownThumb(event)
 										instance.currentMaxSelected);
 								instance
 										.setVideoTime(instance.currentMaxTimeSelected);
-								instance.options.onAreaSelectionChanged();
+								if (instance.options.onAreaSelectionChanged)
+									instance.options.onAreaSelectionChanged();
 							});
 		}
 	}

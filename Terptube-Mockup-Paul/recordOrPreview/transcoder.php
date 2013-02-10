@@ -45,12 +45,12 @@ else if (isset($_POST[$convert]) && $_POST[$convert]=="yes")
 {
 	//converting the video
 	//echo "input:".isset($_POST[$inputVideoFile]) . "output:".isset($_POST[$outputVideoFile]) . "keepInput:".isset($_POST[$keepInputFile]) . "keepAudio:".isset($_POST[$keepAudio]);
-	if(isset($_POST[$inputVideoFile]) && isset($_POST[$outputVideoFile]) && isset($_POST[$keepInputFile]) && isset($_POST[$keepAudio]))
+	if(isset($_POST[$inputVideoFile]) && isset($_POST[$outputVideoFile]) && isset($_POST[$keepInputFile]))
 	{
 		error_log("Converting the video...");
 		//input is proper
 		$outputProgress = "";
-		convertVideoToWEBM($_POST[$inputVideoFile],$_POST[$outputVideoFile], $_POST[$keepAudio]=="true",$_POST[$keepInputFile]=="true", $outputProgress);
+		convertVideoToWEBM($_POST[$inputVideoFile],$_POST[$outputVideoFile], $keepAudio,$_POST[$keepInputFile]=="true", $outputProgress);
 		return "Success";
 	}	
 	else

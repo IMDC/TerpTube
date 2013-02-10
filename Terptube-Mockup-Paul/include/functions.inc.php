@@ -389,7 +389,7 @@ function getFilteredCommentsForSourceID($sourceID, $del=0, $particID=NULL) {
         /* bind parameters */
         mysqli_stmt_bind_param($stmt, "i", $sID);
 
-        error_log("mysql query for getTopLevelCommentsForSourceID: $query");
+        error_log("mysql query for getFilteredCommentsForSource: $query");
         
         /* execute query */
         mysqli_stmt_execute($stmt);

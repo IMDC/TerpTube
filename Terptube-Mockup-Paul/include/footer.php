@@ -353,6 +353,7 @@
             video_dom.currentTime = $(this).data('startval');
             //highlight comment temporarily on the density bar
             var commentContainer = $(this).parents(".feedback-container").eq(0);
+            console.log(commentContainer.data("cid"));
             var comment = getCommentById(commentContainer.data("cid"));
             comment.paintHighlighted = true;
             controls.clearDensityBar();
