@@ -13,6 +13,7 @@ $result = mysqli_query($db, $sql);
 
 while ($row = mysqli_fetch_assoc($result)) {
     $videoName = $row['title'];
+    $sourceSuppText = html_entity_decode($row['comment']);
 }
 
 // redirect the user to the start page if they are not logged in
@@ -59,7 +60,7 @@ if (!isset($_SESSION['participantID'])) {
                     <div class="cleardiv"></div>
                     <!------------ Source video description Box ------------------------>
                     <div class="source-text-container">
-                        <span>Hello welcome to SignlinkStudio.com. I will be using the acronym SLS. SignlinkStudio.com explains the concept of signlinking and how it works. There are different areas you can visit in this website. If you don't understand signlinking, you can select "Getting Started" section. If you do understand you can select other section of this website. This section is "About SignlinkStudio" Explain the process involved and how signlinking works. Under "Software" there are two software available that you can download to your computer. The cost is free, no cost to you. Also have online support for how to develop signlinks, using the software, filming and other information. Here is the various research papers we have submitted to conferences around the world. If you have a question related to signlinking, the software or the website, please contact us. Enjoy your visit! </span>
+                        <span><?php print $sourceSuppText; ?></span>
                     </div>
                 </div>
             </div> <!-- end source-media-container -->
@@ -177,7 +178,7 @@ if (!isset($_SESSION['participantID'])) {
                                 <p>Joined: <?php echo date_format(new DateTime($comment["authorjoindate"]), 'M d, Y'); ?></p>
                             </div>
                             <?php 
-                                error_log("output from index.php printing comment tools: comment author: " .  $comment['author'] . " participantID: " . $_SESSION['participantID']);
+                                //error_log("output from index.php printing comment tools: comment author: " .  $comment['author'] . " participantID: " . $_SESSION['participantID']);
                                 if( isset($comment['author']) && isset($_SESSION['participantID']) && (intval($comment['author']) == intval($_SESSION['participantID'])) ) {
                                     echo printCommentTools($comment["id"], 'comment');
                                 } 
@@ -190,8 +191,9 @@ if (!isset($_SESSION['participantID'])) {
                             <div class="comment-content">
 
                                 <?php if ($comment["hasvideo"] === 1) { ?>
-                                    <!--  <video class="comment-video" preload="auto" poster="uploads/comment/thumb/<?php echo getVideoThumbnail($comment["id"],1); ?>" style="left:35%"> -->
-                                    <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($comment["id"], $comment["videofilename"], 0); ?>" style="left:35%">
+                                    <!--  <video class="comment-video" preload="auto" poster="uploads/comment/thumb/<?php //echo getVideoThumbnail($comment["id"],1); ?>" style="left:35%"> -->
+                                    <!-- <video class="comment-video" preload="auto" poster="<?php //echo getVideoThumbnail($comment["id"], $comment["videofilename"], 0); ?>" style="left:35%"> -->
+                                    <video class="comment-video" preload="auto" poster="<?php echo getCommentThumbnail($comment); ?>" style="left:35%">
                                         <!-- <source src="uploads/comment/<?php echo $comment["id"]; ?>.webm" type="video/webm" /> -->
                                         <!--   <source src="<?php echo VIDCOMMENT_DIR . $comment["id"]; ?>.webm" type="video/webm" />	-->
                                         <?php echo printCommentVideoSource($comment); ?>
@@ -225,8 +227,17 @@ if (!isset($_SESSION['participantID'])) {
                     </div>
 
                     <?php
-                    //This will pull any replies to a top level comment
-					$commentReplies = getCommentRepliesForSourceID($videoNumber, $comment["id"]);
+                    //This will pull replies to top level comments
+                    
+					// check if we should show all comment replies regardless of author, or only specific ones
+                    if ( isset($_GET['all']) && (intval($_GET['all'])===1) ) {
+                        $commentReplies = getCommentRepliesForSourceID($videoNumber, $comment["id"]);
+                    }
+                    else {
+                        $commentReplies = getFilteredRepliesForSourceID($videoNumber, $comment["id"], 0, $_SESSION['participantID']);
+                    }
+                    
+                    // iterate through the array of returned replies and display them
 					foreach ($commentReplies as $reply) {	
                     ?>
                         
@@ -246,9 +257,9 @@ if (!isset($_SESSION['participantID'])) {
                             <div class="comment-content reply-content">
                             <?php 
                             if ($reply["hasvideo"] === 1) { ?>
-                                <video class="comment-video" preload="auto" poster="<?php echo getVideoThumbnail($reply["id"], $reply["videofilename"], 0); ?>" style="left:35%">
+                                <!-- <video class="comment-video" preload="auto" poster="<?php //echo getVideoThumbnail($reply["id"], $reply["videofilename"], 0); ?>" style="left:35%"> -->
+                                <video class="comment-video" preload="auto" poster="<?php echo getCommentThumbnail($reply); ?>" style="left:35%">
                                     <?php echo printCommentVideoSource($reply); ?>
-                                    <?php //TODO: check after a comment is uploaded that it is converted to webm or mp4 ?? ?>
                                 </video>
                             <?php 
                             } 

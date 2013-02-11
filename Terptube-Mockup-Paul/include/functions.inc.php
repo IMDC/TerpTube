@@ -179,6 +179,41 @@ function getVideoThumbnail( $commid, $vidfilepath, $idonly=1 ) {
 
 
 /**
+ * Same basic function as getVideoThumbnail, but this takes a single comment
+ * array as the only parameter and should be more efficient.
+ * @param array $comment a single comment in array form
+ * @return string the path to the thumbnail or a default thumbnail
+ */
+function getCommentThumbnail( $comment ) {
+    $cid = intval( $comment["id"] );
+    
+    if ( $comment["hasvideo"] === 0 ) {
+        error_log("comment with id: $cid has no video as told by getCommentThumbnail function, seems weird");
+        return THUMBNAIL_DEFAULT;
+    }
+    
+    $thumb = THUMBNAIL_DIR . $cid . ".jpg";
+    //error_log("trying to find comment id: $cid in getVideoThumbnail function");
+    
+    if (!file_exists($thumb)) {
+        error_log("thumbnail not found for comment id: " . $cid . " when searching in $thumb");
+    
+        //$target_path = "../uploads/" . $vidfilepath;
+        $target_path = "uploads" . DIRECTORY_SEPARATOR . $comment["videofilename"];
+        //error_log(shell_exec("pwd"));
+        error_log("attempting to create new thumbnail from file: $target_path for comment: $cid in getVideoThumbnail function");
+        $newthumb = createThumbnail($target_path, $cid, 1);
+        if (!$newthumb) {
+          return THUMBNAIL_DEFAULT;
+        }
+        
+        
+    }
+    return THUMBNAIL_DIR . $cid . ".jpg";
+}
+
+
+/**
  * This function does not remove a comment from the database!
  * It simply sets the 'deleted' field in the database to 1 to indicate it's deletion
  * This is for the purposes of tracking any content created by participants in the future
@@ -344,7 +379,20 @@ function getCommentByID($commentid, $json=0) {
 
 
 
-
+/**
+ * 
+ * (Almost an exact duplicate of 'getTopLevelCommentsForSourceID' except this returns
+ * all comments, not just the top-level ones) 
+ *
+ * Returns an array of ALL (top-level and reply) comments given a source video id 
+ * with the comment attributes stored in an array
+ * Uses the video_comment table to return this info, optionally returns 'deleted' comments
+ * @param $sourceid the id of the source video
+ * @param $del optional, set to 0 to hide deleted comments, set to 1 to show regular and deleted comments
+ * @param $particID optional participant ID to filter the returned comments made only by that participant
+ *          and the admin, if set to (-1) will return comments by any author and all 'deleted' comments
+ * @return an array object filled with comments that are associative arrays
+ */
 function getFilteredCommentsForSourceID($sourceID, $del=0, $particID=NULL) {
     global $db;
     $sID = intval($sourceID);
@@ -687,9 +735,9 @@ function getCommentRepliesForSourceID($thesourceID, $thecommentID) {
               from video_comment vc, 
                    participants p
               where p.id=vc.author_id
-                AND source_id=? 
-                AND parent_id=? 
-                AND deleted=0";
+                AND vc.source_id=? 
+                AND vc.parent_id=? 
+                AND vc.deleted=0";
     $stmt = mysqli_stmt_init($db);
     if ( !mysqli_stmt_prepare($stmt, $query)) {
         error_log("Failed to prepare statement in " . __FUNCTION__);
@@ -735,6 +783,106 @@ function getCommentRepliesForSourceID($thesourceID, $thecommentID) {
 
     }
 }
+
+
+/**
+ * Returns an array of comment replies given a source video id
+ * Uses the video_comment table to return this info, optionally returns 'deleted' comments
+ * @param $sourceid the id of the source video
+ * @param $commentID the id of the top-level (parent) comment
+ * @param $del optional, set to 0 to hide deleted replies, set to 1 to show all
+ * @param $particID optional participant ID to filter the returned replies made only by that participant
+ *          and the admin, if set to (-1) will return replies by any author and all 'deleted' replies
+ * @return an array object filled with replies that are associative arrays
+ */
+function getFilteredRepliesForSourceID($sourceID, $commentID, $del=0, $particID=NULL) {
+    global $db;
+    $sID = intval($sourceID);
+    $cID = intval($commentID);
+    $del = intval($del);
+    
+    
+    
+    if ($del != 0) {
+        error_log('del is not 0');
+        $dellADD = '';
+    }
+    else {
+        $dellADD = ' AND vc.deleted=0';
+    }
+    
+    // if particID is set, it means we only want results from the admin and the current participant
+    if (isset($particID)) {
+        $pID = intval($particID);
+        $queryADD = ' AND vc.author_id IN(0,' . $pID . ');';
+    }
+    else {
+        $queryADD = '';
+    }
+    
+    /* create a prepared statement */
+    //$query = "Select comment_id, author_id, text_comments, comment_start_time, comment_end_time, date, temporal_comment, has_video, video_filename from video_comment where source_id=? AND deleted=0 AND parent_id=0";
+    $query = "SELECT vc.comment_id, vc.source_id, vc.parent_id, vc.author_id, 
+                vc.text_comments, vc.comment_start_time, vc.comment_end_time, 
+                vc.date, vc.deleted, vc.temporal_comment, vc.has_video, 
+                vc.video_filename, p.name, p.created, p.role, p.avatar 
+              FROM video_comment vc, 
+                   participants p 
+              WHERE vc.source_id=?
+                    AND vc.parent_id=?
+                    AND p.id=vc.author_id" . $dellADD . $queryADD;
+    $stmt = mysqli_stmt_init($db);
+    if ( !mysqli_stmt_prepare($stmt, $query)) {
+        error_log("Failed to prepare statement in " . __FUNCTION__);
+        print "Failed to prepare statement"; 
+    }
+    else {
+
+        /* bind parameters */
+        mysqli_stmt_bind_param($stmt, "ii", $sID, $cID);
+
+        error_log("mysql query for getFilteredRepliesForSourceID: $query");
+        
+        /* execute query */
+        mysqli_stmt_execute($stmt);
+        
+        /* bind results */
+        mysqli_stmt_bind_result($stmt, $commID, $source_id, $parentID, $authID, $textcont, 
+                                    $start, $end, $commdate, $deleted, $tempcommentbool, 
+                                    $hasvideobool, $videofilename, $partname, $partdatecreated, 
+                                    $partrole, $partavatarfilename);
+        
+        $commentArray = array();
+        while (mysqli_stmt_fetch($stmt)) {
+            $singleCommentArray = array("id" => $commID, 
+                                        "sourceid" => $source_id,
+                                        "author" => $authID,
+                                        "parentid" => $parentID,
+                                        "text" => html_entity_decode($textcont),
+                                        "starttime" => $start,
+                                        "endtime" => $end,
+                                        "date" => $commdate,
+                                        "isdeleted" => $deleted,
+                                        "istemporalcomment" => $tempcommentbool,
+                                        "hasvideo" => $hasvideobool,
+                                        "videofilename" => $videofilename,
+                                        "authorname" => $partname,
+                                        "authorjoindate" => $partdatecreated,
+                                        "authorrole" => $partrole,
+                                        "authoravatarfilename" => $partavatarfilename
+                                        );
+                                        
+            array_push($commentArray, $singleCommentArray);
+        }
+        
+        /* close statement */
+        mysqli_stmt_close($stmt);
+        
+        return $commentArray;
+
+    }
+}
+
 
 
 function getExistingVideosForSourceID($theid) {
