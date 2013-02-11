@@ -458,7 +458,7 @@ function transcodeSuccess(data)
 	//window.location.href = "recordOrPreview/streams.php";
 	updateFileNameField("fileName", data);
 	
-	var $optionFieldset = $('[name=video-option-fiedset]');
+	var $optionFieldset = $('[name=video-option-fieldset]');
 	var $videoNameFieldset= $('[name=video-name-fieldset]');
 	$optionFieldset.hide();
 	$videoNameFieldset.show();

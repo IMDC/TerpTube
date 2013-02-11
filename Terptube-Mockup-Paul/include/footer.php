@@ -210,7 +210,6 @@
             // get comment text
             //var commentText = $theCommentContainer.find(".comment-text span").text();
             //var commentText = $theCommentContainer.find("div.comment-text").text();			var commentText = $('<div/>').html(commentDetails.text.replace(/<br[ ]*\/*>/ig, "\r\n")).text();
-            // or use 
             
             //console.log("comment start: " + commentStartTime + ", comment end: " + commentEndTime + ", comment Text: " + commentText);
             //console.log("comment info from js array-> hasVideo: " + commentDetails.hasVideo +", video filename: " + commentDetails.videoFileName)
@@ -348,7 +347,33 @@
 
         });
         
-        //Clicking the clock icon will move the density bar to the comments time
+        // mousing over the clock icon should highlight the comment on the density bar
+        $(".clock-icon").hover(
+            // mouse over
+            function() {
+                //highlight comment on the density bar
+                var commentContainer = $(this).parents(".feedback-container").eq(0);
+                var comment = getCommentById(commentContainer.data("cid"));
+                comment.paintHighlighted = true;
+                
+                controls.clearDensityBar();
+                //controls.drawSignLinks();
+                controls.drawComments();
+            },
+            // mouse out
+            function() {
+                var commentContainer = $(this).parents(".feedback-container").eq(0);
+                var comment = getCommentById(commentContainer.data("cid"));
+                comment.paintHighlighted = undefined;
+                
+                controls.clearDensityBar();
+                //controls.drawSignLinks();
+                controls.drawComments();
+            }
+        );
+        
+        // Clicking the clock icon will move the density bar to the comments time
+        // and highlight the comment on the density bar 
         $(".clock-icon").click(function(){
             video_dom.currentTime = $(this).data('startval');
             //highlight comment temporarily on the density bar

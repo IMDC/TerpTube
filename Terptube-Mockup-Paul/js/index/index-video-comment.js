@@ -21,7 +21,7 @@ $(document).ready(function() {
     var endTimeInput = $('[name=end_time]');
     var $postCommentButton = $('[name=postCommentbutton]');
     var $selectVideoDrop = $('[name=user-existing-video]');
-    var $optionFieldset = $('[name=video-option-fiedset]');
+    var $optionFieldset = $('[name=video-option-fieldset]');
     var $videoNameFieldset= $('[name=video-name-fieldset]');
     var $cancelButton = $('[name=cancel-button]');
     var selectedVideoName;

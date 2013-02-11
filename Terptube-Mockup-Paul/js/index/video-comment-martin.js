@@ -25,7 +25,7 @@ var startTimeInput     = $("#start_time");
 var endTimeInput       = $("#end_time");
 
 var $selectVideoDrop    = $("[name=select-video-names]");  // unused?
-var $optionFieldset     = $("#video-option-fiedset");
+var $optionFieldset     = $("#video-option-fieldset");
 var $videoNameFieldset  = $("#video-name-fieldset");
 
 var $postCommentButton  = $("#postCommentButton");
@@ -212,7 +212,7 @@ var startTimeInput     = $("#start_time");
 var endTimeInput       = $("#end_time");
 
 var $selectVideoDrop    = $("[name=select-video-names]");  // unused?
-var $optionFieldset     = $("#video-option-fiedset");
+var $optionFieldset     = $("#video-option-fieldset");
 var $videoNameFieldset  = $("#video-name-fieldset");
 
 var $postCommentButton  = $("#postCommentButton");

@@ -30,7 +30,7 @@ $partIDget        = intval($_GET['pID']);
 
                 <form id="new-comment-form" action="include/submit_comment.php?pID=0&action=create&aID=<?php echo $_SESSION['participantID'];?>" enctype="multipart/form-data" method="post">
 
-                    <fieldset id="video-option-fieldset" name="video-option-fiedset">
+                    <fieldset id="video-option-fieldset" name="video-option-fieldset">
 
                         <div id="input-record-div">
                             Record Video:

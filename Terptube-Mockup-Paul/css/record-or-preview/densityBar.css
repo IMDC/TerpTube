@@ -141,7 +141,8 @@ div.videoControlsContainer.controlsBar.backButtons
 .videoControlsContainer.controlsBar.videoControls.endButton
 {
 	background-image: url(../../images/recordOrPreview/end.png); 
-	background-repeat: no-repeat;	
+	background-repeat: no-repeat;
+	background-position-x: -3px;	
 }
 
 
