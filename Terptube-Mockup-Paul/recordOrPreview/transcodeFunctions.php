@@ -2,7 +2,7 @@
 
 require_once("../setup.php");
 
-define(VIDEO_RESOLUTION_MINIMUM_STANDARD, "640x480");
+define('VIDEO_RESOLUTION_MINIMUM_STANDARD', "640x480");
 
 function getExtension($filename)
 {

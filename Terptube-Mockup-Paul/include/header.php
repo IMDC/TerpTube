@@ -6,6 +6,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
+        <meta http-equiv="CACHE-CONTROL" CONTENT="NO-CACHE">
         <title>Signlink Studio @ IDI</title>
 
         <!-- CSS files -->
