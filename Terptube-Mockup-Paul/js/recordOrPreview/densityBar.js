@@ -219,7 +219,9 @@ function createControls()
 	}
 	if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
 	{
-		$(this.videoID).on('loadedmetadata', function()
+		//$(this.videoID).on('loadedmetadata', function()
+		// Fix from Martin for google chrome for Mac
+		$(this.videoID)[0].addEventListener('loadedmetadata', function()
 		{
 			instance.setupVideo();
 		});
