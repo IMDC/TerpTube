@@ -201,20 +201,60 @@ html[xmlns] .clearfix {
 #new-comment-form {
 }
 
+#new-comment-form * {
+    float: left;
+/*    display: inline;*/
+/*    width: auto;*/
+}
+
+#new-comment-form fieldset {
+    width: 90%;
+    margin: 0 auto;
+}
+
+
+div.form-span-full {
+    width: 100%;
+}
+
+#form-video-options-wrap {
+    padding-top:3px;
+    padding-left:10px;
+}
+
+#form-textarea-wrap {
+    padding-top:3px;
+    padding-left:10px;
+}
+
+#form-textarea-wrap fieldset {
+    width: 98% !important;
+}
+
+div.video-upload-option-wrap {
+    width: 30%;
+    display: inline;
+}
+
 #video-option-fieldset {
     border: 1px dotted #ddd;
-    padding: 0 25px;
+/*    padding: 0 25px;*/
+    padding: 5px;
+}
+#video-option-fieldset legend {
+    clear: left;
+    display: block;
 }
 
 #new-comment-form input, textarea{
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   border:1px solid #ccc;
-  font-size:20px;
-  width:300px;
-  min-height:30px;
+/*  font-size:20px;*/
+/*  width:300px;*/
+/*  min-height:30px;*/
   display:block;
-  margin-bottom:15px;
-  margin-top:5px;
+/*  margin-bottom:15px;*/
+/*  margin-top:5px;*/
   outline: none;
 
   -webkit-border-radius:5px;
@@ -474,9 +514,9 @@ form.commentReplyForm {
 }
 
 #comment-form-wrap * {
-    clear: both;
-    text-align: center;
-    margin: 0 auto;
+/*    clear: both;*/
+/*    text-align: center;*/
+/*    margin: 0 auto;*/
 }
 
 #new-comment-time-div label, input {
@@ -502,16 +542,14 @@ img.clickable {
 
 select#userExistingVideo {
     display:inline;
+    width: 90%;
 }
 
 #input-upload-div
 {
-	width: 300px;
+	width: 100%;
 }
-#new-comment-form fieldset
-{
-	width: 300px;
-}
+
 
 #cancel-button {
 

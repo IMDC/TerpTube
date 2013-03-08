@@ -209,7 +209,8 @@
             
             // get comment text
             //var commentText = $theCommentContainer.find(".comment-text span").text();
-            //var commentText = $theCommentContainer.find("div.comment-text").text();			var commentText = $('<div/>').html(commentDetails.text.replace(/<br[ ]*\/*>/ig, "\r\n")).text();
+            //var commentText = $theCommentContainer.find("div.comment-text").text();
+			var commentText = $('<div/>').html(commentDetails.text.replace(/<br[ ]*\/*>/ig, "\r\n")).text();
             
             //console.log("comment start: " + commentStartTime + ", comment end: " + commentEndTime + ", comment Text: " + commentText);
             //console.log("comment info from js array-> hasVideo: " + commentDetails.hasVideo +", video filename: " + commentDetails.videoFileName)
@@ -313,7 +314,8 @@
             var $commdet = $commentformcontainer;
             
             // move new comment form 
-        	$commdet.detach().appendTo($theCommentContainer).show();
+        	$commdet.detach().appendTo($theCommentContainer).show();
+
             // set text on form submit button to reflect that we are editing a comment
             $commdet.find("input#new-comment-submit-button").attr("value", "Finished Editing");
             
@@ -591,7 +593,8 @@
         });
 
         $("span#toggle-time-span").click(function() {
-            $(this).parent('#new-comment-form').find("#new-comment-time-div").show();
+            $(this).parents('#new-comment-form').find("#new-comment-time-div").show();
+//            $("#new-comment-time-div").show();
             $(this).hide();
             
             video_dom.pause();

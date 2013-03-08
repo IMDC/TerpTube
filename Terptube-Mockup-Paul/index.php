@@ -78,57 +78,71 @@ if (!isset($_SESSION['participantID'])) {
             <div id="comment-form-wrap" style="display:none">
 
                 <form id="new-comment-form" action="include/submit_comment.php?pID=0&aID=<?php echo $_SESSION['participantID'];?>" enctype="multipart/form-data" method="post">
-                    <span id="toggle-time-span"><img src="images/feedback_icons/clock.png" style="vertical-align:middle;width:25px;height:25px;" />Apply comment to portion of video</span>
-                    <div id="new-comment-time-div" style="display:none;">
-                        <label>Start Time:</label>
-                        <input type="text" id="start_time" name="start_time" />
-    
-                        <label>End Time</label>
-                        <input type="text" id="end_time" name="end_time" />
-    
-                        <label>Make a comment</label><br />
+                    <div id="form-toggle-time-span-wrap" class="form-span-full">
+                        <span id="toggle-time-span"><img src="images/feedback_icons/clock.png" style="vertical-align:middle;width:25px;height:25px;" />Apply comment to portion of video</span>
                     </div>
-                    <textarea id="comment-textarea" name="comment"></textarea>
+                    <div id="new-comment-time-div" class="form-span-full" style="display:none;">
+                            <label>Start Time:</label>
+                            <input type="text" id="start_time" name="start_time" />
 
-                    <fieldset id="video-option-fieldset" name="video-option-fieldset">
-                        <legend style="padding-bottom:10px;">Choose a Video Upload Option:</legend>
+                            <label>End Time</label>
+                            <input type="text" id="end_time" name="end_time" />
+                    </div>
+                    
+                    <div id="form-video-options-wrap" class="form-span-full">
+                        <fieldset id="video-option-fieldset" name="video-option-fieldset">
+                            <legend style="padding-bottom:10px;">Choose a Video Upload Option:</legend>
 
-                        <label>Existing Video:</label>
-                        <?php $existingvideos = getExistingVideosForSourceID($videoNumber); ?>
-                        <select style="margin-bottom:10px;" id="userExistingVideo" name="user-existing-video">
-                        	<option value=""> </option>
-                        	<?php 
-                        	foreach ($existingvideos as $existingVid) {
-                        		print '<option value="'.$existingVid.'">'.$existingVid. '</option>';
-							}
-                        	?>
-                        </select>
+                            <div class="video-upload-option-wrap" style="clear:left;">
+                                <label>Existing Video:</label>
+                                <?php $existingvideos = getExistingVideosForSourceID($videoNumber); ?>
+                                <select style="margin-bottom:10px;" id="userExistingVideo" name="user-existing-video">
+                                    <option value=""> </option>
+                                    <?php 
+                                    foreach ($existingvideos as $existingVid) {
+                                        print '<option value="'.$existingVid.'">'.$existingVid. '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
 
+                            <div class="video-upload-option-wrap">
+                                <div id="input-upload-div">
+                                    Upload Video: 
+                                    <input id="uploadedfileButton"  type="button" style="width:90%;" value="Choose Video" >
+                                    </input>
+                                </div>
+                            </div>
 
-	                    <div id="input-upload-div">
-	                    	Upload Video: 
-	                    	<input id="uploadedfileButton"  type="button" value="Choose Video" >
-	                    	</input>
-	                    </div>
+                            <div class="video-upload-option-wrap">
+                                <div id="input-record-div">
+                                    Record Video:
+                                    <input id="popUpRecordingWindowButton" type="button" style="width:90%;" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview','record',null)" />
 
-                        <div id="input-record-div">
-                        	Record Video:
-                        	<input id="popUpRecordingWindowButton" type="button" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview','record',null)" />
-                        	
-						</div>
-						<div id="videoRecordingOrPreview" style="display:hidden">
-                        		
-                        </div>
-                    </fieldset>
+                                </div>
+                            </div>
+                            <div id="videoRecordingOrPreview" style="display:hidden">
 
+                            </div>
+                        </fieldset>
+                    </div>
 
-                    <fieldset id="video-name-fieldset" name="video-name-fieldset" style="margin-top:10px;display:none">
-                        Video:
-                        <a href="#" class="edit-video-link">Modify</a>
-                        <div>
-                            <p class="video-title" name="video-title"></p>
-                        </div>
-                    </fieldset>
+                    <div id="form-video-name-wrap">
+                        <fieldset id="video-name-fieldset" name="video-name-fieldset" style="margin-top:10px;display:none">
+                            Video:
+                            <a href="#" class="edit-video-link">Modify</a>
+                            <div>
+                                <p class="video-title" name="video-title"></p>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div id="form-textarea-wrap" class="form-span-full">
+                        <fieldset id="comment-textarea-fieldset" name="comment-textarea-fieldset">
+                            <legend>Write a text comment</legend>
+                            <textarea id="comment-textarea" name="comment" placeholder="Your text comment here"></textarea>
+                        </fieldset>
+                    </div>
+                    
 
                     <input type="hidden" name="file-name" id="fileName" />
                     <input type="hidden" name="v" value="<?php echo $videoNumber; ?>" />
