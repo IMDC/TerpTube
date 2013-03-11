@@ -509,9 +509,9 @@
         });
 
 
-
         // when you click on the arrow button to expand a comments content
         $(".arrow-container").click(function() {
+            $thearrow = $(this);
 //            var $video = $(this).parent(".comment-content-container").children(".comment-content").children(".comment-video");
             var $video = $(this).parent(".comment-content-container").find(".comment-video");
             var $commentContainer = $(this).parent(".comment-content-container");
@@ -520,6 +520,8 @@
 
 //                $(this).parent(".comment-content-container").children(".comment-content").css({'height': 'auto'});
                 $commentContainer.find(".comment-content").css({'height': 'auto'});
+                
+                $thearrow.addClass("arrow-unzipped");
 
                 //$(".comment-content").css({'height': 'auto'}); //make this specific by doing the parent child thing
                 $(this).find(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_up.png');
@@ -540,7 +542,10 @@
                 $commentContainer.find(".comment-content").css({'height': '100px'});
                 $(this).find(".feedback-expand").attr("src" , 'images/feedback_icons/arrow_down.png');
 
+                $thearrow.removeClass("arrow-unzipped");
+
                 collapseCommentVideo($video);
+                
             }
 
         });
@@ -593,8 +598,8 @@
         });
 
         $("span#toggle-time-span").click(function() {
-            $(this).parents('#new-comment-form').find("#new-comment-time-div").show();
-//            $("#new-comment-time-div").show();
+//            $(this).parents('#new-comment-form').find("#new-comment-time-div").show();
+            $("#new-comment-time-div").show(); // show the start and end time input boxes
             $(this).hide();
             
             video_dom.pause();

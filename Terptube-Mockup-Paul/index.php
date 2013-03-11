@@ -82,10 +82,11 @@ if (!isset($_SESSION['participantID'])) {
                         <span id="toggle-time-span"><img src="images/feedback_icons/clock.png" style="vertical-align:middle;width:25px;height:25px;" />Apply comment to portion of video</span>
                     </div>
                     <div id="new-comment-time-div" class="form-span-full" style="display:none;">
+                            <img src="images/feedback_icons/clock.png" style="vertical-align:middle;width:25px;height:25px;" />
                             <label>Start Time:</label>
                             <input type="text" id="start_time" name="start_time" />
-
-                            <label>End Time</label>
+                            <img src="images/feedback_icons/clock.png" style="vertical-align:middle;width:25px;height:25px;" />
+                            <label>End Time:</label>
                             <input type="text" id="end_time" name="end_time" />
                     </div>
                     
@@ -94,10 +95,10 @@ if (!isset($_SESSION['participantID'])) {
                             <legend style="padding-bottom:10px;">Choose a Video Upload Option:</legend>
 
                             <div class="video-upload-option-wrap" style="clear:left;">
-                                <label>Existing Video:</label>
+<!--                                <label>Existing Video:</label>-->
                                 <?php $existingvideos = getExistingVideosForSourceID($videoNumber); ?>
                                 <select style="margin-bottom:10px;" id="userExistingVideo" name="user-existing-video">
-                                    <option value=""> </option>
+                                    <option value="">Select Existing Video</option> <!-- placeholder -->
                                     <?php 
                                     foreach ($existingvideos as $existingVid) {
                                         print '<option value="'.$existingVid.'">'.$existingVid. '</option>';
@@ -108,31 +109,30 @@ if (!isset($_SESSION['participantID'])) {
 
                             <div class="video-upload-option-wrap">
                                 <div id="input-upload-div">
-                                    Upload Video: 
-                                    <input id="uploadedfileButton"  type="button" style="width:90%;" value="Choose Video" >
-                                    </input>
+<!--                                    <label><img src="images/feedback_icons/upload.png" style="width:20px;" />Upload Video:</label>-->
+                                    <input id="uploadedfileButton"  type="button" style="width:90%;" value="Upload Video" />
                                 </div>
                             </div>
 
                             <div class="video-upload-option-wrap">
-                                <div id="input-record-div">
-                                    Record Video:
-                                    <input id="popUpRecordingWindowButton" type="button" style="width:90%;" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview','record',null)" />
+                                <div id="input-record-div" style="width:100%;">
+<!--                                    <label><img src="images/recordOrPreview/rec1_small.gif" style="width:20px;" />Record Video:</label>-->
+                                    <input id="popUpRecordingWindowButton" type="button" style="" value="Record Video" onclick="javascript:popUpRecorder('videoRecordingOrPreview','record',null)" />
 
                                 </div>
                             </div>
-                            <div id="videoRecordingOrPreview" style="display:hidden">
+                            <div id="videoRecordingOrPreview" style="display:none">
 
                             </div>
                         </fieldset>
                     </div>
 
-                    <div id="form-video-name-wrap">
+                    <div id="form-video-name-wrap" class="form-span-full">
                         <fieldset id="video-name-fieldset" name="video-name-fieldset" style="margin-top:10px;display:none">
-                            Video:
                             <a href="#" class="edit-video-link">Modify</a>
-                            <div>
-                                <p class="video-title" name="video-title"></p>
+                            Video:
+                            <div class="video-title" name="video-title">
+                                <!-- <p></p> -->
                             </div>
                         </fieldset>
                     </div>
@@ -152,8 +152,8 @@ if (!isset($_SESSION['participantID'])) {
                     <input type="hidden" name="commentID" value="" id="selectedCommentID" />
                     <br/>
                     <input type="button" id="previewButton" name="previewButton" style="display:none" value="Preview"/>
-                    <input type="submit" id="new-comment-submit-button" value="Post Comment" />
-                    <input type="button" id="cancel-button" name="cancel-button" value ="Cancel" />
+                    <input type="submit" class="new-comment-form-action-buttons" id="new-comment-submit-button" value="Post Comment" />
+                    <input type="button" class="new-comment-form-action-buttons" id="cancel-button" name="cancel-button" value ="Cancel" />
 
                 </form>
             </div>
@@ -225,9 +225,22 @@ if (!isset($_SESSION['participantID'])) {
                             
                             </div>
 
+                            <!-- only display this class if the content is actually big enough, height-wise -->
                             <div class="arrow-container">
                                 <img class="feedback-expand clickable" src="images/feedback_icons/arrow_down.png" />
                             </div>
+                            
+                            <script>
+                                // test script to turn on/off the arrow container
+                                var $thecomment = $("div#comment-<?php echo $comment["id"]; ?>");
+                                var $commheight = $thecomment.find("div.comment-text").height();
+                                if ($commheight <= 89) {
+                                    $thecomment.find("div.arrow-container").hide();
+                                    //alert('comment <?php echo $comment['id']; ?> has a height and its value is: ' + $commheight);
+                                    
+                                }
+                            </script>
+                            
                         </div>
 
                         <div class="feedback-properties">

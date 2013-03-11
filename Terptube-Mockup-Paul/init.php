@@ -61,6 +61,8 @@
         background: rgba(186,186,189,0.5);
     }
     
+
+    
 </style>
 <div class="container">
     <img src="images/eku.jpg" title="Eastern Kentucky University" alt="Eastern Kentucky University" style="width:10%;padding-left:15%;" />
@@ -102,8 +104,8 @@
         echo "<ul class='testlinklist'>";
         
         if ($userrole == "Mentor") {
-            echo "<li><a href='index.php?v=1&pID=$particID' target='_blank'>Mentor Orientation 1</li>";
-            echo "<li><a href='index.php?v=2&pID=$particID' target='_blank'>Mentor Orientation 2</li>";
+            echo "<li><a href='index.php?v=1&pID=$particID' target='_blank'>Mentor Orientation 1</a></li>";
+            echo "<li><a href='index.php?v=2&pID=$particID' target='_blank'>Mentor Orientation 2</a></li>";
             echo "<li><a href='index.php?v=3&pID=$particID' target='_blank'>Mentor Test</a></li>";
         }
         else if ($userrole == "Mentee") {
@@ -113,7 +115,7 @@
         
         echo '</ul>';
         echo '<br /><br />';
-        echo '<p><a href="start.php">Finish Test</a></p>';
+        echo '<p><a href="start.php" style="vertical-align:middle;"><img src="images/feedback_icons/checkmark.png" style="height:25px;width:25px;padding-right:5px;" />Finish Test</a></p>';
         
     }
 ?>
