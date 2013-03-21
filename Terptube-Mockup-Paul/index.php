@@ -71,7 +71,7 @@ if (!isset($_SESSION['participantID'])) {
             <!---------------------------- Used to add a comment form --------------------------------------- -->
             <!-- Everytime this is clicked it will toggle the input form submission -->
             <div id="commentButtonWrap">
-                <button id="postCommentButton" name="postCommentbutton"><img src="images/feedback_icons/round_plus.png" style="vertical-align:middle;margin-right:10px;height:20px;"/>Post a new comment</button>
+                <button id="postCommentButton" name="postCommentbutton"><img src="images/feedback_icons/plus_icon_green.png" style="vertical-align:middle;margin-right:10px;height:25px;"/>Post a new comment</button>
             </div>
 
             <!-- This div will contain the form to add a new comment -->
@@ -110,7 +110,7 @@ if (!isset($_SESSION['participantID'])) {
                             <div class="video-upload-option-wrap">
                                 <div id="input-upload-div">
 <!--                                    <label><img src="images/feedback_icons/upload.png" style="width:20px;" />Upload Video:</label>-->
-                                    <input id="uploadedfileButton"  type="button" style="width:90%;" value="Upload Video" />
+                                    <input id="uploadedfileButton"  type="button" style="" value="Upload Video" />
                                 </div>
                             </div>
 
@@ -305,6 +305,17 @@ if (!isset($_SESSION['participantID'])) {
                             <div class="arrow-container">
                                 <img class="feedback-expand clickable" src="images/feedback_icons/arrow_down.png" />
                             </div>
+                            
+                            <script>
+                                // test script to turn on/off the arrow container
+                                var $thecomment = $("div#reply-<?php echo $reply["id"]; ?>");
+                                var $commheight = $thecomment.find("div.comment-text").height();
+                                if ($commheight <= 89) {
+                                    $thecomment.find("div.arrow-container").hide();
+                                    //alert('comment <?php echo $reply['id']; ?> has a height and its value is: ' + $commheight);
+                                    
+                                }
+                            </script>
                         </div>
 
                         <div class="feedback-properties">

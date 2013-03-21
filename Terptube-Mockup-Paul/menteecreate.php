@@ -58,12 +58,12 @@ $partIDget        = intval($_GET['pID']);
                     <br/>
 
                     <input type="button" id="previewButton" name="previewButton" style="display:none" value="Preview"/>
+                    
+                    <label for="comment" style="margin-top:10px;">Text Description</label>
+                    <textarea id="comment-textarea" name="comment" placeholder="Write supplemental text information here" style="max-width:400px;"></textarea>
 
-                    <label for="comment">Additional text information</label>
-                    <textarea id="comment-textarea" name="comment" style="max-width:400px;"></textarea>
-
-                    <input type="submit" id="new-comment-submit-button" value="Finish Creating Video" />
-                    <input type="button" id="cancel-button" name="cancel-button" value ="Cancel" />
+                    <input type="submit" id="new-comment-submit-button" class="new-comment-form-action-buttons" value="Finish Creating Video" />
+                    <input type="button" id="cancel-button" class="new-comment-form-action-buttons" name="cancel-button" value ="Cancel" />
 
                 </form>
             </div>

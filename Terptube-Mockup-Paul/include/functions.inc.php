@@ -973,8 +973,8 @@ function printCommentTools($cID, $ctype) {
 
     $output = "<div class='comment-tools-div'>
                     <ul>
-                        <li><a href='#' id='edit-$cid' class='comment-edit-link' data-cid='$cid' data-ctype='$ctype'>Edit</a></li>
-                        <li><a href='#' id='delete-$cid' class='comment-delete-link' data-cid='$cid' data-ctype='$ctype'>Delete</a></li>
+                        <li><a href='#' id='edit-$cid' class='comment-edit-link' data-cid='$cid' data-ctype='$ctype'><img src='images/feedback_icons/outline.png' />Edit</a></li>
+                        <li><a href='#' id='delete-$cid' class='comment-delete-link' data-cid='$cid' data-ctype='$ctype'><img src='images/feedback_icons/x_icon.png' />Delete</a></li>
                     </ul>
                 </div>";
     return $output;

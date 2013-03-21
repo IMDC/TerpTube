@@ -11,7 +11,8 @@
 		controls.options.volumeControl = true;
 		controls.options.audioBar = false;
 		controls.options.type = DENSITY_BAR_TYPE_PLAYER;
-		controls.options.playHeadImage = "images/feedback_icons/round_plus.png";
+//		controls.options.playHeadImage = "images/feedback_icons/round_plus.png";
+		controls.options.playHeadImage = "images/feedback_icons/add.png";
 		controls.options.playHeadImageOnClick = function(){ 
 			$postCommentButton.click();
 			$("span#toggle-time-span").click();
@@ -83,7 +84,8 @@
             $videoNameFieldset.hide();
             endTimeInput.off("change");
             startTimeInput.off("change");
-        	controls.setPlayHeadImage("images/feedback_icons/round_plus.png");
+//        	controls.setPlayHeadImage("images/feedback_icons/round_plus.png");
+        	controls.setPlayHeadImage("images/feedback_icons/add.png");
             //$(".comment-details").detach().appendTo("#content-left"); // move form to left side underneath 'post new comment' button
             //$(".comment-details").hide(); // hide the comment details form
             $commentformcontainer.detach().appendTo("div#content-left");
@@ -141,7 +143,7 @@
             $commdet.find("#userExistingVideo").val(0);
             
             // reset the video upload area fields
-            $commdet.find("#video-name-fieldset div p.video-title").empty();
+            $commdet.find("#video-name-fieldset div.video-title").empty();
             $commdet.find("#video-name-fieldset").hide();
             $commdet.find("#video-option-fieldset").show();
             
@@ -217,7 +219,7 @@
             
             if (commentStartTime !== commentEndTime)
             {
-            	$("span#toggle-time-span").parent('#new-comment-form').find("#new-comment-time-div").show();
+            	$("span#toggle-time-span").parents('#new-comment-form').find("#new-comment-time-div").show();
 	            $("span#toggle-time-span").hide();
 	            
 	            video_dom.pause();
@@ -339,7 +341,7 @@
                     $commdet.find("#video-option-fieldset").hide();
                     
                     // show the existing comment's video filename and the modify link
-                    $commdet.find("#video-name-fieldset div p.video-title").empty().html(commentDetails.videoFileName);
+                    $commdet.find("#video-name-fieldset div.video-title").empty().html(commentDetails.videoFileName);
                     $commdet.find("#video-name-fieldset").show();
                     
                     // set the value of the hidden field in the form
@@ -403,13 +405,13 @@
             // if there is any content in the text area, any existing video chosen, or any video uploaded/recorded
             if ( !( (!$.trim($("#comment-textarea").val()))
                     &&  (!$(this).find("select#userExistingVideo").val())  
-                    &&  (!$.trim($(this).find("p.video-title").html()))     ) ) {
+                    &&  (!$.trim($(this).find("div.video-title").html()))     ) ) {
                 // form contains valid input, we should allow the submit
                 return true;
             }
             
             alert("Please fill in at least one field to comment");
-            $(this).stop().css("background-color", "#D80032").animate({ backgroundColor: "#FFFFFF"}, 1500);
+            $(this).stop().children("div.form-span-full").css("background-color", "#D80032").animate({ backgroundColor: "#FFFFFF"}, 1500);
             return false;
         })
 

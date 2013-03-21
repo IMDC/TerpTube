@@ -109,7 +109,8 @@
             echo "<li><a href='index.php?v=3&pID=$particID' target='_blank'>Mentor Test</a></li>";
         }
         else if ($userrole == "Mentee") {
-            echo "<li><a href='index.php?v=4&pID=$particID' target='_blank'>Mentee Orientation</a></li>";
+            echo "<li><a href='index.php?v=4&pID=$particID' target='_blank'>Finished Example</a></li>";
+            echo "<li><a href='menteecreate.php?pID=$particID' target='_blank'>Mentee Orientation/Training</a></li>";
             echo "<li><a href='menteecreate.php?pID=$particID' target='_blank'>Mentee Test</a></li>";
         }
         
