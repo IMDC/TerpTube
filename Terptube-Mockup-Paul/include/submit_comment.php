@@ -73,6 +73,11 @@ if ( isset($comment_start_time) && (isset($comment_end_time)) ) {
     }
 }
 
+// convert to doubles
+$comment_start_time = doubleval($comment_start_time);
+$comment_end_time 	= doubleval($comment_end_time);
+
+
 // if there is a recorded video filename or an existing video selected in the dropdown box
 if ( $rec_vid_fn_only || $existingVidChoice ) {
 	// set has_video flag    
@@ -384,21 +389,36 @@ function editCommentInDatabase($commentID, $authID, $comment, $start, $end, $tem
         return FALSE;
     }
     else {
-
+        $flag = FALSE;
+        
         /* bind parameters */
-        mysqli_stmt_bind_param($stmt, "siiiisii", $comment, $start, $end, $temporal, $hasvid, $vidfile, $commentID, $authID);
+        mysqli_stmt_bind_param($stmt, "sddiisii", $comment, $start, $end, $temporal, $hasvid, $vidfile, $commentID, $authID);
 
         /* execute query */
         mysqli_stmt_execute($stmt);
         
+        error_log(mysqli_stmt_error($stmt));
         // if we affected a row, that's good
         // now we need to pull the results back from the database
-        if (mysqli_stmt_affected_rows($stmt) > 0) {
-            mysqli_stmt_close($stmt);
-            return TRUE;
+        $affectedrows = mysqli_stmt_affected_rows($stmt);
+        
+        if ($affectedrows > 0) {
+            // stmt changed one row at least
+//            mysqli_stmt_close($stmt);
+//            return TRUE;
+            $flag = TRUE;
+        }
+        else if ($affectedrows == 0) {
+            // no rows matched, not necessarily an error
+//            mysqli_stmt_close($stmt);
+//            return TRUE;
+            addError('No changes were made to your comment');
+            $flag = TRUE;
         }
         
-        return FALSE;
+        mysqli_stmt_close($stmt);
+//        return FALSE;
+        return $flag;
     }
 }
 

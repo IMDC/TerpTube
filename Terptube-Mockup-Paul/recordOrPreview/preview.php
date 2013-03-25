@@ -10,7 +10,8 @@ require_once("../setup.php");
 
 
 <?php
-$tempDirectory = UPLOAD_DIR . 'temp';$tempURL = SITE_BASE.'uploads' . DIRECTORY_SEPARATOR. "temp/";
+$tempDirectory = UPLOAD_DIR . 'temp';
+$tempURL = SITE_BASE.'uploads' . DIRECTORY_SEPARATOR. "temp/";
 //$tempDirectory = 'streams';
 $postType = 'type';
 $postParam = 'vidfile';
@@ -113,10 +114,11 @@ else
 <script type="text/javascript">
 
 	var controls = new DensityBar("videoContainer","video");
-	controls.options.backFunction= function(){goBack('<?php echo $postType?>');};
+	controls.options.backFunction= function(){if (confirm("This will delete your current recording. Are you sure?")) {goBack('<?php echo $postType?>');}};
 	controls.options.forwardFunction = function (){ transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>, controls);};
 	controls.options.areaSelectionEnabled = true;
 	// controls.options.playHeadImage = "images/feedback_icons/round_plus.png";
-	// controls.options.playHeadImageOnClick = function(){ alert("plus");};
+	// controls.options.playHeadImageOnClick = function(){ alert("plus");};
+
 	controls.createControls();
 </script>
