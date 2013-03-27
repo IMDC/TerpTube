@@ -84,10 +84,10 @@ if (!isset($_SESSION['participantID'])) {
                     <div id="new-comment-time-div" class="form-span-full" style="display:none;">
                             <img src="images/feedback_icons/clock.png" style="vertical-align:middle;width:25px;height:25px;" />
                             <label>Start Time:</label>
-                            <input type="number" step="0.1" id="start_time" name="start_time" />
+                            <input type="number" step="0.01" id="start_time" name="start_time" />
                             <img src="images/feedback_icons/clock.png" style="vertical-align:middle;width:25px;height:25px;" />
                             <label>End Time:</label>
-                            <input type="number" step="0.1" id="end_time" name="end_time" />
+                            <input type="number" step="0.01" id="end_time" name="end_time" />
                     </div>
                     
                     <div id="form-video-options-wrap" class="form-span-full">
