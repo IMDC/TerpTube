@@ -63,8 +63,8 @@ CREATE TABLE IF NOT EXISTS `video_comment` (
   `parent_id` int(11) NOT NULL,
   `author` varchar(50) NOT NULL,
   `text_comments` varchar(200) NOT NULL,
-  `comment_start_time` decimal(10,0) NOT NULL,
-  `comment_end_time` decimal(10,0) NOT NULL,
+  `comment_start_time` double(10,2) NOT NULL,
+  `comment_end_time` double(10,2) NOT NULL,
   `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`comment_id`),
   KEY `source_id` (`source_id`)
