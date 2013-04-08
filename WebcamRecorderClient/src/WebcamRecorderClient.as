@@ -20,6 +20,7 @@ package
 	//[SWF(backgroundColor="0xcc99cc")]
 	[SWF(width=640)]
 	[SWF(height=480)]
+	[SWF(backgroundColor="#FFFFFF")]
 
 	/*
 	 * NEEDS FLEX SDK 4.6.0 in order to work.
@@ -31,6 +32,7 @@ package
 		private var _cameraControlsListener:CameraControlsListener 
 		private static var _textField:TextField;
 		private static var _configurationVariables:Array;
+		private var cameraViewer:CameraViewer;
 		
 		public function WebcamRecorderClient()
 		{
@@ -44,10 +46,6 @@ package
 			configurationVariables["contentPadding"] = 0;
 			configurationVariables["videoWidth"] = 640;
 			configurationVariables["videoHeight"] = 480;
-			configurationVariables["sliderBackgroundColor"] = 0xCCCCCC;
-			configurationVariables["sliderHighlightedColor"] = 0x666666;
-			configurationVariables["buttonsBackgroundColor"] = 0xFFFFFF;
-			configurationVariables["postURL"] = null;
 			configurationVariables["cancelURL"] = "javascript:history.go(-1)";
 			configurationVariables["isAjax"] = false;
 			configurationVariables["elementID"] = "playerContent";
@@ -76,6 +74,9 @@ package
 			graphics.beginFill( configurationVariables["backgroundColor"], 1.0 );
 			graphics.drawRect( 0, 0, configurationVariables["width"], configurationVariables["height"] );
 			graphics.endFill();
+			cameraViewer.height = this.stage.stageHeight;
+			cameraViewer.width = this.stage.stageWidth;
+			cameraViewer.x = this.stage.stageWidth/2 - cameraViewer.width/2;
 		}
 		
 		public function stageLoaded(event:Event):void
@@ -86,7 +87,7 @@ package
 			contextMenu = my_menu;
 			this.stage.addEventListener(Event.RESIZE, handleResize);
 			this.stage.align = StageAlign.TOP_LEFT;
-//			this.stage.scaleMode = StageScaleMode.NO_SCALE;
+			this.stage.scaleMode = StageScaleMode.NO_SCALE;
 
 			graphics.beginFill( configurationVariables["backgroundColor"], 1.0 );
 			graphics.drawRect( 0, 0, configurationVariables["width"], configurationVariables["height"] );
@@ -151,7 +152,7 @@ package
 			CameraMicSource.getInstance().addEventListener(CameraMicSource.CAMERA_READY_STRING,cameraControlsListener.cameraReady);
 			CameraMicSource.getInstance().addEventListener(CameraMicSource.MICROPHONE_READY_STRING,cameraControlsListener.microphoneReady);
 			
-			var cameraViewer:CameraViewer = CameraViewer.getInstance();
+			cameraViewer = CameraViewer.getInstance();
 			cameraViewer.x = configurationVariables["contentPadding"];
 			cameraViewer.y = configurationVariables["contentPadding"];
 			addChild(cameraViewer);

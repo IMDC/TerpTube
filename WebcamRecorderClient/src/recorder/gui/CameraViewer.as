@@ -23,8 +23,6 @@ package recorder.gui
 		private static var instance:CameraViewer;
 		
 		private static const secret:Number = Math.random();
-		public static const WIDTH:int = 640;
-		public static const HEIGHT:int = 480;
 		
 //		public static const CAMERA_READY_STRING:String = "camera ready";
 //		public static const MICROPHONE_READY_STRING:String = "microphone ready";
@@ -42,10 +40,12 @@ package recorder.gui
 				throw new Error("Error: use Singleton.instance instead");
 			}
 			graphics.beginFill( 0xffffff, 1.0 );
-			graphics.drawRect( 0, 0, WIDTH, HEIGHT );
+			graphics.drawRect( 0, 0, WebcamRecorderClient.configurationVariables["videoWidth"], WebcamRecorderClient.configurationVariables["videoHeight"] );
 			graphics.endFill();
 			cmSource = CameraMicSource.getInstance();
 			video = cmSource.cameraVideo;
+			video.width = WebcamRecorderClient.configurationVariables["videoWidth"];
+			video.height = WebcamRecorderClient.configurationVariables["videoHeight"]
 			if (video != null)
 			{
 				trace("Video: "+video);
