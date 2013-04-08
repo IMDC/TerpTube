@@ -24,3 +24,17 @@
 	text-align: center;
 	margin: auto;
 }
+
+
+#flashContent.fullScreen
+{
+	max-width: 100%;
+	width: auto;
+	height: 100%;
+}
+
+object.fullScreen
+{
+	max-width: 100%;
+	/*max-height:75%;*/
+}

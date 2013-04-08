@@ -106,7 +106,7 @@ else
 
 
 <div class="record-or-preview video" id="videoContainer">
-    <video class="record-or-preview" id="video" width="<?php echo $videoWidth ?>px" height="<?php echo $videoHeight ?>px" preload="auto">
+    <video class="record-or-preview" id="video" preload="auto">
         <source id="video-source" src="<?php echo $video ?>" type="<?php echo getVideoType($video)?>">
         Browser cannot play video. 
     </video> 
@@ -114,9 +114,11 @@ else
 <script type="text/javascript">
 
 	var controls = new DensityBar("videoContainer","video");
-	controls.options.backFunction= function(){if (confirm("This will delete your current recording. Are you sure?")) {goBack('<?php echo $postType?>');}};
-	controls.options.forwardFunction = function (){ transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>, controls);};
 	controls.options.areaSelectionEnabled = true;
+	controls.options.updateTimeType = DENSITY_BAR_UPDATE_TYPE_RELATIVE;
+	controls.options.backFunction= function(){if (confirm("This will delete your current recording. Are you sure?")) {goBack('<?php echo $postType?>');}};
+	controls.options.forwardFunction = function (){transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>, controls);};
+	
 	// controls.options.playHeadImage = "images/feedback_icons/round_plus.png";
 	// controls.options.playHeadImageOnClick = function(){ alert("plus");};
 

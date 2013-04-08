@@ -13,7 +13,8 @@ function goBack(where)
 }
 function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile, controls)
 {
-	setControlsEnabled(false);
+	//FIXME something fucks up here
+	controls.setControlsEnabled(false);
 	var keepAudio = true;
 	if (controls.options.audioBar)
 	{
@@ -38,9 +39,10 @@ function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile, controls)
 			endTime: controls.currentMaxTimeSelected, 
 			keepInputFile: inputVideoFile,
 			keepAudio: keepAudio},
-		success: function (data){transcodeSuccess(data);},
-		error: function (data) {transcodeError(data);}
-	});	
+		success: function (data){transcodeSuccess(data, controls);},
+		error: function (data) {transcodeError(data, controls);}
+	});
+	
 }
 
 /**
@@ -71,11 +73,11 @@ function transcodeAjax2(inputVideoFile, outputVideoFile, arguments, onSuccess, o
 	});	
 }
 
-function transcodeSuccess(data)
+function transcodeSuccess(data, controls)
 {	
 	setBlurText("");
 	setBlur(false);
-//	setControlsEnabled(true);
+	controls.setControlsEnabled(true);
 //	alert("VideoFile created: "+data);
 	//window.location.href = "recordOrPreview/streams.php";
 	updateFileNameField("fileName", data);
@@ -92,10 +94,10 @@ function updateFileNameField(fieldName, fileName)
 {
 	$("#"+fieldName).val(fileName);
 }
-function transcodeError(data)
+function transcodeError(data, controls)
 {
 	setBlurText("");
 	setBlur(false);
-	setControlsEnabled(true);
+	controls.setControlsEnabled(true);
 	alert("Transcode failed: "+data);
 }

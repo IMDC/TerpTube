@@ -28,7 +28,7 @@ else
 				wMode: "transparent",
 				allowScriptAccess: "sameDomain",
 				version: [11, 0],
-				flashVars: "<?php echo $flashVarsParsed?>&jsObj=controls"
+				flashVars: "<?php echo $flashVarsParsed?>&jsObj=myControls"
 			});
 		}
 	</script>
@@ -45,11 +45,11 @@ else
     </div>
 </div>
 <script type="text/javascript">
-	var controls = new DensityBar("videoContainer","flashContentObject");
-	controls.options.backFunction= function(){closeRecorderPopUp('videoRecordingOrPreview')};
-	controls.options.forwardFunction = function (){ controls.recording_goToPreviewing()};
-	controls.options.volumeControl = false;
-	controls.options.audioBar = false;
-	controls.options.type = DENSITY_BAR_TYPE_RECORDER;
-	controls.createControls();
+	var myControls = new DensityBar("videoContainer","flashContentObject");
+	myControls.options.backFunction= function(){closeRecorderPopUp('videoRecordingOrPreview')};
+	myControls.options.forwardFunction = function (){ myControls.recording_goToPreviewing()};
+	myControls.options.volumeControl = false;
+	myControls.options.audioBar = false;
+	myControls.options.type = DENSITY_BAR_TYPE_RECORDER;
+	myControls.createControls();
 </script>

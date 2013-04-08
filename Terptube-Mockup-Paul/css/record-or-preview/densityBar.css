@@ -22,7 +22,32 @@ button.videoControlsContainer
 	padding: 0px;
 }
 
+.fullScreen
+{
+	width:100%;
+}
 
+.fullScreen .audioButtonsBar div
+{
+	display:inline;
+}
+.fullScreen .audioButtonsBar
+{
+	display:none;
+	/*display:inline;*/
+	margin-left: 5%;
+}
+
+.fullScreen .audioButtonsBar label
+{
+	vertical-align: -webkit-baseline-middle;
+}
+
+.fullScreen .videoControls 
+{
+	display: inline;
+	margin: auto;
+}
 
 .videoControlsContainer.track
 {
@@ -37,33 +62,35 @@ button.videoControlsContainer
 	position:absolute;
 	left:0px;
     top:0px;
-    width: 480px;
+    /*width: 480px;*/
+    width: 75%;
     height: 40px;
     background-color: transparent;
 }
 
-.videoControlsContainer.track.densityBar
+.videoControlsContainer.track.densitybar
 {
 	z-index: 1;
-	width: 480px;
+	/*width: 480px;*/
 }
+
 .videoControlsContainer.track.selectedRegion
 {
 	z-index: 2;
-	width: 480px;
+	/*width: 480px;*/
+
 }
 .videoControlsContainer.track.thumb
 {
 	z-index: 3;	
-	width: 480px;
-
+	/*width: 480px;*/
 }
 .videoControlsContainer.controlsBar.videoControls
 {
 /*	float: left;*/
 	margin:auto;
 	text-align:center;
-	width: 80%;
+/*	width: 80%;*/
 }
 
 
@@ -77,13 +104,19 @@ button.videoControlsContainer
 	padding-left:2px;
 	padding-right:2px;
 	height: 40px;
-	width: 80px;
+	/*width: 80px;*/
+	/*width: 18%;*/
 	font-size:0.6em;
 	line-height: 40px;
 	display: inline-block;
 	position: absolute;
-	left: 480px;
+	left: 75%;
 	outline: none;
+}
+
+.fullScreen .videoControlsContainer.timeBox
+{
+	font-size:1em;
 }
 
 .videoControlsContainer.controlsBar
@@ -92,6 +125,7 @@ button.videoControlsContainer
 	margin-top:5px;	
 /*	margin-left: -40px;
 	margin-right: -40px;*/
+	text-align: center;
 }
 
 
@@ -131,6 +165,13 @@ div.videoControlsContainer.controlsBar.backButtons
 {
 	background-image: url(../../images/recordOrPreview/play_small.png);
 	background-repeat: no-repeat;
+}
+
+.videoControlsContainer.track.fullScreenButton
+{
+	background-image: url(../../images/recordOrPreview/fullscreen.png);
+	background-repeat: no-repeat;
+	float: right;
 }
 	
 .videoControlsContainer.controlsBar.videoControls.stepForwardButton

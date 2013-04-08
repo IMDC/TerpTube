@@ -1,7 +1,9 @@
 var DENSITY_BAR_TYPE_RECORDER = "recorder";
 var DENSITY_BAR_TYPE_PLAYER = "player";
+var DENSITY_BAR_UPDATE_TYPE_ABSOLUTE = "absolute";
+var DENSITY_BAR_UPDATE_TYPE_RELATIVE = "relative";
 
-function createControls()
+DensityBar.prototype.createControls = function()
 {
 	/*
 	 * options type can be player, record, preview
@@ -10,11 +12,11 @@ function createControls()
 
 	if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
 	{
-		this.setupVideo = setupVideoPlayback;
+		this.setupVideo = this.setupVideoPlayback;
 	}
 	else if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
 	{
-		this.setupVideo = setupVideoRecording;
+		this.setupVideo = this.setupVideoRecording;
 	}
 
 	$(this.elementID).addClass("videoControlsContainer");
@@ -31,7 +33,12 @@ function createControls()
 			.find(".videoControlsContainer.track")
 			.eq(0)
 			.append(
-					'<div class="videoControlsContainer track timeBox">0:00:00/0:00:00</div>');
+					'<div class="videoControlsContainer track timeBox">0:00/0:00</div>');
+	$(this.elementID)
+	.find(".videoControlsContainer.track")
+	.eq(0)
+	.append(
+	'<button type="button" class="videoControlsContainer track fullScreenButton"></button>');
 	if (this.options.volumeControl)
 	{
 		$(this.elementID).find(".videoControlsContainer.track.thumb").eq(0)
@@ -67,7 +74,8 @@ function createControls()
 		{
 			$(instance.elementID).find(
 					".videoControlsContainer.track.volumeControl.volumeSlider")
-					.eq(0).slider({
+					.eq(0).slider(
+					{
 						orientation : "horizontal",
 						range : "min",
 						min : 0,
@@ -211,7 +219,7 @@ function createControls()
 				.find(".videoControlsContainer.controlsBar.audioButtonsBar")
 				.eq(0)
 				.append(
-						'Remove audio from the video?<br />'
+						'<div>Remove audio from the video?</div>'
 								+ '<label for="audioOff"><img src="images/recordOrPreview/audioOff.png" width="30px" height="30px" alt="audio enabled" /> </label>'
 								+ '<input type="radio" name="audioEnabled" value="false" id="audioOff" />'
 								+ '<label for="audioOn"><img src="images/recordOrPreview/audioOn.png" width="30px" height="30px" alt="audio enabled" /> </label>'
@@ -219,15 +227,23 @@ function createControls()
 	}
 	if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
 	{
-		//$(this.videoID).on('loadedmetadata', function()
+		// $(this.videoID).on('loadedmetadata', function()
 		// Fix from Martin for google chrome for Mac
 		$(this.videoID)[0].addEventListener('loadedmetadata', function()
 		{
 			instance.setupVideo();
 		});
 	}
-	this.trackPadding = $(this.elementID).find(
-			".videoControlsContainer.track.densitybar").eq(0).width() / 40;
+	
+	$(this.elementID)
+	.find(
+			".videoControlsContainer.track.fullScreenButton")
+	.eq(0).click(function()
+	{
+		instance.toggleFullScreen();
+	});
+	
+	this.trackPadding = 12;
 	this.trackWidth = $(this.elementID).find(
 			".videoControlsContainer.track.densitybar").eq(0).width()
 			- 2 * this.trackPadding;
@@ -285,10 +301,11 @@ function createControls()
 	{
 		this.setupVideo();
 	}
-}
-function setPlayHeadImage(image)
-{
 	
+}
+DensityBar.prototype.setPlayHeadImage = function(image) 
+{
+
 	if (!image)
 	{
 		this.playHeadImage = image;
@@ -296,7 +313,10 @@ function setPlayHeadImage(image)
 	}
 	var instance = this;
 	this.playHeadImage = new Image();
-	this.playHeadImage.onload = function (){instance.repaint();};
+	this.playHeadImage.onload = function()
+	{
+		instance.repaint();
+	};
 	this.playHeadImage.src = image;
 	this.playHeadImageHighlighted = false;
 	this.playHeadImage.heightNormal = this.trackPadding * 1.5;
@@ -309,38 +329,38 @@ function setPlayHeadImage(image)
  * Comments is an object array that contains - startTime:number, endTime:number,
  * commentID:number, [
  */
-function setComments(commentsArray)
+DensityBar.prototype.setComments = function(commentsArray)
 {
 	this.comments = commentsArray;
 }
 
-function addComment(comment)
+DensityBar.prototype.addComment = function(comment)
 {
 	this.comments.push(comment);
 	this.drawComments();
 }
 
-function drawComments()
+DensityBar.prototype.drawComments = function()
 {
 	if (!this.comments)
 		return;
-	//Draw comments that are not highlighted first
+	// Draw comments that are not highlighted first
 	for ( var i = 0; i < this.comments.length; i++)
 	{
 		if (!this.comments[i].paintHighlighted)
 			this.drawComment(this.comments[i]);
 	}
-	//Draw comments that are highlighted last so that they go on top of others
+	// Draw comments that are highlighted last so that they go on top of others
 	for ( var i = 0; i < this.comments.length; i++)
 	{
-		if (this.comments[i].paintHighlighted==true)
+		if (this.comments[i].paintHighlighted == true)
 			this.drawComment(this.comments[i]);
 	}
 }
 
-function drawComment(comment)
+DensityBar.prototype.drawComment = function(comment)
 {
-	if (comment.isTemporal==0)
+	if (comment.isTemporal == 0)
 		return;
 	var densityBarElement = $(this.elementID).find(
 			".videoControlsContainer.track.densitybar").eq(0);
@@ -368,7 +388,7 @@ function drawComment(comment)
 	context.globalAlpha = 1;
 }
 
-function drawSignLinks()
+DensityBar.prototype.drawSignLinks = function()
 {
 	if (!this.signLinks)
 		return;
@@ -378,7 +398,7 @@ function drawSignLinks()
 	}
 }
 
-function drawSignLink(signlink, color)
+DensityBar.prototype.drawSignLink = function(signlink, color)
 {
 	var densityBarElement = $(this.elementID).find(
 			".videoControlsContainer.track.densitybar").eq(0);
@@ -399,12 +419,12 @@ function drawSignLink(signlink, color)
 	context.globalAlpha = 1;
 }
 
-function setSignLinks(signLinksArray)
+DensityBar.prototype.setSignLinks = function(signLinksArray)
 {
 	this.signLinks = signLinksArray;
 
 }
-function clearDensityBar()
+DensityBar.prototype.clearDensityBar = function()
 {
 	var densityBarElement = $(this.elementID).find(
 			".videoControlsContainer.track.densitybar").eq(0);
@@ -418,24 +438,26 @@ function clearDensityBar()
 function DensityBar(elementID, videoID, options)
 {
 	this.elementID = "#" + elementID;
-	this.videoID = "#" + videoID;
-	this.comments = new Array();
+	this.videoID   = "#" + videoID;
+	this.comments  = new Array();
 	// type can be player, recorder
 	// playHeadImage - url of image to use as top of playhead
-	// playHeadImageOnClick - function to call on playheadImageClick
+	// playHeadImageOnClick - function DensityBar.prototype.to call on playheadImageClick
 	// onAreaSelectionChanged - triggered when adjusting the selectionArea
 	// signLinkColor - color for the signlinks
 	// onCommentMouseOver(comment) - triggered when hovering over a comment
 	// onCommentMouseOut(comment) - triggered when no longer hovering over a
 	// comment
 	// commentHighlightedColor - color to use when a comment is highlighted
-	this.options = {
+	this.options =
+	{
 		volumeControl : true,
 		type : DENSITY_BAR_TYPE_PLAYER,
+		updateTimeType: DENSITY_BAR_UPDATE_TYPE_ABSOLUTE,
 		backButton : true,
-		backFunction : function()
+		backFunction: function()
 		{
-			alert("Back");
+			alert("Hello there Back");
 		},
 		forwardButton : true,
 		forwardFunction : function()
@@ -458,63 +480,9 @@ function DensityBar(elementID, videoID, options)
 			this.options[key] = options[key];
 		}
 	}
-
-	this.createControls = createControls;
-	this.drawTrack = drawTrack;
-	this.updateTimeBox = updateTimeBox;
-	this.paintThumb = paintThumb;
-	this.getXForTime = getXForTime;
-	this.drawLeftTriangle = drawLeftTriangle;
-	this.drawRightTriangle = drawRightTriangle;
-	this.jumpTo = jumpTo;
-	this.checkStop = checkStop;
-	this.play = play;
-	this.pause = pause;
-	this.playPause = playPause;
-	this.setPlayButtonIconSelected = setPlayButtonIconSelected;
-	this.repaint = repaint;
-	this.stepForward = stepForward;
-	this.stepBackward = stepBackward;
-	this.setMouseOutThumb = setMouseOutThumb;
-	this.setMouseDownThumb = setMouseDownThumb;
-	this.setHighlightedRegion = setHighlightedRegion;
-	this.getTimeForX = getTimeForX;
-	this.setVideoTimeFromCoordinate = setVideoTimeFromCoordinate;
-	this.setVideoTime = setVideoTime;
-	this.setControlsEnabled = setControlsEnabled;
-	this.setVolumeBarVisible = setVolumeBarVisible;
-	this.toggleMute = toggleMute;
-	this.recording_toggleRecording = recording_toggleRecording;
-	this.recording_startRecording = recording_startRecording;
-	this.recording_checkStop = recording_checkStop;
-	this.recording_goToPreviewing = recording_goToPreviewing;
-	this.recording_recordingStarted = recording_recordingStarted;
-	this.recording_recordingStopped = recording_recordingStopped;
-	this.recording_stopRecording = recording_stopRecording;
-	this.recording_recordingTranscodingFinished = recording_recordingTranscodingFinished;
-	this.recording_recordingUploadProgress = recording_recordingUploadProgress;
-	this.recording_cameraReady = recording_cameraReady;
-	this.recording_microphoneReady = recording_microphoneReady;
-	this.setInputEnabled = setInputEnabled;
-	this.getDuration = getDuration;
-	this.getCurrentTime = getCurrentTime;
-	this.setMouseOverThumb = setMouseOverThumb;
-	this.setPlayHeadHighlighted = setPlayHeadHighlighted;
-	this.checkForPlayHeadClick = checkForPlayHeadClick;
-	this.setAreaSelectionEnabled = setAreaSelectionEnabled;
-	this.drawComments = drawComments;
-	this.setComments = setComments;
-	this.clearDensityBar = clearDensityBar;
-	this.drawComment = drawComment;
-	this.setSignLinks = setSignLinks;
-	this.drawSignLinks = drawSignLinks;
-	this.drawSignLink = drawSignLink;
-	this.setPlayHeadImage = setPlayHeadImage;
-	this.checkMouseOverFunctions = checkMouseOverFunctions;
-	this.onCommentMouseOver = onCommentMouseOver;
 }
 
-function checkFeatures(format)
+DensityBar.prototype.checkFeatures = function(format)
 {
 	if (format == "mp4")
 		format = "h264";
@@ -525,7 +493,7 @@ function checkFeatures(format)
 	return true;
 }
 
-function drawTrack()
+DensityBar.prototype.drawTrack = function()
 {
 
 	var densityBarElement = $(this.elementID).find(
@@ -544,14 +512,13 @@ function drawTrack()
 			this.trackHeight);
 }
 
-function updateTimeBox(currentTime, duration)
+DensityBar.prototype.updateTimeBox = function(currentTime, duration)
 {
 	$(this.elementID).find(".videoControlsContainer.timeBox").eq(0).html(
-			getTimeCodeFromSeconds(currentTime) + "/"
-					+ getTimeCodeFromSeconds(duration));
+			getTimeCodeFromSeconds(currentTime, duration, "/"));
 }
 
-function setPlayHeadHighlighted(flag)
+DensityBar.prototype.setPlayHeadHighlighted = function(flag)
 {
 	if (!this.playHeadImage)
 		return;
@@ -559,7 +526,7 @@ function setPlayHeadHighlighted(flag)
 	this.repaint();
 }
 
-function paintThumb(time)
+DensityBar.prototype.paintThumb = function(time)
 {
 	var densityBarElement = $(this.elementID).find(
 			".videoControlsContainer.track.densitybar").eq(0);
@@ -610,7 +577,7 @@ function paintThumb(time)
 	}
 }
 
-function drawLeftTriangle(position, context)
+DensityBar.prototype.drawLeftTriangle = function(position, context)
 {
 	context.fillStyle = "#FF0000";
 	context.beginPath();
@@ -622,7 +589,7 @@ function drawLeftTriangle(position, context)
 	context.fill();
 }
 
-function drawRightTriangle(position, context)
+DensityBar.prototype.drawRightTriangle = function(position, context)
 {
 	context.fillStyle = "#FF0000";
 	context.beginPath();
@@ -634,13 +601,13 @@ function drawRightTriangle(position, context)
 	context.fill();
 }
 
-function setAreaSelectionEnabled(flag)
+DensityBar.prototype.setAreaSelectionEnabled = function(flag)
 {
 	this.options.areaSelectionEnabled = flag;
 	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
 }
 
-function getRelativeMouseCoordinates(event)
+DensityBar.prototype.getRelativeMouseCoordinates = function(event)
 {
 
 	var x;
@@ -656,13 +623,10 @@ function getRelativeMouseCoordinates(event)
 		y = event.layerY;
 	}
 
-	return {
-		x : x,
-		y : y
-	};
+	return{x : x, y : y };
 }
 
-function jumpTo(jumpPoint)
+DensityBar.prototype.jumpTo = function(jumpPoint)
 {
 	if (jumpPoint == 0)
 		this.setVideoTime(this.currentMinTimeSelected);
@@ -671,7 +635,7 @@ function jumpTo(jumpPoint)
 
 }
 
-function checkStop()
+DensityBar.prototype.checkStop = function()
 {
 	// if (video.paused)
 	// return;
@@ -683,7 +647,7 @@ function checkStop()
 	this.repaint();
 }
 
-function play()
+DensityBar.prototype.play = function()
 {
 	if ($(this.videoID)[0].paused)
 		$(this.videoID)[0].play();
@@ -691,7 +655,7 @@ function play()
 	// timer = setInterval("checkStop()", 100);
 }
 
-function pause()
+DensityBar.prototype.pause = function()
 {
 	if (!$(this.videoID)[0].paused)
 		$(this.videoID)[0].pause();
@@ -699,7 +663,7 @@ function pause()
 	this.preview = false;
 }
 
-function playPause()
+DensityBar.prototype.playPause = function()
 {
 	// Change icon on button
 	if ($(this.videoID)[0].paused)
@@ -708,7 +672,7 @@ function playPause()
 		this.pause();
 }
 
-function setPlayButtonIconSelected(isPlayIcon)
+DensityBar.prototype.setPlayButtonIconSelected = function(isPlayIcon)
 {
 	var playButton = $(this.elementID).find(
 			".videoControlsContainer.controlsBar.videoControls.playButton").eq(
@@ -726,16 +690,23 @@ function setPlayButtonIconSelected(isPlayIcon)
 	}
 }
 
-function repaint()
+DensityBar.prototype.repaint = function()
 {
 	this.paintThumb(this.getCurrentTime());
 	if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
 	{
-		var timeBoxCurrentTime = this.getCurrentTime()
-				- this.currentMinTimeSelected;
-		timeBoxCurrentTime = timeBoxCurrentTime <= 0 ? 0 : timeBoxCurrentTime;
-		this.updateTimeBox(timeBoxCurrentTime, this.currentMaxTimeSelected
-				- this.currentMinTimeSelected);
+		if (this.options.updateTimeType == DENSITY_BAR_UPDATE_TYPE_RELATIVE)
+		{
+    		var timeBoxCurrentTime = this.getCurrentTime()
+    				- this.currentMinTimeSelected;
+    		timeBoxCurrentTime = timeBoxCurrentTime <= 0 ? 0 : timeBoxCurrentTime;
+    		this.updateTimeBox(timeBoxCurrentTime, this.currentMaxTimeSelected
+    				- this.currentMinTimeSelected);
+		}
+		else if (this.options.updateTimeType == DENSITY_BAR_UPDATE_TYPE_ABSOLUTE)
+		{
+			this.updateTimeBox(this.getCurrentTime(), this.getDuration());
+		}
 		/*
 		 * if (this.preview && this.getCurrentTime() >=
 		 * this.currentMaxTimeSelected) { this.preview = false; this.pause();
@@ -754,7 +725,7 @@ function repaint()
 	// setHighlightedRegion(currentMinSelected, currentMaxSelected);
 }
 
-function stepForward()
+DensityBar.prototype.stepForward = function()
 {
 	if ($(this.videoID)[0].currentTime + this.stepSize > this.currentMaxTimeSelected)
 	{
@@ -765,7 +736,7 @@ function stepForward()
 	this.repaint();
 }
 
-function stepBackward()
+DensityBar.prototype.stepBackward = function()
 {
 	if ($(this.videoID)[0].currentTime - this.stepSize < this.currentMinTimeSelected)
 	{
@@ -776,9 +747,9 @@ function stepBackward()
 	this.repaint();
 }
 
-function checkForPlayHeadClick(event)
+DensityBar.prototype.checkForPlayHeadClick = function(event)
 {
-	var coords = getRelativeMouseCoordinates(event);
+	var coords = this.getRelativeMouseCoordinates(event);
 	var currentTimeCoordinate = this.getXForTime(this.getCurrentTime());
 	var oldTimeCoordinate = this.getXForTime(this.previousTime);
 	if (oldTimeCoordinate == currentTimeCoordinate
@@ -793,7 +764,7 @@ function checkForPlayHeadClick(event)
 
 }
 
-function setMouseOutThumb(event)
+DensityBar.prototype.setMouseOutThumb = function(event)
 {
 	var instance = this;
 	var densityBarThumbElement = $(this.elementID).find(
@@ -805,20 +776,20 @@ function setMouseOutThumb(event)
 	});
 }
 
-function checkMouseOverFunctions(e)
+DensityBar.prototype.checkMouseOverFunctions = function(e)
 {
 	this.setMouseOverThumb(e);
 	if (!this.options.areaSelectionEnabled)
 		this.onCommentMouseOver(e);
 }
 
-function onCommentMouseOver(event)
+DensityBar.prototype.onCommentMouseOver = function(event)
 {
-	var coords = getRelativeMouseCoordinates(event);
+	var coords = this.getRelativeMouseCoordinates(event);
 	for ( var i = 0; i < this.comments.length; i++)
 	{
 		var comment = this.comments[i];
-		if (comment.isDeleted == true || comment.isTemporal==0)
+		if (comment.isDeleted == true || comment.isTemporal == 0)
 			continue;
 		var startX = this.getXForTime(comment.startTime);
 		var endX = this.getXForTime(comment.endTime);
@@ -843,14 +814,14 @@ function onCommentMouseOver(event)
 	}
 }
 
-function setMouseOverThumb(event)
+DensityBar.prototype.setMouseOverThumb = function(event)
 {
 	// need to set the mousemove event to figure out if I am over the thumb to
 	// highlight the playHeadImage
 	var instance = this;
 	if (!this.playHeadImage)
 		return;
-	var coords = getRelativeMouseCoordinates(event);
+	var coords = this.getRelativeMouseCoordinates(event);
 	if (coords.y < this.playHeadImage.heightHighlighted
 			&& coords.x > this.getXForTime(this.getCurrentTime())
 					- this.playHeadImage.widthHighlighted / 2
@@ -866,13 +837,13 @@ function setMouseOverThumb(event)
 			instance.setPlayHeadHighlighted(false);
 	}
 }
-function setMouseDownThumb(event)
+DensityBar.prototype.setMouseDownThumb = function(event)
 {
 	event.preventDefault();
 	var instance = this;
 	var thumbCanvas = $(this.elementID).find(
 			".videoControlsContainer.track.thumb").eq(0);
-	var coords = getRelativeMouseCoordinates(event);
+	var coords = this.getRelativeMouseCoordinates(event);
 	this.preview = false;
 	var currentTimeCoordinate = this.getXForTime(this.getCurrentTime());
 	// this.mouseDownCoords = coords;
@@ -908,7 +879,7 @@ function setMouseDownThumb(event)
 		// }
 		thumbCanvas.on('mousemove', function(event)
 		{
-			var coords = getRelativeMouseCoordinates(event);
+			var coords = instance.getRelativeMouseCoordinates(event);
 			// if (coords.y < trackPadding + trackHeight)
 			// {
 			if (coords.x >= instance.currentMinSelected
@@ -941,7 +912,7 @@ function setMouseDownThumb(event)
 							'mousemove',
 							function(event)
 							{
-								var coords = getRelativeMouseCoordinates(event);
+								var coords = instance.getRelativeMouseCoordinates(event);
 								instance.currentMinSelected = coords.x + offset;
 								if (instance.currentMinSelected < instance.minSelected)
 								{
@@ -978,7 +949,7 @@ function setMouseDownThumb(event)
 							'mousemove',
 							function(event)
 							{
-								var coords = getRelativeMouseCoordinates(event);
+								var coords = instance.getRelativeMouseCoordinates(event);
 								instance.currentMaxSelected = coords.x - offset;
 								if (instance.currentMaxSelected > instance.maxSelected)
 								{
@@ -1005,7 +976,7 @@ function setMouseDownThumb(event)
 	}
 }
 
-function setHighlightedRegion(startX, endX)
+DensityBar.prototype.setHighlightedRegion = function(startX, endX)
 {
 	// alert (currentMinSelected +" "+startX);
 	// if (currentMinSelected==startX && currentMaxSelected==endX)
@@ -1040,7 +1011,120 @@ function setHighlightedRegion(startX, endX)
 
 }
 
-function setupVideoPlayback()
+DensityBar.prototype.toggleFullScreen = function()
+{
+	if (!document.fullscreenElement && // alternative standard method
+	!document.mozFullScreenElement && !document.webkitFullscreenElement)
+	{ // current working methods
+		
+		var elem;
+		if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+		{
+			elem = $(this.videoID).parent().parent()[0];
+		}
+		else
+			elem = $(this.videoID).parent()[0];
+		if (elem.requestFullscreen)
+		{
+			elem.requestFullscreen();
+		}
+		else if (elem.mozRequestFullScreen)
+		{
+			elem.mozRequestFullScreen();
+		}
+		else if (elem.webkitRequestFullscreen)
+		{
+			elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+		}
+		
+	}
+	else
+	{
+		if (document.cancelFullScreen)
+		{
+			document.cancelFullScreen();
+		}
+		else if (document.mozCancelFullScreen)
+		{
+			document.mozCancelFullScreen();
+		}
+		else if (document.webkitCancelFullScreen)
+		{
+			document.webkitCancelFullScreen();
+		}
+	}
+}
+
+DensityBar.prototype.fullScreenChange = function(isFullScreen)
+{
+//	if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+//	{
+//		elem = $(this.videoID).parent().parent()[0];
+//	}
+	var densityBarThumbElement = $(this.elementID).find(
+			".videoControlsContainer.track.thumb").eq(0);
+	var densityBarSelectedRegionElement = $(this.elementID).find(
+			".videoControlsContainer.track.selectedRegion").eq(0);
+	var densityBarElement = $(this.elementID).find(
+			".videoControlsContainer.track.densitybar").eq(0);
+	var controlsBarElement = $(this.elementID).find(
+	".videoControlsContainer.controlsBar").eq(0);
+	
+	if (isFullScreen === true)
+	{
+		var fullScreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+		if($(this.videoID).parents().filter(fullScreenElement).length == 0)
+		{
+			return;
+		}
+		$(fullScreenElement).addClass("fullScreen");
+		$(fullScreenElement).find("video").addClass("fullScreen");
+		
+		var height = screen.height-(densityBarThumbElement.height() + controlsBarElement.height());
+		
+		if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+		{
+			$(fullScreenElement).find("object").eq(0).addClass("fullScreen");
+			$(fullScreenElement).find("object").eq(0).parent().addClass("fullScreen");
+			$(fullScreenElement).find("object").eq(0).parent().css("max-height", height +"px");
+		}
+		else
+		{
+			$(this.videoID).css("max-height", height +"px");		
+		}
+		
+	
+
+	}
+	else
+	{
+		$("body").find(".fullScreen").removeClass("fullScreen");
+		if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+			$(fullScreenElement).find("object").eq(0).parent().css("max-height", "");
+		else
+			$(this.videoID).css("max-height", "");
+	}
+	var width = densityBarThumbElement.width();
+	densityBarThumbElement[0].width = width;
+	densityBarSelectedRegionElement[0].width = width;
+	densityBarElement[0].width = width;
+
+	this.trackWidth = densityBarElement.width() - 2 * this.trackPadding;
+	this.trackHeight = densityBarElement.height() - 2 * this.trackPadding;
+	this.currentMinSelected = this.getXForTime(this.currentMinTimeSelected);
+	this.currentMaxSelected = this.getXForTime(this.currentMaxTimeSelected);
+	this.minSelected = this.trackPadding;
+	this.maxSelected = this.trackPadding + this.trackWidth;
+	
+	this.drawTrack();
+	this.repaint();
+	if (this.options.areaSelectionEnabled)
+		this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
+	else
+		this.drawComments();
+}
+
+DensityBar.prototype.setupVideoPlayback = function()
 {
 	var instance = this;
 	$(this.videoID)[0].addEventListener('timeupdate', function()
@@ -1055,6 +1139,22 @@ function setupVideoPlayback()
 	{
 		instance.setPlayButtonIconSelected(true);
 	}, false);
+	// Detect fullScreen Change
+//	$(document).unbind("fullscreenchange mozfullscreenchange webkitfullscreenchange");
+	$(document).on("fullscreenchange", function()
+	{
+		instance.fullScreenChange(document.fullscreen);
+	});
+
+	$(document).on("mozfullscreenchange", function()
+	{
+		instance.fullScreenChange(document.mozFullScreen);
+	});
+
+	$(document).on("webkitfullscreenchange", function()
+	{
+		instance.fullScreenChange(document.webkitIsFullScreen);
+	});
 
 	// this.minTimeCoordinate = this.getXForTime(this.minTime);
 	this.minTimeCoordinate = this.getXForTime(this.minTime) - this.trackPadding;
@@ -1065,8 +1165,8 @@ function setupVideoPlayback()
 	this.setHighlightedRegion(this.currentMinSelected, this.currentMaxSelected);
 	this.drawComments();
 	this.drawSignLinks();
-//	this.repaint();
-//	this.paintThumb(0);
+	// this.repaint();
+	// this.paintThumb(0);
 	$(this.elementID).find(".videoControlsContainer.track").eq(0).on(
 			'mouseleave', function()
 			{
@@ -1103,8 +1203,9 @@ function setupVideoPlayback()
 
 }
 
-function setupVideoRecording()
+DensityBar.prototype.setupVideoRecording = function()
 {
+	var instance = this;
 	var recordButton = $(this.elementID).find(
 			".videoControlsContainer.controlsBar.videoControls.recordButton")
 			.eq(0);
@@ -1117,17 +1218,32 @@ function setupVideoRecording()
 	// this.minTimeCoordinate = this.getXForTime(this.minTime);
 	this.currentMinSelected = this.minSelected;
 	this.currentMinTimeSelected = this.getTimeForX(this.currentMinSelected);
+	
+	$(document).on("fullscreenchange", function()
+	{
+		instance.fullScreenChange(document.fullscreen);
+	});
+
+	$(document).on("mozfullscreenchange", function()
+	{
+		instance.fullScreenChange(document.mozFullScreen);
+	});
+
+	$(document).on("webkitfullscreenchange", function()
+	{
+		instance.fullScreenChange(document.webkitIsFullScreen);
+	});
 	// this.currentMaxSelected = this.maxSelected;
 	// this.currentMaxTimeSelected = this.getTimeForX(this.currentMaxSelected);
 	// this.setHighlightedRegion(this.currentMinSelected,
 	// this.currentMaxSelected);
-
-	this.recording_startTime = new Date().valueOf();
+	this.hasRecorded = -1;
+	this.recording_startTime = 0;
 	this.paintThumb(0);
 	this.repaint();
 }
 
-function setInputEnabled(element, enabled)
+DensityBar.prototype.setInputEnabled = function(element, enabled)
 {
 	if (enabled)
 	{
@@ -1141,7 +1257,7 @@ function setInputEnabled(element, enabled)
 	}
 }
 
-function recording_checkStop()
+DensityBar.prototype.recording_checkStop = function()
 {
 	this.repaint();
 	var time = this.getCurrentTime();
@@ -1161,7 +1277,7 @@ function recording_checkStop()
 
 }
 
-function recording_toggleRecording()
+DensityBar.prototype.recording_toggleRecording = function()
 {
 	// Change icon on button
 	if (this.isRecording)
@@ -1171,7 +1287,7 @@ function recording_toggleRecording()
 
 }
 
-function recording_startRecording()
+DensityBar.prototype.recording_startRecording = function()
 {
 	var recordButton = $(this.elementID).find(
 			".videoControlsContainer.controlsBar.videoControls.recordButton")
@@ -1189,11 +1305,12 @@ function recording_startRecording()
 	// this.setHighlightedRegion(this.currentMinSelected,
 	// this.currentMaxSelected);
 	this.isRecording = true;
+	this.hasRecorded = -1;
 	$(this.videoID)[0].startRecording();
 }
 
 // Called by Flash when recording actually started
-function recording_recordingStarted()
+ DensityBar.prototype.recording_recordingStarted = function()
 {
 	var instance = this;
 	this.recording_startTime = new Date().valueOf();
@@ -1206,7 +1323,7 @@ function recording_recordingStarted()
 
 }
 
-function recording_stopRecording()
+DensityBar.prototype.recording_stopRecording = function()
 {
 	setBlur(true, "");
 	var recordButton = $(this.elementID).find(
@@ -1223,12 +1340,13 @@ function recording_stopRecording()
 	this.setInputEnabled(forwardButton, false);
 	this.recordTimer = clearInterval(this.recordTimer);
 	recordButton[0].style.backgroundImage = "url(images/recordOrPreview/rec1_small.gif)";
+	this.hasRecorded = this.getCurrentTime();
 	this.isRecording = false;
 	this.isPastMinimumRecording = false;
 	$(this.videoID)[0].stopRecording();
 }
 
-function recording_recordingStopped(success)
+DensityBar.prototype.recording_recordingStopped = function(success)
 {
 	setBlur(false, "");
 	var recordButton = $(this.elementID).find(
@@ -1241,6 +1359,7 @@ function recording_recordingStopped(success)
 			.eq(0);
 	this.setInputEnabled(recordButton, true);
 	this.setInputEnabled(backButton, true);
+	
 	if (success)
 	{
 		this.setInputEnabled(forwardButton, true);
@@ -1251,13 +1370,13 @@ function recording_recordingStopped(success)
 	}
 }
 
-function recording_recordingUploadProgress(value)
+DensityBar.prototype.recording_recordingUploadProgress = function(value)
 {
 	// $("#uploadProgress").html(value);
 	setBlurText("Uploading: " + value + "%");
 }
 
-function recording_cameraReady(flag)
+DensityBar.prototype.recording_cameraReady = function(flag)
 {
 	var recordButton = $(this.elementID).find(
 			".videoControlsContainer.controlsBar.videoControls.recordButton")
@@ -1268,7 +1387,7 @@ function recording_cameraReady(flag)
 		this.setInputEnabled(recordButton, false);
 }
 
-function recording_microphoneReady(flag)
+DensityBar.prototype.recording_microphoneReady = function(flag)
 {
 	var recordButton = $(this.elementID).find(
 			".videoControlsContainer.controlsBar.videoControls.recordButton")
@@ -1279,7 +1398,7 @@ function recording_microphoneReady(flag)
 		this.setInputEnabled(recordButton, false);
 }
 
-function recording_goToPreviewing()
+DensityBar.prototype.recording_goToPreviewing = function()
 {
 	var recordButton = $(this.elementID).find(
 			".videoControlsContainer.controlsBar.videoControls.recordButton")
@@ -1310,7 +1429,7 @@ function recording_goToPreviewing()
 	$(this.videoID)[0].startTranscoding();
 }
 
-function recording_recordingTranscodingFinished(fileName)
+DensityBar.prototype.recording_recordingTranscodingFinished = function(fileName)
 {
 	clearInterval(this.transcodeTimer);
 	setBlur(false, "");
@@ -1341,15 +1460,22 @@ function recording_recordingTranscodingFinished(fileName)
 	}
 }
 
-function getCurrentTime()
+DensityBar.prototype.getCurrentTime = function()
 {
 	if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
-		return (new Date().valueOf() - this.recording_startTime) / 1000;
+	{
+		if (this.isRecording)
+			return (new Date().valueOf() - this.recording_startTime) / 1000;
+		else if (this.hasRecorded == -1)
+			return 0;
+		else 
+			return this.hasRecorded;
+	}
 	else if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
 		return $(this.videoID)[0].currentTime;
 }
 
-function getDuration()
+DensityBar.prototype.getDuration = function()
 {
 	if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
 		return this.options.maxRecordingTime;
@@ -1357,35 +1483,35 @@ function getDuration()
 		return $(this.videoID)[0].duration;
 }
 
-function getTimeForX(x)
+DensityBar.prototype.getTimeForX = function(x)
 {
 	var time = (x - this.trackPadding) * this.getDuration() / this.trackWidth;
 	return time;
 }
 
-function getXForTime(time)
+DensityBar.prototype.getXForTime = function(time)
 {
 	var x = this.trackPadding + time / this.getDuration() * this.trackWidth;
 	return x;
 }
 
-function setVideoTimeFromCoordinate(position)
+DensityBar.prototype.setVideoTimeFromCoordinate = function(position)
 {
 	var time = this.getTimeForX(position);
 	if (time != $(this.videoID)[0].currentTime)
 		$(this.videoID)[0].currentTime = time;
-//	this.repaint();
+	// this.repaint();
 }
 
-function setVideoTime(time)
+DensityBar.prototype.setVideoTime = function(time)
 {
 	if (time != $(this.videoID)[0].currentTime)
 		$(this.videoID)[0].currentTime = time;
-//	this.repaint();
+	// this.repaint();
 }
 
 /*
- * function transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile) {
+ * function DensityBar.prototype.transcodeAjax(inputVideoFile, outputVideoFile, keepVideoFile) {
  * setControlsEnabled(false); if (this.currentMinSelected == this.minSelected &&
  * this.currentMaxSelected == this.maxSelected) { //No need to trim as the user
  * has not moved the start/end points } setBlurText("Trimming Video...");
@@ -1393,11 +1519,11 @@ function setVideoTime(time)
  * data: { trim:"yes", inputVidFile: inputVideoFile, outputVidFile:
  * outputVideoFile, startTime: currentMinTimeSelected, endTime:
  * currentMaxTimeSelected, keepInputFile: inputVideoFile}, success: function
- * (data){transcodeSuccess(data);}, error: function (data)
+ * (data){transcodeSuccess(data);}, error: function DensityBar.prototype.(data)
  * {transcodeError(data);} }); }
  * 
  */
-function setControlsEnabled(flag)
+DensityBar.prototype.setControlsEnabled = function(flag)
 {
 	var instance = this;
 	if (flag)
@@ -1419,25 +1545,27 @@ function setControlsEnabled(flag)
 	}
 }
 
-function setVolumeBarVisible(flag)
+DensityBar.prototype.setVolumeBarVisible = function(flag)
 {
 	if (flag)
 		// $("#volumeSlider").css("display", "block");
 		$(this.elementID).find(
 				".videoControlsContainer.volumeControl.volumeSlider").eq(0)
-				.show('slide', {
+				.show('slide',
+				{
 					direction : "right"
 				}, 200);
 	else
 		// $("#volumeSlider").css("display", "none");
 		$(this.elementID).find(
 				".videoControlsContainer.volumeControl.volumeSlider").eq(0)
-				.hide('slide', {
+				.hide('slide',
+				{
 					direction : "right"
 				}, 200);
 }
 
-function toggleMute()
+DensityBar.prototype.toggleMute = function()
 {
 	var instance = this;
 	var imageElement = $(this.elementID).find(

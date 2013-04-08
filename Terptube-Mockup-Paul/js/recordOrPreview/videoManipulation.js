@@ -2,24 +2,73 @@
  * @author Marto
  */
 
-function getTimeCodeFromSeconds(time)
+function getTimeCodeFromSeconds(time, duration, separator)
 {
 	time = Math.floor(time*1000);
-//	var mil = "" + Math.round(time % 1000);
-	var sec = "" + Math.floor((time / 1000) % 60);
-	var min = "" + Math.floor(((time / 1000) / 60) % 60);
-	var hrs = "" + Math.floor(((time / 1000) / 60) / 60) % 60;
-//		while (mil.length < 3)
-//			mil = "0" + mil;
-		while (sec.length < 2)
-			sec = "0" + sec;
+	time/=1000;
+	var sec = "" + Math.floor(time % 60);
+	var min = "" + Math.floor((time / 60) % 60);
+	var hrs = "" + Math.floor((time / 60) / 60) % 60;
+	
+	while (sec.length < 2)
+		sec = "0" + sec;
+	if ( typeof(duration) == 'undefined')
+	{
+		while (min.length < 2)
+			min = "0" + min;
+		if (hrs == 0)
+			return  min + ":" + sec;
+		else
+			return hrs + ":" + min + ":" + sec;
+	}
+	
+	duration = Math.floor(duration*1000);
+	duration/=1000;
+	var durationSec = ""+Math.floor(duration % 60);
+	var durationMin = Math.floor((duration / 60) % 60);
+	var durationHrs = Math.floor((duration / 60) / 60) % 60;
+	
+	while (durationSec.length < 2)
+		durationSec = "0" + durationSec;
+		
+	var resultDuration = ""+durationSec;
+	var result = ""+sec;
+	
+	if (durationHrs == 0)
+	{
+		if (durationMin == 0)
+		{
+			
+		}
+		else 
+		{
+			if (durationMin>9)
+			{
+				while (min.length < 2)
+					min = "0" + min;	
+			}
+			resultDuration = durationMin+":"+durationSec;
+			result = min+":"+sec;
+		}
+		resultDuration = durationMin+":"+durationSec;
+		result = min+":"+sec;
+	}
+	else
+	{
+		resultDuration = durationHrs + ":" + durationMin + ":" + durationSec;
+
 		while (min.length < 2)
 			min = "0" + min;
 		while (hrs.length < 2)
 			hrs = "0" + hrs;
-
-		return hrs + ":" + min + ":" + sec;// + "." + mil;
-	return timecode;
+		
+		result = hrs + ":" + min + ":" + sec;
+	}
+	
+	if ( typeof(separator) == 'undefined')
+		return result;
+	else
+		return result + separator + resultDuration;
 }
 
 
