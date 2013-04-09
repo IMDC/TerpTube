@@ -1,7 +1,7 @@
-var DENSITY_BAR_TYPE_RECORDER = "recorder";
-var DENSITY_BAR_TYPE_PLAYER = "player";
-var DENSITY_BAR_UPDATE_TYPE_ABSOLUTE = "absolute";
-var DENSITY_BAR_UPDATE_TYPE_RELATIVE = "relative";
+DensityBar.DENSITY_BAR_TYPE_RECORDER = "recorder";
+DensityBar.DENSITY_BAR_TYPE_PLAYER = "player";
+DensityBar.DENSITY_BAR_UPDATE_TYPE_ABSOLUTE = "absolute";
+DensityBar.DENSITY_BAR_UPDATE_TYPE_RELATIVE = "relative";
 
 DensityBar.prototype.createControls = function()
 {
@@ -10,11 +10,11 @@ DensityBar.prototype.createControls = function()
 	 */
 	var instance = this;
 
-	if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
+	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_PLAYER)
 	{
 		this.setupVideo = this.setupVideoPlayback;
 	}
-	else if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+	else if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 	{
 		this.setupVideo = this.setupVideoRecording;
 	}
@@ -101,7 +101,7 @@ DensityBar.prototype.createControls = function()
 					'<div class="videoControlsContainer controlsBar videoControls"></div>');
 	if (this.options.backButton)
 	{
-		if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
+		if (this.options.type == DensityBar.DENSITY_BAR_TYPE_PLAYER)
 		{
 			$(this.elementID)
 					.find(".videoControlsContainer.controlsBar.backButtons")
@@ -121,7 +121,7 @@ DensityBar.prototype.createControls = function()
 				".videoControlsContainer.controlsBar.backButtons.backButton")
 				.eq(0).click(instance.options.backFunction);
 	}
-	if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
+	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_PLAYER)
 	{
 		$(this.elementID)
 				.find(".videoControlsContainer.controlsBar.videoControls")
@@ -187,7 +187,7 @@ DensityBar.prototype.createControls = function()
 	}
 	if (this.options.forwardButton)
 	{
-		if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
+		if (this.options.type == DensityBar.DENSITY_BAR_TYPE_PLAYER)
 		{
 			$(this.elementID)
 					.find(".videoControlsContainer.controlsBar.forwardButtons")
@@ -225,7 +225,7 @@ DensityBar.prototype.createControls = function()
 								+ '<label for="audioOn"><img src="images/recordOrPreview/audioOn.png" width="30px" height="30px" alt="audio enabled" /> </label>'
 								+ '<input type="radio" name="audioEnabled" value="true" class="record-or-preview" id="audioOn" checked="checked" />');
 	}
-	if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
+	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_PLAYER)
 	{
 		// $(this.videoID).on('loadedmetadata', function()
 		// Fix from Martin for google chrome for Mac
@@ -297,7 +297,7 @@ DensityBar.prototype.createControls = function()
 	this.isPastMinimumRecording = false;
 
 	this.drawTrack();
-	if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 	{
 		this.setupVideo();
 	}
@@ -452,8 +452,8 @@ function DensityBar(elementID, videoID, options)
 	this.options =
 	{
 		volumeControl : true,
-		type : DENSITY_BAR_TYPE_PLAYER,
-		updateTimeType: DENSITY_BAR_UPDATE_TYPE_ABSOLUTE,
+		type : DensityBar.DENSITY_BAR_TYPE_PLAYER,
+		updateTimeType: DensityBar.DENSITY_BAR_UPDATE_TYPE_ABSOLUTE,
 		backButton : true,
 		backFunction: function()
 		{
@@ -693,9 +693,9 @@ DensityBar.prototype.setPlayButtonIconSelected = function(isPlayIcon)
 DensityBar.prototype.repaint = function()
 {
 	this.paintThumb(this.getCurrentTime());
-	if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
+	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_PLAYER)
 	{
-		if (this.options.updateTimeType == DENSITY_BAR_UPDATE_TYPE_RELATIVE)
+		if (this.options.updateTimeType == DensityBar.DENSITY_BAR_UPDATE_TYPE_RELATIVE)
 		{
     		var timeBoxCurrentTime = this.getCurrentTime()
     				- this.currentMinTimeSelected;
@@ -703,7 +703,7 @@ DensityBar.prototype.repaint = function()
     		this.updateTimeBox(timeBoxCurrentTime, this.currentMaxTimeSelected
     				- this.currentMinTimeSelected);
 		}
-		else if (this.options.updateTimeType == DENSITY_BAR_UPDATE_TYPE_ABSOLUTE)
+		else if (this.options.updateTimeType == DensityBar.DENSITY_BAR_UPDATE_TYPE_ABSOLUTE)
 		{
 			this.updateTimeBox(this.getCurrentTime(), this.getDuration());
 		}
@@ -713,7 +713,7 @@ DensityBar.prototype.repaint = function()
 		 * this.setVideoTime(this.currentMaxTimeSelected); }
 		 */
 	}
-	if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 	{
 		this.currentMaxSelected = this.getXForTime(this.getCurrentTime());
 		this.currentMaxTimeSelected = this.getCurrentTime();
@@ -999,7 +999,7 @@ DensityBar.prototype.setHighlightedRegion = function(startX, endX)
 	}
 	else
 	{
-		if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+		if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 		{
 			context.fillStyle = "#666666";
 			context.fillRect(startX, this.trackPadding, endX - startX,
@@ -1018,7 +1018,7 @@ DensityBar.prototype.toggleFullScreen = function()
 	{ // current working methods
 		
 		var elem;
-		if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+		if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 		{
 			elem = $(this.videoID).parent().parent()[0];
 		}
@@ -1057,7 +1057,7 @@ DensityBar.prototype.toggleFullScreen = function()
 
 DensityBar.prototype.fullScreenChange = function(isFullScreen)
 {
-//	if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+//	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 //	{
 //		elem = $(this.videoID).parent().parent()[0];
 //	}
@@ -1082,7 +1082,7 @@ DensityBar.prototype.fullScreenChange = function(isFullScreen)
 		
 		var height = screen.height-(densityBarThumbElement.height() + controlsBarElement.height());
 		
-		if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+		if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 		{
 			$(fullScreenElement).find("object").eq(0).addClass("fullScreen");
 			$(fullScreenElement).find("object").eq(0).parent().addClass("fullScreen");
@@ -1099,7 +1099,7 @@ DensityBar.prototype.fullScreenChange = function(isFullScreen)
 	else
 	{
 		$("body").find(".fullScreen").removeClass("fullScreen");
-		if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+		if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 			$(fullScreenElement).find("object").eq(0).parent().css("max-height", "");
 		else
 			$(this.videoID).css("max-height", "");
@@ -1462,7 +1462,7 @@ DensityBar.prototype.recording_recordingTranscodingFinished = function(fileName)
 
 DensityBar.prototype.getCurrentTime = function()
 {
-	if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 	{
 		if (this.isRecording)
 			return (new Date().valueOf() - this.recording_startTime) / 1000;
@@ -1471,15 +1471,15 @@ DensityBar.prototype.getCurrentTime = function()
 		else 
 			return this.hasRecorded;
 	}
-	else if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
+	else if (this.options.type == DensityBar.DENSITY_BAR_TYPE_PLAYER)
 		return $(this.videoID)[0].currentTime;
 }
 
 DensityBar.prototype.getDuration = function()
 {
-	if (this.options.type == DENSITY_BAR_TYPE_RECORDER)
+	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
 		return this.options.maxRecordingTime;
-	else if (this.options.type == DENSITY_BAR_TYPE_PLAYER)
+	else if (this.options.type == DensityBar.DENSITY_BAR_TYPE_PLAYER)
 		return $(this.videoID)[0].duration;
 }
 

@@ -53,7 +53,7 @@
 		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/index/signlink.js"></script>
 		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/index/comment.js"></script>
 		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/videoManipulation.js"></script>
-		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/densityBar.js"></script>
+		<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/DensityBar.js"></script>
         
     </head>
     <body>

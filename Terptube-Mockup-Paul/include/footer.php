@@ -10,7 +10,7 @@
 		controls.options.forwardFunction = undefined;
 		controls.options.volumeControl = true;
 		controls.options.audioBar = false;
-		controls.options.type = DENSITY_BAR_TYPE_PLAYER;
+		controls.options.type = DensityBar.DENSITY_BAR_TYPE_PLAYER;
 //		controls.options.playHeadImage = "images/feedback_icons/round_plus.png";
 		controls.options.playHeadImage = "images/feedback_icons/add.png";
 		controls.options.playHeadImageOnClick = function(){ 

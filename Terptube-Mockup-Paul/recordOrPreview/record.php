@@ -50,6 +50,6 @@ else
 	myControls.options.forwardFunction = function (){ myControls.recording_goToPreviewing()};
 	myControls.options.volumeControl = false;
 	myControls.options.audioBar = false;
-	myControls.options.type = DENSITY_BAR_TYPE_RECORDER;
+	myControls.options.type = DensityBar.DENSITY_BAR_TYPE_RECORDER;
 	myControls.createControls();
 </script>

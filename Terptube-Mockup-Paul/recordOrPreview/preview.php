@@ -115,7 +115,7 @@ else
 
 	var controls = new DensityBar("videoContainer","video");
 	controls.options.areaSelectionEnabled = true;
-	controls.options.updateTimeType = DENSITY_BAR_UPDATE_TYPE_RELATIVE;
+	controls.options.updateTimeType = DensityBar.DENSITY_BAR_UPDATE_TYPE_RELATIVE;
 	controls.options.backFunction= function(){if (confirm("This will delete your current recording. Are you sure?")) {goBack('<?php echo $postType?>');}};
 	controls.options.forwardFunction = function (){transcodeAjax('<?php echo basename($video) ?>', '<?php echo basename($outputVideoFile) ?>', <?php echo $keepVideoFile ?>, controls);};
 	
