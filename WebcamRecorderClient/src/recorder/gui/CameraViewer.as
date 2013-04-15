@@ -8,6 +8,7 @@ package recorder.gui
 	import flash.net.NetStream;
 	import flash.text.TextField;
 	
+	import recorder.events.CameraReadyEvent;
 	import recorder.model.CameraMicSource;
 	
 //	import mx.controls.Label;
@@ -46,13 +47,15 @@ package recorder.gui
 			video = cmSource.cameraVideo;
 			video.width = WebcamRecorderClient.configurationVariables["videoWidth"];
 			video.height = WebcamRecorderClient.configurationVariables["videoHeight"]
+			WebcamRecorderClient.appendMessage("cameraViewer constructor with Video:"+video);
 			if (video != null)
 			{
-				trace("Video: "+video);
+				WebcamRecorderClient.appendMessage("cameraViewer Video not null");
 				this.addChild(video);
 			}
 			else
 			{
+				WebcamRecorderClient.appendMessage("cameraViewer Video null");
 				var noCamera:TextField = new TextField();
 				noCamera.text = "No Camera Detected";
 				this.addChild(noCamera);
@@ -62,14 +65,18 @@ package recorder.gui
 		
 		public function showCameraPreview():void
 		{
-			trace("ShowCameraPreview "+cameraPreview);
-			if (cameraPreview)
-				return;
+		//	if (video==cmSource.cameraVideo)
+				WebcamRecorderClient.appendMessage("showCameraPreview in cameraViewer: "+cameraPreview);
+			
+//			if (cameraPreview)
+//				return;
 			video.clear();
-			video.attachNetStream(null);
-//			trace(cmSource.camera.muted);
-			video.attachCamera(cmSource.camera);
-			cameraPreview = true;
+			this.removeChild(video);
+			video = cmSource.cameraVideo;
+			this.addChild(video);
+//////			trace(cmSource.camera.muted);
+////			video.attachCamera(cmSource.camera);
+//			cameraPreview = true;
 		}
 		
 		public function showRemoteRecordingPreview(stream:NetStream):void

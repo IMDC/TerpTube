@@ -6,9 +6,9 @@ package
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.NetStatusEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
-	import flash.text.TextField;
 	import flash.ui.ContextMenu;
 	
 	import recorder.gui.CameraViewer;
@@ -30,7 +30,6 @@ package
 	{
 		private var _netConnection:NetConnection;
 		private var _cameraControlsListener:CameraControlsListener 
-		private static var _textField:TextField;
 		private static var _configurationVariables:Array;
 		private var cameraViewer:CameraViewer;
 		
@@ -110,19 +109,6 @@ package
 			//			trace("Name:"+o.appName+", Version:"+ o.version);
 			trace("Video codec: "+supportedVideoElement);
 			
-			textField = new TextField();
-			textField.x = configurationVariables["width"];
-			textField.y = 0;
-			textField.width = 200;
-			textField.height = configurationVariables["height"];
-			textField.wordWrap = true;
-			textField.border = true;
-			textField.borderColor = 0x0011ff;
-			if (configurationVariables["debug"])
-			{	
-				textField.visible = true;
-				addChild(textField);
-			}
 		}
 		
 		public function initFlashVars():void
@@ -162,7 +148,10 @@ package
 		}
 		public static function appendMessage(message:String):void
 		{
-			textField.appendText(message+"\n");
+			if (configurationVariables["debug"])
+			{	
+				ExternalInterface.call("console.log","FLASH MESSAGE:"+message);
+			}
 		}
 		
 		private function netStatus(event:NetStatusEvent):void
@@ -210,15 +199,6 @@ package
 			_cameraControlsListener = value;
 		}
 
-		public static function get textField():TextField
-		{
-			return _textField;
-		}
-
-		public static function set textField(value:TextField):void
-		{
-			_textField = value;
-		}
 
 		public static function get configurationVariables():Array
 		{

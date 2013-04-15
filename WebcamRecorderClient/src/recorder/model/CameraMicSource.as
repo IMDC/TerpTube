@@ -13,6 +13,7 @@ package recorder.model
 	
 	import recorder.events.CameraReadyEvent;
 	import recorder.events.MicrophoneReadyEvent;
+	import recorder.gui.CameraViewer;
 
 	public class CameraMicSource extends EventDispatcher // IEventDispatcher
 	{
@@ -45,12 +46,15 @@ package recorder.model
 		
 		public function CameraMicSource(enforcer:Number)
 		{
+			WebcamRecorderClient.appendMessage("Initializing camera!");
 			if (enforcer != secret)
 			{
 				throw new Error("Error: use Singleton.instance instead");
 			}
 			if (getNumberOfCameras()>1 || getNumberOfMicrophones()>1)
-				Security.showSettings(SecurityPanel.PRIVACY);
+			{
+				//Security.showSettings(SecurityPanel.PRIVACY);
+			}
 			if (getNumberOfCameras()>0)
 				setupCamera();
 			if (getNumberOfMicrophones()>0)
@@ -63,6 +67,8 @@ package recorder.model
 			{
 				Security.showSettings(SecurityPanel.CAMERA);
 				setupCamera();
+				CameraViewer.getInstance().showCameraPreview();
+				
 			}
 		}
 		
@@ -101,6 +107,7 @@ package recorder.model
 		{
 			if (camera != null)
 			{
+				WebcamRecorderClient.appendMessage("Destroying camera:"+camera.name);
 				if (_cameraVideo != null)
 				{
 					_cameraVideo.attachCamera(null);
@@ -145,10 +152,10 @@ package recorder.model
 			//	WebcamRecorderClient.appendMessage(camera.name);
 			if (camera==null)
 			{
-				trace("Camera in use elsewhere");
 				WebcamRecorderClient.appendMessage("Camera is in use in another application");
 				return;
 			}
+			WebcamRecorderClient.appendMessage("Setting up camera:"+camera.name);
 			camera.addEventListener(StatusEvent.STATUS, cameraStatusHandler); 
 			camera.setMode(WebcamRecorderClient.configurationVariables["videoWidth"], WebcamRecorderClient.configurationVariables["videoHeight"], 30, true);
 			camera.setQuality(0, 95);
@@ -170,7 +177,6 @@ package recorder.model
 			microphone = Microphone.getMicrophone();
 			if (microphone==null)
 			{
-				trace("Cannot get Microphone");
 				WebcamRecorderClient.appendMessage("Microphone is in use in another application");
 				return;
 			}
@@ -185,19 +191,17 @@ package recorder.model
 		{
 			if (Camera.names.length == 1) 
 			{ 
-				trace("User has one camera installed.");
+				WebcamRecorderClient.appendMessage("User has one camera installed.");
 				cameraPresent = true;
 			} 
 			else if (Camera.names.length == 0)
 			{ 
 				WebcamRecorderClient.appendMessage("No camera Found");
-				trace("User has no cameras installed."); 
 				cameraPresent = false;
 			}
 			else
 			{
 				WebcamRecorderClient.appendMessage("User has several cameras");
-				trace("User has several cameras installed.");
 				cameraPresent = true;
 			}
 			return Camera.names.length;
@@ -207,19 +211,17 @@ package recorder.model
 		{
 			if (Microphone.names.length == 1)
 			{ 
-				trace("User has one microphone installed."); 
+				WebcamRecorderClient.appendMessage("User has one microphone installed."); 
 				microphonePresent = true;
 			} 
 			else if (Microphone.names.length == 0)
 			{ 
 				WebcamRecorderClient.appendMessage("No microphones Found");
-				trace("User has no cameras installed."); 
 				microphonePresent = false;
 			}
 			else
 			{
 				WebcamRecorderClient.appendMessage("User has several microphones");
-				trace("User has several cameras installed.");
 				microphonePresent = true;
 			}
 			return Microphone.names.length;
@@ -371,14 +373,13 @@ package recorder.model
 				cameraAccess = false;
 				this.dispatchEvent(new CameraReadyEvent(CAMERA_READY_STRING, camera));
 				WebcamRecorderClient.appendMessage("User prevented access to camera");
-				trace("Unable to connect to active camera."); 
 				//No camera Access
-				selectCamera();
+			//	selectCamera();
 			} 
 			else 
 			{ 
 				cameraAccess = true;
-				trace("Connected to camera");
+				WebcamRecorderClient.appendMessage("Connected to camera");
 				this.dispatchEvent(new CameraReadyEvent(CAMERA_READY_STRING, camera));
 //				camera.removeEventListener(StatusEvent.STATUS, cameraStatusHandler); 
 			}
@@ -391,7 +392,6 @@ package recorder.model
 			{
 				_microphoneAccess = false;
 				WebcamRecorderClient.appendMessage("User prevented access to microphone");
-				trace("Unable to connect to microphone");
 			}
 			else
 			{

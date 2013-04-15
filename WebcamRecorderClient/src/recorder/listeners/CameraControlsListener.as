@@ -94,6 +94,7 @@ package recorder.listeners
 			ExternalInterface.addCallback("startRecording", record);
 			ExternalInterface.addCallback("stopRecording", stopRecording);
 			ExternalInterface.addCallback("startTranscoding", transcode);
+			ExternalInterface.addCallback("selectCamera", CameraMicSource.getInstance().selectCamera);
 		}
 		
 		public function doneButtonSuccess(obj:Object):void
@@ -143,7 +144,7 @@ package recorder.listeners
 		
 		private function onCameraRecStreamStatus(event:NetStatusEvent):void
 		{
-			trace ("VIDEO: " + event.info.code);
+			WebcamRecorderClient.appendMessage("VIDEO: " + event.info.code);
 			if ( event.info.code == "NetStream.Publish.Start" )
 			{
 				cameraRecording = true;
@@ -157,7 +158,7 @@ package recorder.listeners
 		
 		private function onAudioRecStreamStatus(event:NetStatusEvent):void
 		{
-			trace ("AUDIO: " + event.info.code);
+			WebcamRecorderClient.appendMessage ("AUDIO: " + event.info.code);
 			if ( event.info.code == "NetStream.Publish.Start" )
 			{
 				audioRecording = true;
@@ -274,7 +275,7 @@ package recorder.listeners
 		{
 			if (cameraNetStream.bufferLength == 0)
 			{
-				trace("Buffer cleared");
+				WebcamRecorderClient.appendMessage("Buffer cleared");
 				flushTimerCamera.stop();
 				flushTimerCamera = null;
 				
@@ -297,7 +298,7 @@ package recorder.listeners
 				uploadProgressText(""+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100));
 				
 				var percentDone:Number = Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100);
-				trace("Remaining buffer:"+ audioNetStream.bufferLength);
+				WebcamRecorderClient.appendMessage("Remaining buffer:"+ audioNetStream.bufferLength);
 			}
 		}
 		
@@ -305,7 +306,7 @@ package recorder.listeners
 		{
 			if (audioNetStream.bufferLength == 0)
 			{
-				trace("Buffer cleared");
+				WebcamRecorderClient.appendMessage("Buffer cleared");
 				flushTimerAudio.stop();
 				flushTimerAudio = null;
 				
@@ -327,7 +328,7 @@ package recorder.listeners
 				else
 					remainingBytesForUploading = audioNetStream.bufferLength;
 				uploadProgressText(""+Math.round((totalBytesForUploading - remainingBytesForUploading)/totalBytesForUploading * 100));
-				trace("Remaining buffer:"+ audioNetStream.bufferLength);
+				WebcamRecorderClient.appendMessage("Remaining buffer:"+ audioNetStream.bufferLength);
 			}
 		}
 		
@@ -344,14 +345,14 @@ package recorder.listeners
 			
 			//	WebcamRecorderClient.appendMessage("Recording started to file: "+obj.toString()+".flv");
 //			}
-			trace("Result is:"+obj);
+			WebcamRecorderClient.appendMessage("Result is:"+obj);
 		}
 		
 		private function streamNameStatus(obj:Object):void
 		{
 			for (var i:Object in obj)
 			{
-				trace("Status: " + i + " : "+obj[i]);
+				WebcamRecorderClient.appendMessage("Status: " + i + " : "+obj[i]);
 			}
 		}
 		
@@ -362,7 +363,7 @@ package recorder.listeners
 				
 				doneRecording = false;
 				WebcamRecorderClient.appendMessage("Recording started");
-				trace("StartRecording Success:"+obj);
+				WebcamRecorderClient.appendMessage("StartRecording Success:"+obj);
 				//call the javascript function that recording has started
 				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingStartedCallback"]);
 			}
@@ -374,11 +375,11 @@ package recorder.listeners
 				cameraRecording = false;
 				//recording stopped - returns filename of recording
 				realFileNameVideo = obj.toString();
-				trace("Recording stopped");
+				WebcamRecorderClient.appendMessage("Recording stopped");
 				//Enable the buttons
 				WebcamRecorderClient.appendMessage("Video Uploading finished.");
 				
-				trace("StopRecordingCamera Success:"+obj);
+				WebcamRecorderClient.appendMessage("StopRecordingCamera Success:"+obj);
 				if (!audioRecording)
 				{
 //					setBlur(false);
@@ -399,10 +400,10 @@ package recorder.listeners
 				audioRecording = false;
 				//recording stopped - returns filename of recording
 				realFileNameAudio = obj.toString();
-				trace("Recording stopped");
+				WebcamRecorderClient.appendMessage("Recording stopped");
 				//Enable the buttons
 				WebcamRecorderClient.appendMessage("Audio Uploading finished.");
-				trace("StopRecordingAudio Success:"+obj);
+				WebcamRecorderClient.appendMessage("StopRecordingAudio Success:"+obj);
 				if (!cameraRecording)
 				{
 //					transcode();
@@ -424,8 +425,8 @@ package recorder.listeners
 //			var o:Object = BrowserUtils.getVersion();
 			//Only use webm as video codec
 			var supportedVideoType:String = "webm" //BrowserUtils.getHTML5VideoSupport();
-//			trace("Name:"+o.appName+", Version:"+ o.version);
-			trace(supportedVideoType);
+//			WebcamRecorderClient.appendMessage("Name:"+o.appName+", Version:"+ o.version);
+			WebcamRecorderClient.appendMessage(supportedVideoType);
 			var audioDelay:Number = recordingCameraStartTime - recordingAudioStartTime;
 			netConnection.call("transcodeVideo",transcodeVideoResponder, streamName, audioDelay, supportedVideoType);	
 		}
@@ -436,7 +437,7 @@ package recorder.listeners
 			for (var i:Object in obj)
 			{
 				WebcamRecorderClient.appendMessage("Status: " + i + " : "+obj[i]);
-				trace("Status: " + i + " : "+obj[i]);
+				WebcamRecorderClient.appendMessage("Status: " + i + " : "+obj[i]);
 			}
 			ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["recordingStoppedCallback"], false);
 //			setBlur(false);
@@ -446,7 +447,7 @@ package recorder.listeners
 		{
 			var fileName:String = obj.toString();
 			WebcamRecorderClient.appendMessage("Transcoding successfull. File: " +fileName);
-			trace("Transcoding successfull. File: " +fileName);
+			WebcamRecorderClient.appendMessage("Transcoding successfull. File: " +fileName);
 			stopDeleteTimer(RECORDING_AUDIO);
 			stopDeleteTimer(RECORDING_CAMERA);
 			startDeleteTimer(RECORDING_COMBINED);
@@ -462,11 +463,9 @@ package recorder.listeners
 		private function transcodeVideoFailure(obj:Object):void
 		{
 			WebcamRecorderClient.appendMessage("Transcoding video failed.");
-			trace("Transcoding video failed:");
 			for (var i:Object in obj)
 			{
 				WebcamRecorderClient.appendMessage("Status: " + i + " : "+obj[i]);
-				trace("Status: " + i + " : "+obj[i]);
 			}
 //			uploadProgressText("");
 //			setBlur(false);
@@ -475,31 +474,45 @@ package recorder.listeners
 		
 		public function cameraReady(event:CameraReadyEvent):void
 		{
+			var oldCamera:Camera = camera;
+			if (oldCamera==null)
+				oldCamera=event.camera;
 			camera = event.camera;
-			if (camera.muted)
+			if (camera.muted )
 			{
 				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["cameraReadyCallback"], false);	
-				trace("Camera Not Ready");
+				WebcamRecorderClient.appendMessage("Camera Not Ready");
+			}
+			else if (!camera.muted )
+			{
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["cameraReadyCallback"], true);	
+				WebcamRecorderClient.appendMessage("Camera ready");
 			}
 			else
 			{
-				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["cameraReadyCallback"], true);	
-				trace("Camera ready");
+				WebcamRecorderClient.appendMessage("This will do nothing in cameraReady");
 			}
 		}
 		
 		public function microphoneReady(event:MicrophoneReadyEvent):void
 		{
+			var oldMicrophone:Microphone = microphone;
+			if (oldMicrophone==null)
+				oldMicrophone = event.microphone;
 			microphone = event.microphone;
-			if (microphone.muted)
+			if (microphone.muted )
 			{
 				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["microphoneReadyCallback"], false);
-				trace("Microphone Not Ready");
+				WebcamRecorderClient.appendMessage("Microphone Not Ready");
+			}
+			else if (!microphone.muted)
+			{
+				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["microphoneReadyCallback"], true);
+				WebcamRecorderClient.appendMessage("Microphone ready");
 			}
 			else
 			{
-				ExternalInterface.call(WebcamRecorderClient.configurationVariables["jsObj"]+"."+WebcamRecorderClient.configurationVariables["microphoneReadyCallback"], true);
-				trace("Microphone ready");
+				WebcamRecorderClient.appendMessage("This will do nothing in microphoneReady");
 			}
 		}
 		
@@ -576,7 +589,7 @@ package recorder.listeners
 
 		private function metaDataHandler(infoObject:Object):void
 		{
-			trace("metadata"+ infoObject.duration);
+			WebcamRecorderClient.appendMessage("metadata"+ infoObject.duration);
 		}
 	}
 }
