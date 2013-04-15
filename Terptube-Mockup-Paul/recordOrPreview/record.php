@@ -15,7 +15,7 @@ else
 }
 ?>
 
-<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/densityBar.js"></script>
+<script type="text/javascript" src="<?php echo SITE_BASE ?>js/recordOrPreview/DensityBar.js"></script>
 	<script type="text/javascript">
 		$(document).ready()
 		{

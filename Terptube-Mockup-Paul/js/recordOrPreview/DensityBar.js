@@ -39,6 +39,10 @@ DensityBar.prototype.createControls = function()
 	.eq(0)
 	.append(
 	'<button type="button" class="videoControlsContainer track fullScreenButton"></button>');
+	if (this.options.type == DensityBar.DENSITY_BAR_TYPE_RECORDER)
+	{
+    	$(this.elementID).find(".videoControlsContainer.track").eq(0).append('<button type="button" class="videoControlsContainer track selectCameraButton"></button>');
+	}
 	if (this.options.volumeControl)
 	{
 		$(this.elementID).find(".videoControlsContainer.track.thumb").eq(0)
@@ -241,6 +245,13 @@ DensityBar.prototype.createControls = function()
 	.eq(0).click(function()
 	{
 		instance.toggleFullScreen();
+	});
+	$(this.elementID)
+	.find(
+			".videoControlsContainer.track.selectCameraButton")
+	.eq(0).click(function()
+	{
+		instance.selectCamera();
 	});
 	
 	this.trackPadding = 12;
@@ -1255,6 +1266,11 @@ DensityBar.prototype.setInputEnabled = function(element, enabled)
 		element.attr("disabled", true);
 		element.css('opacity', 0.5);
 	}
+}
+
+DensityBar.prototype.selectCamera = function()
+{
+	$(this.videoID)[0].selectCamera();
 }
 
 DensityBar.prototype.recording_checkStop = function()

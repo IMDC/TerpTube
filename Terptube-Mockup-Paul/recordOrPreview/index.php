@@ -41,6 +41,7 @@ else {
 //            flashVars.isAjax = "true";
 //            flashVars.blurFunction = "setBlur";
 //            flashVars.blurFunctionText = "setBlurText";
+			flashVars.debug=true;
             
 			var dataSend = {flashVars: flashVars};
 			refreshPage('playerContent', "<?php echo SITE_BASE ?>recordOrPreview/record.php", dataSend,"none")		

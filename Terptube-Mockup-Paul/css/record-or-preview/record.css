@@ -16,6 +16,12 @@
 	background: url(../../images/recordOrPreview/next_small.png) no-repeat;	
 }
 
+.videoControlsContainer.track.selectCameraButton
+{
+	background-image: url(../../images/recordOrPreview/choose_mic_cam.png);
+	background-repeat: no-repeat;
+	float: right;
+}
 
 #flashContent.record-or-preview
 {
