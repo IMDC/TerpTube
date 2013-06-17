@@ -512,10 +512,9 @@ public class Application extends ApplicationAdapter
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	private static <T> T[] concatenateArrays(T[] a, T[] b)
+	private static String[] concatenateArrays(String[] a, String[] b)
 	{
-		T[] c = (T[]) Array.newInstance(a.getClass(), a.length + b.length);
+		String[] c = new String[a.length + b.length];
 
 		System.arraycopy(a, 0, c, 0, a.length);
 		System.arraycopy(b, 0, c, a.length, b.length);
