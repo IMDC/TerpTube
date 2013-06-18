@@ -405,7 +405,6 @@ public class Application extends ApplicationAdapter
 		ScheduledFuture<?> future = executor.schedule(new Runnable()
 		{
 
-			@Override
 			public void run()
 			{
 				// TODO Auto-generated method stub
